@@ -17,7 +17,15 @@ tic(), GaussChebyshev( 1000000 ); toc()
 elapsed time: 0.04614016 seconds
 ```
 
-## The underlying algorithm for Gauss-Legendre
+## The algorithm for Gauss-Chebyshev
+There are four kinds of Gauss-Chebyshev quadrature rules: 
+1. 1st kind, weight function w(x) = 1/sqrt(1-x^2)
+2. 2nd kind, weight function w(x) = sqrt(1-x^2) 
+3. 3rd kind, weight function  w(x) = sqrt((1+x)/(1-x))
+4. 4th kind, weight function  w(x) = sqrt((1-x)/(1+x)) 
+
+They are all have explicit simple formulas for the nodes and weights. 
+## The algorithm for Gauss-Legendre
  For n<=5: Use an analytic expression.
  
  For n<=60: Use Newton's method to solve Pn(x)=0. Weights are related to P'n(x), see [2].  
