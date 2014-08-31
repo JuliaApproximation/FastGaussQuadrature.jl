@@ -5,10 +5,17 @@ A Julia package to compute 16-digit accurate Gauss nodes and weights. At the mom
 ## Our Aim 
 To be the fastest Julia code for computing 16-digit accurate Gauss nodes and weights (without tabulation).
 
+<<<<<<< HEAD
 ## Example 
 ```
 tic(), GaussLegendre( 1000 ); toc()
 elapsed time: 0.000829828 seconds
+=======
+  GAUSS-LEGENDRE EXAMPLE: 
+  
+          tic(), GaussLegendre( 1000 ); toc()
+          elapsed time: 0.000829828 seconds
+>>>>>>> 9d9759a9c38bfba2cc4713c210fcccb989a6b29d
 
 tic(), GaussLegendre( 1000000 ); toc()
 elapsed time: 0.310792745 seconds
