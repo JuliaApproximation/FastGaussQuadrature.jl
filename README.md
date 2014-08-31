@@ -5,6 +5,7 @@ FastGauss
            nodes and weights (without tabulation). We have only Gauss-Legendre now. 
 
   GAUSS-LEGENDRE EXAMPLE: 
+  
           tic(), GaussLegendre( 1000 ); toc()
           elapsed time: 0.000829828 seconds
 
