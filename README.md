@@ -15,9 +15,11 @@ elapsed time: 0.310792745 seconds
 ```
 
 ## The underlying algorithm
- For n<=5: Use an analytic expression. <return>
- For n<=60: Use Newton's method to solve Pn(x)=0. Weights are related to P'n(x), see [2].<return> 
- For n>60: Use asymptotic expansions for the Legendre nodes and weights, see [1].<return>
+ For n<=5: Use an analytic expression.
+ 
+ For n<=60: Use Newton's method to solve Pn(x)=0. Weights are related to P'n(x), see [2].  
+ 
+ For n>60: Use asymptotic expansions for the Legendre nodes and weights, see [1].  
 
 ## References:
 1. I. Bogaert, "Iteration-free computation of Gauss-Legendre quadrature
