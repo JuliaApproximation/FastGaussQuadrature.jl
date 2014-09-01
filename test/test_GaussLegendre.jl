@@ -1,10 +1,7 @@
 # Test for GaussLegendre(). 
     
-tol = 1e-14
-    pass = Array(Float64, ntests)
+    tol = 1e-14
     n = 42
-    x = GaussLegendre(n);
-    pass[1] = all(length(x[1]) == n);
     x = GaussLegendre(n)
     @test length(x[1]) == n && length(x[2]) == n
     @test abs(x[1][37] - 0.910959724904127) < tol
