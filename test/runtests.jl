@@ -1,4 +1,6 @@
 using Base.Test
 
-include("test_GaussLegendre")
-include("test_GaussJacobi")
+include("test_GaussLegendre.jl")
+include("test_GaussJacobi.jl")
+include("test_GaussRadau.jl")
+include("test_GaussLobatto")
