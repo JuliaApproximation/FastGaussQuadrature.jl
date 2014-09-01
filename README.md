@@ -1,22 +1,26 @@
 FastGauss
 =========
-THIS PACKAGE IS STILL UNDER DEVELOPMENT. IT IS YET TO BE EXTENSIVELY TESTED OR OPTIMIZED. 
-
 A Julia package to compute 16-digit accurate Gauss nodes and weights. At the moment we have Gauss-Legendre and Gauss-Chebyshev implemented. 
 
 ## Our Aim 
 To be the fastest Julia code for computing 16-digit accurate Gauss nodes and weights (without tabulation).
 
-## Example 
+## Examples 
 ```
-tic(), GaussLegendre( 1000 ); toc()
-elapsed time: 0.000829828 seconds
+tic(), GaussChebyshev( 100000 ); toc()
+elapsed time: 0.007636825 seconds
 
-tic(), GaussLegendre( 1000000 ); toc()
-elapsed time: 0.310792745 seconds
+tic(), GaussLegendre( 100000 ); toc() 
+elapsed time: 0.092068965 seconds
 
-tic(), GaussChebyshev( 1000000 ); toc() 
-elapsed time: 0.04614016 seconds
+tic(), GaussJacobi( 100000,.9,-.1 ); toc() 
+elapsed time: 6.078796565 seconds
+
+tic(), GaussRadau( 100000 ); toc() 
+elapsed time: 6.1875638 seconds
+
+tic(), GaussLobatto( 100000 ); toc() 
+elapsed time: 4.901654062 second
 ```
 
 ## The algorithm for Gauss-Chebyshev
@@ -28,11 +32,21 @@ There are four kinds of Gauss-Chebyshev quadrature rules:
 
 They are all have explicit simple formulas for the nodes and weights. 
 ## The algorithm for Gauss-Legendre
- For n<=5: Use an analytic expression.
+ For `n<=5`: Use an analytic expression.
  
- For n<=60: Use Newton's method to solve Pn(x)=0. Weights are related to P'n(x), see [2].  
+ For `n<=60`: Use Newton's method to solve Pn(x)=0. Evaluate Pn and Pn' by 3-term recurrence. Weights are related to Pn'. 
  
- For n>60: Use asymptotic expansions for the Legendre nodes and weights, see [1].  
+ For `n>60`: Use asymptotic expansions for the Legendre nodes and weights, see [1].  
+
+## The algorithm for Gauss-Jacobi
+  For `n<=100`: Use Newton's method to solve Pn(x)=0. Evaluate Pn and Pn' by 3-term recurrence.
+
+  For `n>100`: Use Newton's method to solve Pn(x)=0. Evaluate Pn and Pn' by asymptotics expansion (in the interior of [-1,1]) and 3-term very near the boundary.
+
+## The algorithm for Gauss-Radau
+
+## The algorithm for Gauss-Lobatto
+
 
 ## References:
 1. I. Bogaert, "Iteration-free computation of Gauss-Legendre quadrature
