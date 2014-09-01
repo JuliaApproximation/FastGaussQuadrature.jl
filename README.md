@@ -1,9 +1,11 @@
 FastGauss
 =========
-A Julia package to compute 16-digit accurate Gauss quadrature nodes and weights. Currently we have Gauss-Chebyshev, -Legendre, -Jacobi, -Radau, and -Lobatto rules. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>. 
+A Julia package to compute 16-digit accurate n-point Gauss quadrature nodes and weights with O(n) cost. So far we have `GaussChebyshev()`, `GaussLegendre()`, `GaussJacobi`, `GaussRadau()`, and `GaussLobatto()`. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>. 
+
+An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.org/wiki/Gaussian_quadrature">here</a>.
 
 ## Our Aim 
-To be the fastest Julia code for Gauss quadrature nodes and weights (without tabulation).
+The fastest Julia code for Gauss quadrature nodes and weights (without tabulation). To change the perception that Gauss quadrature rules are expensive to compute.
 
 ## Examples 
 ```
@@ -13,7 +15,7 @@ elapsed time: 0.007636825 seconds
 tic(), GaussLegendre( 100000 ); toc() 
 elapsed time: 0.092068965 seconds
 
-tic(), GaussJacobi( 100000,.9,-.1 ); toc() 
+tic(), GaussJacobi( 100000, .9, -.1 ); toc() 
 elapsed time: 6.078796565 seconds
 
 tic(), GaussRadau( 100000 ); toc() 
@@ -24,7 +26,7 @@ elapsed time: 4.901654062 second
 ```
 
 ## The algorithm for Gauss-Chebyshev
-There are four kinds of Gauss-Chebyshev quadrature rules: 
+There are four kinds of Gauss-Chebyshev quadrature rules, corresponding to four weight functions: 
 
 1. 1st kind, weight function `w(x) = 1/sqrt(1-x^2)`
 
@@ -36,32 +38,38 @@ There are four kinds of Gauss-Chebyshev quadrature rules:
 
 They are all have explicit simple formulas for the nodes and weights. See [3]. 
 ## The algorithm for Gauss-Legendre
+Gauss quadrature for the weight function `w(x) = 1`. 
+
 * For `n<=5`: Use an analytic expression.
  
 * For `n<=60`: Use Newton's method to solve Pn(x)=0. Evaluate Pn and Pn' by 3-term recurrence. Weights are related to Pn'. 
  
-* For `n>60`: Use asymptotic expansions for the Legendre nodes and weights, see [1].  
+* For `n>60`: Use asymptotic expansions for the Legendre nodes and weights [1].  
 
 ## The algorithm for Gauss-Jacobi
+Gauss quadrature for the weight functions w(x) = (1-x)^a(1+x)^b`, `a,b>-1`.
+
 *  For `n<=100`: Use Newton's method to solve Pn(x)=0. Evaluate Pn and Pn' by 3-term recurrence.
 
-*  For `n>100`: Use Newton's method to solve Pn(x)=0. Evaluate Pn and Pn' by asymptotics expansion (in the interior of [-1,1]) and the three-term recurrence for the 10 nodes near the endpoints. See [2]. 
+*  For `n>100`: Use Newton's method to solve Pn(x)=0. Evaluate Pn and Pn' by asymptotics expansion (in the interior of [-1,1]) and the three-term recurrence for the 10 nodes near the endpoints (closely related to [2]). 
+
+Warning: `a` and `b` need to be relatively small (-1<a,b<10). 
 
 ## The algorithm for Gauss-Radau
-The Gauss-Radau nodes and weights can be computed via the (0,1) Gauss-Jacobi nodes and weights. See [2]. 
+Gauss quadrature for the weight function `w(x)=1`, except the endpoint `-1` is included as a quadrature node. 
+
+The Gauss-Radau nodes and weights can be computed via the (0,1) Gauss-Jacobi nodes and weights [2]. 
  
 ## The algorithm for Gauss-Lobatto
-The Gauss-Lobatto nodes and weights can be computed via the (1,1) Gauss-Jacobi nodes and weights. See [2]. 
+Gauss quadrature for the weight function `w(x)=1`, except the endpoints `-1` and `1` are included as nodes. 
+
+The Gauss-Lobatto nodes and weights can be computed via the (1,1) Gauss-Jacobi nodes and weights [2]. 
 
 ## References:
-1. I. Bogaert, "Iteration-free computation of Gauss-Legendre quadrature
+[1] I. Bogaert, "Iteration-free computation of Gauss-Legendre quadrature
        nodes and weights", SIAM J. Sci. Comput., 36(3), A1008-A1026, 2014.
-       (Describes the algorithm implemented here for n>60. A few modifications were made 
-         to optimize for Julia. )
-2. N. Hale and A. Townsend, "Fast computation of Gauss-Jacobi quadrature 
+
+[2] N. Hale and A. Townsend, "Fast computation of Gauss-Jacobi quadrature 
        nodes and weights", SIAM J. Sci. Comput., 2012.
-       (Describes the algorithm implemented here for 5<n<=60 and an O(n) algorithm for 
-        computing Gauss-Jacobi nodes and weights.) 
 
-For a review and comparison of the recent methods for computing Gauss nodes, see [2].  
-
+[3] J. C. Mason and D. C. Handscomb, "Chebyshev Polynomials", CRC Press, 2002.
