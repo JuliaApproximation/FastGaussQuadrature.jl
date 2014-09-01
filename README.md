@@ -1,5 +1,7 @@
 FastGauss
 =========
+THIS PACKAGE IS STILL UNDER DEVELOPMENT. IT IS YET TO BE EXTENSIVELY TESTED OR OPTIMIZED. 
+
 A Julia package to compute 16-digit accurate Gauss nodes and weights. At the moment we have Gauss-Legendre and Gauss-Chebyshev implemented. 
 
 ## Our Aim 
