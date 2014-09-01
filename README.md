@@ -1,6 +1,6 @@
 FastGauss
 =========
-A Julia package to compute 16-digit accurate n-point Gauss quadrature nodes and weights with O(n) cost. So far we have `GaussChebyshev()`, `GaussLegendre()`, `GaussJacobi`, `GaussRadau()`, and `GaussLobatto()`. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>. 
+A Julia package to compute n-point Gauss quadrature nodes and weights to 16-digit accuracy and in O(n) time. So far the package includes `GaussChebyshev()`, `GaussLegendre()`, `GaussJacobi()`, `GaussRadau()`, and `GaussLobatto()`. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>. 
 
 An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.org/wiki/Gaussian_quadrature">here</a>.
 
@@ -54,7 +54,7 @@ Gauss quadrature for the weight functions `w(x) = (1-x)^a(1+x)^b`, `a,b>-1`.
 
 *  For `n<=100`: Use Newton's method to solve `Pn(x)=0`. Evaluate `Pn` and `Pn'` by three-term recurrence.
 
-*  For `n>100`: Use Newton's method to solve `Pn(x)=0`. Evaluate `Pn` and `Pn'` by asymptotics expansion (in the interior of `[-1,1]`) and the three-term recurrence for the 10 nodes near the endpoints (small modification to the algorithm escribed in <a href="http://epubs.siam.org/doi/abs/10.1137/120889873">[2]</a>). 
+*  For `n>100`: Use Newton's method to solve `Pn(x)=0`. Evaluate `Pn` and `Pn'` by asymptotics expansion (in the interior of `[-1,1]`) and the three-term recurrence for a handful of nodes near the endpoints. (This is a small modification to the algorithm described in <a href="http://epubs.siam.org/doi/abs/10.1137/120889873">[2]</a>.) 
 
 Warning: `a` and `b` need to be relatively small (`-1<a,b<10`). 
 
