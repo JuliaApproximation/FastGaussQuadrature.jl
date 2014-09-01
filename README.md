@@ -11,6 +11,8 @@ An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.or
 * Change the perception that Gauss quadrature rules are expensive to compute. 
 
 ## Examples 
+Here we compute `100000` nodes and weights of the Gauss rules. Try a million or ten million. 
+
 ```
 tic(), GaussChebyshev( 100000 ); toc()
 elapsed time: 0.007636825 seconds
@@ -27,6 +29,13 @@ elapsed time: 6.1875638 seconds
 tic(), GaussLobatto( 100000 ); toc() 
 elapsed time: 4.901654062 second
 ```
+
+Here is (probably) a world record: The largest Gauss-Legendre quadrature rule ever computed: 
+```
+tic(), GaussLegendre( 20000001 ); toc()
+elapsed time: 34.64895963
+```
+(A little larger and the nodes coalesce in 16-digits of precision.)
 
 ## The algorithm for Gauss-Chebyshev
 There are four kinds of Gauss-Chebyshev quadrature rules, corresponding to four weight functions: 
