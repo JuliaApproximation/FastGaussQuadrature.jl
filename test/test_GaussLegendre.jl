@@ -1,6 +1,6 @@
 
-n testGaussLegendre()
-    # Test for GaussLegendre quadrature. 
+function test_GaussLegendre()
+    # Test for GaussLegendre(). 
     
     tol = 1e-14
     ntests = 15

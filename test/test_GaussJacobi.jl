@@ -1,5 +1,5 @@
-function testGaussJacobi()
-
+function test_GaussJacobi()
+# Test for GaussJacobi(). 
     tol = 1e-14
     ntests = 16
     pass = Array(Float64,ntests)

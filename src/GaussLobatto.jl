@@ -9,7 +9,7 @@ function GaussLobatto( n )
         x = ([-1, 0, 1], [1.0, 4.0, 1.0]/3)
     else
         # Compute via GaussJacobi:
-        x = GaussJacobi(n - 2, 1, 1)
+        x = GaussJacobi(n - 2, 1.0, 1.0)
         w = x[2]; x = x[1];
         x = [-1, x, 1]
         w = [-1, w, 1]
