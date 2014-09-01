@@ -134,7 +134,7 @@ function asy1(n::Int64, a::Float64, b::Float64, nbdy)
         counter += 1
         dt = dt[idx]
     end
-    vals = feval_asy1(n, a, b, t, idx, 1)      # Once more for luck
+    vals = feval_asy1(n, a, b, t, idx, 0)      # Once more for luck
     t += vals[1]./vals[2]                                 # Newton update.
 
     # Store:
@@ -156,7 +156,7 @@ function asy1(n::Int64, a::Float64, b::Float64, nbdy)
         counter += 1
         dt = dt[idx]
     end
-    vals = feval_asy1(n, a, b, t, idx, 1)     # Once more for luck.
+    vals = feval_asy1(n, a, b, t, idx, 0)     # Once more for luck.
     t += vals[1]./vals[2]                                 # Newton update.
 
     # Store:
@@ -328,7 +328,7 @@ function boundary(n::Int64, a::Float64, b::Float64, npts)
     ders = ders[npts:-1:1]
 
     # Revert to x-space:     
-    w = (1./ders.^2)
+    w = 1./((1-x.^2).*ders.^2)
     return x, w
 end
 
