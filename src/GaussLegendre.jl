@@ -6,7 +6,7 @@ if n < 0
 elseif n == 0 
     x = (Float64[],Float64[])
 elseif n == 1
-    x = (0.0,2)
+    x = ([0.0],[2.0])
 elseif n == 2
     x = Array(Float64,2)
     w = Array(Float64,2)
@@ -19,7 +19,7 @@ elseif n == 3
     x = Array(Float64,3)
     w = Array(Float64,3)
     x[1] = -sqrt(3/5) 
-    x[2] = 0 
+    x[2] = 0.0
     x[3] = sqrt(3/5) 
     w[1] = 5/9
     w[2] = 8/9
@@ -44,7 +44,7 @@ elseif n == 5
     const b::Float64 = 2sqrt(10/7)
     x[1] = -sqrt(5+b)/3 
     x[2] = -sqrt(5-b)/3
-    x[3] = 0
+    x[3] = 0.0
     x[4] = sqrt(5-b)/3 
     x[5] = sqrt(5+b)/3
     w[1] = (322-13sqrt(70))/900

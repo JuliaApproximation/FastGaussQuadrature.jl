@@ -1,7 +1,6 @@
 function GaussJacobi(n::Int64, a, b)
-#JACPTS  Gauss-Jacobi Quadrature Nodes and Weights
+#GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
 
-# Defaults:
     if ( a == 0 && b == 0 )
         x = GaussLegendre(n)
     elseif ( a == -0.5 && b == -0.5 )
@@ -15,20 +14,20 @@ function GaussJacobi(n::Int64, a, b)
     elseif ( n == 0 )
         x = (Float64[],Float64[])
     elseif ( n == 1 )
-        x = ((b-a)/(a+b+2), 2^(a+b+1)*beta(a+1, b+1))
+        x = ([(b-a)/(a+b+2)], [2^(a+b+1)*beta(a+1, b+1)])
     elseif ( n <= 100 )
         x = JacobiRec(n, a, b)
     elseif ( n > 100 )
         x = JacobiAsy(n, a, b)
     else 
-        error
+        error("1st argument must be a positive integer.")
     end
     return x
 end
 
 
 function JacobiRec(n::Int64, a::Float64, b::Float64)
-#REC   Compute nodes and weights using recurrrence relation.
+#Compute nodes and weights using recurrrence relation.
     x1 = HalfRec(n, a, b, 1)
     x2 = HalfRec(n, b, a, 0) 
     x = vcat( -flipud(x2[1]) , x1[1] )
