@@ -1,4 +1,4 @@
-FastGauss
+FastGaussQuadrature
 =========
 A Julia package to compute `n`-point Gauss quadrature nodes and weights to 16-digit accuracy and in `O(n)` time. So far the package includes `GaussChebyshev()`, `GaussLegendre()`, `GaussJacobi()`, `GaussRadau()`, and `GaussLobatto()`. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>. 
 
