@@ -18,22 +18,22 @@ tic(), GaussChebyshev( 100000 ); toc()
 elapsed time: 0.007636825 seconds
 
 tic(), GaussLegendre( 100000 ); toc() 
-elapsed time: 0.092068965 seconds
+elapsed time: 0.017749388 seconds
 
 tic(), GaussJacobi( 100000, .9, -.1 ); toc() 
-elapsed time: 6.078796565 seconds
+elapsed time: 4.670444327 seconds
 
 tic(), GaussRadau( 100000 ); toc() 
-elapsed time: 6.1875638 seconds
+elapsed time: 4.51240011 seconds
 
 tic(), GaussLobatto( 100000 ); toc() 
-elapsed time: 4.901654062 second
+elapsed time: 3.989099163 seconds
 ```
 
 Here is (probably) a world record: The largest Gauss-Legendre quadrature rule ever computed: 
 ```
 tic(), GaussLegendre( 20000001 ); toc()
-elapsed time: 34.64895963
+elapsed time: 4.198597794
 ```
 (A little larger and the nodes coalesce in 16-digits of precision.)
 
