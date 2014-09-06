@@ -32,8 +32,8 @@ elapsed time: 3.989099163 seconds
 
 Here is (probably) a world record: The largest Gauss-Legendre quadrature rule ever computed: 
 ```
-tic(), GaussLegendre( 50000001 ); toc()
-elapsed time: 26.963947795
+tic(), GaussLegendre( 100000001 ); toc()
+elapsed time: 98.554081035
 ```
 (A little larger and the nodes coalesce in 16-digits of precision.)
 
