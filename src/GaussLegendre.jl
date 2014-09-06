@@ -82,31 +82,39 @@ function asy( n::Int64 )
 end
 
 function legpts_nodes(n::Int64, a::Array{Float64})
-# ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE NODES.  
+# ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE NODES.
     vn = 1./(n + 0.5)
-    u = cot(a)
-    return cos( a + ((u-1./a)/8*vn^2) + 
-               ((n <= 3950) ? (6(1+u.^2)./a + 25./a.^3 - u.*(31u.^2+33))/384 : 0.0)*vn^4 + 
-               ((n <= 255) ?  u.*(2595 + 6350*u.^2 + 3779*u.^4)/15360 -1073/5120./a.^5 + 
-                            (1+u.^2).*(-(31*u.^2 + 11)/1024./a + u/512./a.^2 + -25/3072./a.^3) : 0.0)*vn^6 )
+    m = length(a)
+    u = Array(Float64,m); nodes = Array(Float64,m)
+    for jj=1:m u[jj] = cot(a[jj]) end
+    for jj=1:m nodes[jj] = a[jj] + ((u[jj]-1/a[jj])/8*vn^2) end
+    nodes += ((n <= 3950) ? (6(1+u.^2)./a + 25./a.^3 - u.*(31u.^2+33))/384 : 0.0)*vn^4 +
+            ((n <= 255) ? u.*(2595 + 6350*u.^2 + 3779*u.^4)/15360 -1073/5120./a.^5 +
+            (1+u.^2).*(-(31*u.^2 + 11)/1024./a + u/512./a.^2 + -25/3072./a.^3) : 0.0)*vn^6
+    for jj=1:m nodes[jj] = cos(nodes[jj]) end
+    return nodes
 end
 
 function legpts_weights(n::Int64, m::Int64, a::Array{Float64})
 # ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE WEIGHTS.
-    vn = 1./(n + 0.5)
-    u = cot(a)
-    ua = cot(a).*a
-    # Assemble coefficients:
-    W1 = (n <= 850000) ? (ua + a.^2 - 1)./a.^2/8 : 0.0
-    W2 = ( n <= 1500 ) ? ( 81 - 31*ua - 3*(1-2*u.^2).*a.^2 + 6*u.*a.^3 - 
-                               (27 + 84*u.^2 + 56*u.^4).*a.^4 )./a.^4/384 : 0.0
-    W3 = ( n <= 170 ) ? (187/96*u.^4 + 295/256*u.^2 + 151/160*u.^6 + 153/1024) + 
-                      (-119/768*u.^2 -35/384*u.^4 - 65/1024).*u./a + 
-                      (5/512 + 7/384*u.^4 + 15/512*u.^2)./a.^2 + 
-                      (u.^2/512 - 13/1536).*u./a.^3 + 
-                      (-7/384*u.^2 + 53/3072)./a.^4 +
-                      (3749/15360*u)./a.^5 -1125/1024./a.^6 : 0.0        
-    return 2./(besselJ1(m).*(a./sin(a)).*(1./vn^2 + W1 + W2*vn.^2 + W3.*vn^4))       
+    vn = 1./(n + 0.5);
+    u = Array(Float64,m); ua = Array(Float64,m); weights = Array(Float64,m)
+    for jj=1:m u[jj] = cot(a[jj]) end
+    for jj=1:m ua[jj] = u[jj]*a[jj] end
+     # Assemble coefficients:
+    W1 = Array(Float64,m); W2 = Array(Float64,m); W3 = Array(Float64,m)
+    for jj=1:m W1[jj] = (n <= 850000) ? (ua[jj] + a[jj]^2 - 1)/a[jj]^2/8 : 0.0 end
+    for jj=1:m W2[jj] = (n <= 1500) ? ( 81 - 31*ua[jj] - 3*(1-2*u[jj]^2)*a[jj]^2 + 6*u[jj]*a[jj]^3 -
+                                        (27 + 84*u[jj]^2 + 56*u[jj]^4)*a[jj]^4 )/a[jj]^4/384 : 0.0 end
+    for jj=1:m W3[jj] = ( n <= 170 ) ? (187/96*u[jj]^4 + 295/256*u[jj]^2 + 151/160*u[jj]^6 + 153/1024) +
+                                    (-119/768*u[jj]^2 -35/384*u[jj]^4 - 65/1024)*u[jj]/a[jj] +
+                                    (5/512 + 7/384*u[jj]^4 + 15/512*u[jj]^2)./a[jj]^2 +
+                                    (u[jj]^3/512 - 13/1536*u[jj])/a[jj]^3 +
+                                    (-7/384*u[jj]^2 + 53/3072)/a[jj]^4 +
+                                    (3749/15360*u[jj])/a[jj]^5 -1125/1024/a[jj]^6 : 0.0 end
+    bJ1 = besselJ1(m)
+    for jj=1:m weights[jj] = 2/(bJ1[jj]*(a[jj]/sin(a[jj]))*(1/vn^2 + W1[jj] + W2[jj]*vn^2 + W3[jj]*vn^4)) end
+    return weights
 end
 
 function rec( n::Int64 ) 
