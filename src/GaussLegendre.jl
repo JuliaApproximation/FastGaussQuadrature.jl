@@ -67,7 +67,8 @@ function asy( n::Int64 )
 # COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING ASYMPTOTIC EXPANSIONS. COMPLEXITY O(n). 
     # Nodes and weights:
     m = (mod(n,2)==0) ? n>>1 : (n+1)>>1
-    a = besselZeroRoots(m)./(n + 0.5)
+    a = besselZeroRoots(m)
+    scale!(a,1/(n + 0.5))
     x = legpts_nodes(n, a); 
     w = legpts_weights(n, m, a)
     # Use symmetry to get the others:
@@ -83,7 +84,7 @@ end
 
 function legpts_nodes(n::Int64, a::Array{Float64})
 # ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE NODES.
-    vn = 1./(n + 0.5)
+    vn = 1/(n + 0.5)
     m = length(a)
     u = Array(Float64,m); nodes = Array(Float64,m)
     for jj=1:m u[jj] = cot(a[jj]) end
@@ -97,7 +98,7 @@ end
 
 function legpts_weights(n::Int64, m::Int64, a::Array{Float64})
 # ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE WEIGHTS.
-    vn = 1./(n + 0.5);
+    vn = 1/(n + 0.5);
     u = Array(Float64,m); ua = Array(Float64,m); weights = Array(Float64,m)
     for jj=1:m u[jj] = cot(a[jj]) end
     for jj=1:m ua[jj] = u[jj]*a[jj] end
@@ -108,7 +109,7 @@ function legpts_weights(n::Int64, m::Int64, a::Array{Float64})
                                         (27 + 84*u[jj]^2 + 56*u[jj]^4)*a[jj]^4 )/a[jj]^4/384 : 0.0 end
     for jj=1:m W3[jj] = ( n <= 170 ) ? (187/96*u[jj]^4 + 295/256*u[jj]^2 + 151/160*u[jj]^6 + 153/1024) +
                                     (-119/768*u[jj]^2 -35/384*u[jj]^4 - 65/1024)*u[jj]/a[jj] +
-                                    (5/512 + 7/384*u[jj]^4 + 15/512*u[jj]^2)./a[jj]^2 +
+                                    (5/512 + 7/384*u[jj]^4 + 15/512*u[jj]^2)/a[jj]^2 +
                                     (u[jj]^3/512 - 13/1536*u[jj])/a[jj]^3 +
                                     (-7/384*u[jj]^2 + 53/3072)/a[jj]^4 +
                                     (3749/15360*u[jj])/a[jj]^5 -1125/1024/a[jj]^6 : 0.0 end
