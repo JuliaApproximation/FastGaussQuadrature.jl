@@ -10,8 +10,8 @@ elseif n == 1
 elseif n == 2
     x = Array(Float64,2)
     w = Array(Float64,2)
-    x[1] = -sqrt(3); 
-    x[2] = sqrt(3)
+    x[1] = -1/sqrt(3)
+    x[2] = 1/sqrt(3)
     w[1] = 1.0 
     w[2] =  1.0
     x = (x,w)
