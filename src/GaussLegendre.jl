@@ -72,7 +72,7 @@ function asy( n::Int64 )
     w = legpts_weights(n, m, a)
     # Use symmetry to get the others:
     if ( mod(n, 2) == 1 )
-        x = [-x[1:end-1] ; 0 ; x[end-1:-1:1] ]
+        x = [-x[1:end-1] ; 0.0 ; x[end-1:-1:1] ]
         w = [w ; w[end-1:-1:1] ]
     else
         x = [-x ; x[end:-1:1] ]
@@ -127,14 +127,19 @@ end
 
 function innerRec( n::Int64, x )
 # EVALUATE LEGENDRE AND ITS DERIVATIVE USING THREE-TERM RECURRENCE RELATION.
-    Pm2, Pm1, PPm1, PPm2 = ones(x), x, ones(x), zeros(x) 
-    for k = 1:n-1
-        Pm2, Pm1 = Pm1, (((2k+1)/(k+1))*Pm1.*x - (k./(k+1))*Pm2)
-        PPm2, PPm1 = PPm1, (((2k+1)/(k+1))*(Pm2 + x.*PPm1)-(k/(k+1))*PPm2)
+    N = size(x,1) 
+    myPm1 = Array(Float64,N); myPPm1 = Array(Float64,N) 
+    for j = 1:N
+        xj = x[j]; Pm2 = 1.0; Pm1 = xj; PPm1 = 1.0; PPm2 = 0.0
+        for k = 1:n-1
+            Pm2, Pm1 = Pm1, ((2k+1)*Pm1*xj - k*Pm2)/(k+1)
+            PPm2, PPm1 = PPm1, ((2k+1)*(Pm2 + xj*PPm1)-k*PPm2)/(k+1)
+        end
+        myPm1[j] = Pm1
+        myPPm1[j] = PPm1 
     end
-    return Pm1, PPm1 
+    return myPm1, myPPm1
 end
-
 
 
 function besselZeroRoots(m::Int64)
