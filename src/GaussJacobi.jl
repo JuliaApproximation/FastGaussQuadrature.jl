@@ -59,14 +59,19 @@ end
 
 function innerJacobiRec(n::Int64, x::Array{Float64}, a::Float64, b::Float64)
 # EVALUATE JACOBI POLYNOMIALS AND ITS DERIVATIVE USING THREE-TERM RECURRENCE.
-    P, Pm1, PP, PPm1 = [.5*(a-b+(a+b+2)*x)], ones(x), .5*(a+b+2)*ones(x), zeros(x)
-    for k = 1:n-1
-        A = 2*(k + 1)*(k + a+b + 1)*(2*k + a+b)
-        B = (2*k + a+b + 1)*(a^2 - b^2)
-        C = prod(2*k + a+b + [0:2])
-        D = 2*(k + a)*(k + b)*(2*k + a+b + 2)
-        Pm1, P = P, ( (B+C*x).*P - D*Pm1 ) / A
-        PPm1, PP = PP, ( (B+C*x).*PP + C*Pm1 - D*PPm1 ) / A
+    #P, Pm1, PP, PPm1 = [.5*(a-b+(a+b+2)*x)], ones(x), .5*(a+b+2)*ones(x), zeros(x)
+    N = length(x)
+    P = Array(Float64,N); Pm1 = Array(Float64,N); PP = Array(Float64,N); PPm1 = Array(Float64,N); 
+    for j = 1:N
+        P[j] = .5*(a-b+(a+b+2)*x[j]); Pm1[j] = 1.0; PP[j] = .5*(a+b+2); PPm1[j] = 0.0
+        for k = 1:n-1
+            A = 2*(k + 1)*(k + a+b + 1)*(2*k + a+b)
+            B = (2*k + a+b + 1)*(a^2 - b^2)
+            C = prod(2*k + a+b + [0:2])
+            D = 2*(k + a)*(k + b)*(2*k + a+b + 2)
+            Pm1[j], P[j] = P[j], ( (B+C*x[j])*P[j] - D*Pm1[j] ) / A
+            PPm1[j], PP[j] = PP[j], ( (B+C*x[j])*PP[j] + C*Pm1[j] - D*PPm1[j] ) / A
+        end
     end
     return P, PP
 end
