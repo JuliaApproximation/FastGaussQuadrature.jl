@@ -143,94 +143,47 @@ end
 
 
 function besselZeroRoots(m::Int64)
-#BESSEL0ROOTS    ROOTS OF BESSELJ(0,x). USE ASYMPTOTICS. 
-    # Use McMahon's expansion for the remainder (NIST, 10.21.19):
-    jk = Array(Float64,m)
+#BESSEL0ROOTS ROOTS OF BESSELJ(0,x). USE ASYMPTOTICS.
+# Use McMahon's expansion for the remainder (NIST, 10.21.19):
+    jk = Array(Float64,m); ak = Array(Float64,m); ak82 = Array(Float64,m)
     p = [1071187749376/315 0.0 -401743168/105 0.0 120928/15 0.0 -124/3 0.0 1.0 0.0]
-    ak = pi*( [1:m] -.25 )
-    ak82 = (.125./ak).^2   
+    for jj=1:m ak[jj] = pi*( jj -.25 ) end
+    for jj=1:m ak82[jj] = (.125/ak[jj])^2 end
     # First 20 are precomputed:
     twenty = [2.4048255576957728, 5.5200781102863106, 8.6537279129110122,
-                11.791534439014281, 14.930917708487785, 18.071063967910922,
-                21.211636629879258, 24.352471530749302, 27.493479132040254,
-                30.634606468431975, 33.775820213573568, 36.917098353664044,
-                40.058425764628239, 43.199791713176730, 46.341188371661814,
-                49.482609897397817, 52.624051841114996, 55.765510755019979,
-                58.906983926080942, 62.048469190227170]    
-    jk[1:min(m,20)] = twenty[1:min(m,20)]
-    if m >= 21
-        kk = [21:min(m,47)]
-        akcut = ak[kk]
-        ak82cut = ak82[kk]
-        jk[kk] = akcut + .125./akcut.*(1 + ak82cut.*(p[7] + ak82cut.*(p[5] + ak82cut.*p[3])))
-    end
-    if m >= 48
-        kk = [48:min(m,344)]
-        akcut = ak[kk]
-        ak82cut = ak82[kk]
-        jk[kk] = akcut + .125./akcut.*(1 + ak82cut.*(p[7]+ ak82cut.*p[5]))
-    end
-    if m >= 345
-        kk = [345:min(m,13191)]
-        akcut = ak[kk]
-        ak82cut = ak82[kk]
-        jk[kk] = akcut + .125./akcut.*(1 + ak82cut.*p[7])
-    end
-    if m >= 13192
-        jk[13192:m] = ak[13192:m] + .125./ak[13192:m]
-    end
+            11.791534439014281, 14.930917708487785, 18.071063967910922,
+            21.211636629879258, 24.352471530749302, 27.493479132040254,
+            30.634606468431975, 33.775820213573568, 36.917098353664044,
+            40.058425764628239, 43.199791713176730, 46.341188371661814,
+            49.482609897397817, 52.624051841114996, 55.765510755019979,
+            58.906983926080942, 62.048469190227170]
+    for jj=1:min(m,20) jk[jj] = twenty[jj] end
+    for jj=21:min(m,47) jk[jj] = ak[jj] + .125/ak[jj]*(1 + ak82[jj]*(p[7] + ak82[jj]*(p[5] + ak82[jj]*p[3]))) end
+    for jj=48:min(m,344) jk[jj] = ak[jj] + .125/ak[jj]*(1 + ak82[jj]*(p[7]+ ak82[jj]*p[5])) end
+    for jj=345:min(m,13191) jk[jj] = ak[jj] + .125/ak[jj]*(1 + ak82[jj]*p[7]) end
+    for jj=13192:m jk[jj] = ak[jj] + .125/ak[jj] end
     return jk
 end
 
+
 function besselJ1( m::Int64 )
-# BESSELJ1 EVALUATE BESSELJ(1,x)^2 AT ROOTS OF BESSELJ(0,x). USE ASYMPTOTICS. 
-    # Use Taylor series of (NIST, 10.17.3) and McMahon's expansion (NIST, 10.21.19):
-    Jk2 = Array(Float64,m)
+# BESSELJ1 EVALUATE BESSELJ(1,x)^2 AT ROOTS OF BESSELJ(0,x). USE ASYMPTOTICS.
+# Use Taylor series of (NIST, 10.17.3) and McMahon's expansion (NIST, 10.21.19):
+    Jk2 = Array(Float64,m); ak = Array(Float64,m); ak2 = Array(Float64,m)
     c = [-171497088497/15206400, 461797/1152, -172913/8064, 151/80, -7/24, 0.0, 2.0]
-    ak = pi*([1:m]-.25)
-    ak2 = (1./ak).^2
-    # First 10 are precomputed: 
-    ten = [0.2695141239419169, 0.1157801385822037, 0.07368635113640822,
-                 0.05403757319811628, 0.04266142901724309, 0.03524210349099610,
-                 0.03002107010305467, 0.02614739149530809, 0.02315912182469139, 0.02078382912226786] 
-    Jk2[1:min(m,10)] = ten[1:min(m,10)]
-    if m >= 11 
-        kk = [11:min(m,15)]
-        akcut = pi*(kk-.25)
-        ak2cut = (1./akcut).^2
-        Jk2[kk] = 1./(pi*akcut).*(c[7] + ak2cut.^2.*(c[5] + ak2cut.*(c[4] +
-                         ak2cut.*(c[3] + ak2cut.*(c[2]+ak2cut.*c[1])))))
-    end
-    if m >= 16
-        kk = [16:min(m,21)]
-        akcut = ak[kk]
-        ak2cut = ak2[kk]
-        Jk2[kk] = 1./(pi*akcut).*(c[7] + ak2cut.^2.*(c[5] + ak2cut.*(c[4] +
-                         ak2cut.*(c[3] + ak2cut.*c[2]))))
-    end
-    if m >= 22
-        kk = [22:min(m,55)]
-        akcut = ak[kk]
-        ak2cut = ak2[kk]
-        Jk2[kk] = 1./(pi*akcut).*(c[7] + ak2cut.^2.*(c[5] + ak2cut.*(c[4] + ak2cut.*c[3])))
-    end
-    if m >= 56 
-        kk = [56:min(m,279)]
-        akcut = ak[kk]
-        ak2cut = ak2[kk]
-        Jk2[kk] = 1./(pi*akcut).*(c[7] + ak2cut.^2.*(c[5] + ak2cut.*c[4]))
-    end
-    if m >= 280
-        kk = [280:min(m,2279)]
-        akcut = ak[kk]
-        ak2cut = ak2[kk]
-        Jk2[kk] = 1./(pi*akcut).*(c[7] + ak2cut.^2.*c[5])
-    end
-    if m >= 2280 
-        kk = [2280:m]
-        akcut = ak[kk]
-        ak2cut = ak2[kk]
-        Jk2[kk] = 1./(pi*akcut).*c[7]
-    end 
+    for jj=1:m ak[jj] = pi*(jj-.25) end
+    for jj=1:m ak2[jj] = (1/ak[jj])^2 end
+    # First 10 are precomputed:
+    ten = [ 0.2695141239419169, 0.1157801385822037, 0.07368635113640822,
+            0.05403757319811628, 0.04266142901724309, 0.03524210349099610,
+            0.03002107010305467, 0.02614739149530809, 0.02315912182469139, 0.02078382912226786]
+    for jj=1:min(m,10) Jk2[jj] = ten[jj] end
+    for jj=11:min(m,15) Jk2[jj] = 1/(pi*ak[jj])*(c[7] + ak2[jj]^2*(c[5] + ak2[jj]*(c[4] + 
+                ak2[jj]*(c[3] + ak2[jj]*(c[2]+ak2[jj]*c[1]))))) end
+    for jj=16:min(m,21) Jk2[jj] = 1/(pi*ak[jj])*(c[7] + ak2[jj]^2*(c[5] + ak2[jj]*(c[4] + ak2[jj]*(c[3] + ak2[jj]*c[2])))) end
+    for jj=22:min(m,55) Jk2[jj] =  1/(pi*ak[jj])*(c[7] + ak2[jj]^2*(c[5] + ak2[jj]*(c[4] + ak2[jj]*c[3]))) end
+    for jj=56:min(m,279) Jk2[jj] = 1/(pi*ak[jj])*(c[7] + ak2[jj]^2*(c[5] + ak2[jj]*c[4])) end
+    for jj=280:min(m,2279) Jk2[jj] = 1/(pi*ak[jj])*(c[7] + ak2[jj]^2*c[5]) end
+    for jj=2280:m Jk2[jj] = 1/(pi*ak[jj])*c[7] end
     return Jk2
 end
