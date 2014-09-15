@@ -30,12 +30,12 @@ tic(), GaussLobatto( 100000 ); toc()
 elapsed time: 3.989099163 seconds
 ```
 
-Here is (probably) a world record: The largest Gauss-Legendre quadrature rule ever computed: 
+The paper <a href="http://epubs.siam.org/doi/abs/10.1137/140954969">[1]</a> computed a billion Gauss-Legendre nodes. So here we will do a billion + 1. This is (probably) a world record: 
 ```
-tic(), GaussLegendre( 100000001 ); toc()
-elapsed time: 98.554081035
+tic(), GaussLegendre( 1000000001 ); toc()
+elapsed time: 2526.19562756 seconds
 ```
-(A little larger and the nodes coalesce in 16-digits of precision.)
+(The nodes near the endpoints coalesce in 16-digits of precision.)
 
 ## The algorithm for Gauss-Chebyshev
 There are four kinds of Gauss-Chebyshev quadrature rules, corresponding to four weight functions: 
