@@ -2,7 +2,7 @@
     tol = 1e-14
     n = 42
     ntests = 4
-    x = GaussRadau(n)
+    x = gaussradau(n)
     w = x[2]; x = x[1]
     @test ( length(x) == n) && ( length(w) == n )   
     @test abs(x[37] - 0.908847278001044) < tol
