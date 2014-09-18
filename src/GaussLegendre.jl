@@ -127,7 +127,8 @@ function rec( n::Int64 )
     # Perform Newton to find zeros of Legendre polynomial:
     PP = innerRec( n, x ); dx = -PP[1]./PP[2]; x += dx
     # One more Newton for derivatives: 
-    PP = (n<45)? innerRec( n, x ) : PP
+    PP = innerRec( n, x ); dx = -PP[1]./PP[2]; x += dx
+    #PP = (n<45)? innerRec( n, x ) : PP
     # Use symmetry to get the other Legendre nodes and weights: 
     nodes = vcat( -x[(n+hN)/2:-1:hN+1] , x )
     weights = 2./((1-nodes.^2).*vcat( PP[2][(n+hN)/2:-1:1+hN] , PP[2] ).^2)
