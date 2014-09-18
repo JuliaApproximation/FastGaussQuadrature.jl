@@ -1,6 +1,6 @@
 FastGaussQuadrature
 =========
-A Julia package to compute `n`-point Gauss quadrature nodes and weights to 16-digit accuracy and in `O(n)` time. So far the package includes `GaussChebyshev()`, `GaussLegendre()`, `GaussJacobi()`, `GaussRadau()`, and `GaussLobatto()`. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>. 
+A Julia package to compute `n`-point Gauss quadrature nodes and weights to 16-digit accuracy and in `O(n)` time. So far the package includes `gausschebyshev()`, `gausslegendre()`, `gaussjacobi()`, `gaussradau()`, and `gausslobatto()`. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>. 
 
 An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.org/wiki/Gaussian_quadrature">here</a>.
 
@@ -14,25 +14,25 @@ An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.or
 Here we compute `100000` nodes and weights of the Gauss rules. Try a million or ten million. 
 
 ```
-tic(), GaussChebyshev( 100000 ); toc()
+tic(), gausschebyshev( 100000 ); toc()
 elapsed time: 0.007636825 seconds
 
-tic(), GaussLegendre( 100000 ); toc() 
+tic(), gausslegendre( 100000 ); toc() 
 elapsed time: 0.017749388 seconds
 
-tic(), GaussJacobi( 100000, .9, -.1 ); toc() 
+tic(), gaussjacobi( 100000, .9, -.1 ); toc() 
 elapsed time: 4.670444327 seconds
 
-tic(), GaussRadau( 100000 ); toc() 
+tic(), gaussradau( 100000 ); toc() 
 elapsed time: 4.51240011 seconds
 
-tic(), GaussLobatto( 100000 ); toc() 
+tic(), gausslobatto( 100000 ); toc() 
 elapsed time: 3.989099163 seconds
 ```
 
 Here is (probably) a world record: The largest Gauss-Legendre quadrature rule ever computed: 
 ```
-tic(), GaussLegendre( 100000001 ); toc()
+tic(), gausslegendre( 100000001 ); toc()
 elapsed time: 98.554081035
 ```
 (A little larger and the nodes coalesce in 16-digits of precision.)
