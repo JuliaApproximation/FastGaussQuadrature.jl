@@ -1,4 +1,4 @@
-function GaussLobatto( n )
+function gausslobatto( n )
 # Gauss-Legendre-Lobatto Quadrature Nodes and Weights
 
     if ( n == 1 )

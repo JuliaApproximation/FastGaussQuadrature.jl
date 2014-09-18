@@ -1,16 +1,16 @@
-module FastGauss
+module FastGaussQuadrature
    using Base
 
-export GaussLegendre 
-export GaussChebyshev 
-export GaussJacobi
-export GaussLobatto
-export GaussRadau
+export gausslegendre 
+export gausschebyshev 
+export gaussjacobi
+export gausslobatto
+export gaussradau
 
-include("GaussLegendre.jl")
-include("GaussChebyshev.jl")
-include("GaussJacobi.jl")
-include("GaussLobatto.jl")
-include("GaussRadau.jl")
+include("gausslegendre.jl")
+include("gausschebyshev.jl")
+include("gaussjacobi.jl")
+include("gausslobatto.jl")
+include("gaussradau.jl")
 
 end

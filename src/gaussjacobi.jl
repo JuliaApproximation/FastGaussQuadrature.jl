@@ -1,4 +1,4 @@
-function GaussJacobi(n::Int64, a, b)
+function gaussjacobi(n::Int64, a, b)
 #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
 
     if ( a == 0 && b == 0 )
