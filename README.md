@@ -81,7 +81,7 @@ Gauss quadrature for the weight function `w(x)=1`, except the endpoints `-1` and
 The Gauss-Lobatto nodes and weights can be computed via the `(1,1)` Gauss-Jacobi nodes and weights <a href="http://epubs.siam.org/doi/abs/10.1137/120889873">[2]</a>. 
 
 ## The algorithm for Gauss-Hermite
-Gauss quadrature for the weight functions `w(x) = exp(-x^2)`. 
+Gauss quadrature for the weight function `w(x) = exp(-x^2)`. 
 
 * For `n<200`: Use Newton's method to solve `Hn(x)=0`. Evaluate `Hn` and `Hn'` by three-term recurrence. 
 
