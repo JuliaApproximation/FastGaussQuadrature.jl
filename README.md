@@ -97,4 +97,4 @@ The paper <a href="http://arxiv.org/abs/1410.5286">[4]</a> also derives an `O(n)
 
 [3] J. C. Mason and D. C. Handscomb, <a href="http://books.google.com/books?id=8FHf0P3to0UC&lpg=PP1&dq=Mason%20and%20Handscomb&pg=PP1#v=onepage&q=Mason%20and%20Handscomb&f=false">"Chebyshev Polynomials"</a>, CRC Press, 2002.
 
-[4] A. Townsend, T. Trogdon, and S. Olver, <a href="http://arxiv.org/abs/1410.5286">"Fast computation of Gauss nodes and weights on the whole real line"</a>, submitted, 2014.
+[4] A. Townsend, T. Trogdon, and S. Olver, <a href="http://arxiv.org/abs/1410.5286">"Fast computation of Gauss quadrature nodes and weights on the whole real line"</a>, submitted, 2014.
