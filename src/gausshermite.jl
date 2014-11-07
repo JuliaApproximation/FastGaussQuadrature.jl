@@ -23,13 +23,13 @@ else
 end
 
 if mod(n,2) == 1                              # fold out
-    w = [flipud(x[2]), x[2][2:end]]
+    w = [flipud(x[2][:]), x[2][2:end]]
     w = (sqrt(pi)/sum(w))*w
     x = ([-flipud(x[1]) ; x[1][2:end]], w)
 else
-    w = [fliplr(x[2]) x[2]] 
+    w = [flipud(x[2][:]), x[2][:]]
     w = (sqrt(pi)/sum(w))*w
-    x = ([-flipud(x[1]) ; x[1]], w[:])
+    x = ([-flipud(x[1]) ; x[1]], w)
 end
 
 end
