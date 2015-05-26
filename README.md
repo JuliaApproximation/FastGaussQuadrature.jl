@@ -80,7 +80,16 @@ Gauss quadrature for the weight function `w(x)=1`, except the endpoints `-1` and
 
 The Gauss-Lobatto nodes and weights can be computed via the `(1,1)` Gauss-Jacobi nodes and weights <a href="http://epubs.siam.org/doi/abs/10.1137/120889873">[2]</a>. 
 
-## Usage
+## The algorithm for Gauss-Hermite
+Gauss quadrature for the weight function `w(x) = exp(-x^2)`. 
+
+* For `n<200`: Use Newton's method to solve `Hn(x)=0`. Evaluate `Hn` and `Hn'` by three-term recurrence. 
+
+* For `n>=200`: Use Newton's method to solve `Hn(x)=0`. Evaluate `Hn` and `Hn'` by a uniform asymptotic expansion, see <a href="http://arxiv.org/abs/1410.5286">[4]</a>. 
+* 
+The paper <a href="http://arxiv.org/abs/1410.5286">[4]</a> also derives an `O(n)` algorithm for generalized Gauss-Hermite nodes and weights associated to weight functions of the form `exp(-V(x))`, where `V(x)` is a real polynomial. 
+
+## Example usage
 
 
 ```
@@ -93,15 +102,6 @@ elapsed time: 0.009797319 seconds
 0.666666666666666
 ```
 
-
-## The algorithm for Gauss-Hermite
-Gauss quadrature for the weight function `w(x) = exp(-x^2)`. 
-
-* For `n<200`: Use Newton's method to solve `Hn(x)=0`. Evaluate `Hn` and `Hn'` by three-term recurrence. 
-
-* For `n>=200`: Use Newton's method to solve `Hn(x)=0`. Evaluate `Hn` and `Hn'` by a uniform asymptotic expansion, see <a href="http://arxiv.org/abs/1410.5286">[4]</a>. 
-
-The paper <a href="http://arxiv.org/abs/1410.5286">[4]</a> also derives an `O(n)` algorithm for generalized Gauss-Hermite nodes and weights associated to weight functions of the form `exp(-V(x))`, where `V(x)` is a real polynomial.  
 ## References:
 [1] I. Bogaert, <a href="http://epubs.siam.org/doi/abs/10.1137/140954969">"Iteration-free computation of Gauss-Legendre quadrature
        nodes and weights"</a>, SIAM J. Sci. Comput., 36(3), A1008-A1026, 2014.
