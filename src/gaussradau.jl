@@ -9,8 +9,8 @@ function gaussradau( n::Int64 )
     # Compute via GaussJacobi:
         x = gaussjacobi( n - 1, 0.0, 1.0 )
         w = x[2]; x = x[1];
-        x = [-1.0, x]
-        w = [2.0/n^2, w./(1.0 + x[2:end])]
+        x = [-1.0; x]
+        w = [2.0/n^2; w./(1.0 + x[2:end])]
         x = (x, w)
     end
     return x

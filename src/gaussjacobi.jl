@@ -40,7 +40,7 @@ end
 function HalfRec(n::Int64, a::Float64, b::Float64, flag)
 #HALFREC   Jacobi polynomial recurrence relation.
     # Asymptotic formula - only valid for positive x.
-    r = (flag==1) ? [ceil(n/2):-1:1] : [floor(n/2):-1:1]
+    r = (flag==1) ? collect(ceil(n/2):-1:1) : collect(floor(n/2):-1:1)
     C = (2*r+a-.5)*pi/(2*n+a+b+1)
     x = cos( C + 1/(2*n+a+b+1)^2 * ((.25-a^2)*cot(.5*C) - (.25-b^2)*tan(.5*C)) )
     dx = 1.0 
@@ -67,7 +67,7 @@ function innerJacobiRec(n::Int64, x::Array{Float64}, a::Float64, b::Float64)
         for k = 1:n-1
             A = 2*(k + 1)*(k + a+b + 1)*(2*k + a+b)
             B = (2*k + a+b + 1)*(a^2 - b^2)
-            C = prod(2*k + a+b + [0:2])
+            C = prod(2*k + a+b + collect(0:2))
             D = 2*(k + a)*(k + b)*(2*k + a+b + 2)
             Pm1[j], P[j] = P[j], ( (B+C*x[j])*P[j] - D*Pm1[j] ) / A
             PPm1[j], PP[j] = PP[j], ( (B+C*x[j])*PP[j] + C*Pm1[j] - D*PPm1[j] ) / A
@@ -121,7 +121,7 @@ function asy1(n::Int64, a::Float64, b::Float64, nbdy)
 # Algorithm for computing nodes and weights in the interior.
 
     # Approximate roots via asymptotic formula: (Gatteschi and Pittaluga, 1985)
-    K = (2*[n:-1:1]+a-.5)*pi/(2*n+a+b+1)
+    K = (2*collect(n:-1:1)+a-.5)*pi/(2*n+a+b+1)
     tt = K + 1/(2*n+a+b+1)^2*((.25-a^2)*cot(.5*K)-(.25-b^2)*tan(.5*K))
 
     # First half (x > 0):
@@ -176,14 +176,14 @@ function feval_asy1(n::Int64, a::Float64, b::Float64, t, idx, flag)
     M = 20
 
     # Some often used vectors/matrices:
-    onesT = ones(1,length(t)); onesM = ones(M); MM = ([0:M-1]')';
+    onesT = ones(1,length(t)); onesM = ones(M); MM = (collect(0:M-1)')';
 
     # The sine and cosine terms:
     alpha = (.5*(2*n+a+b+1+MM))*onesT .* (onesM*t) - .5*(a+.5)*pi
     cosA = cos(alpha); sinA = sin(alpha)
 
     if ( flag == 1 )
-        k = ( idx[1] == 1 ) ? [length(t):-1:1]' : [1:length(t)]'
+        k = ( idx[1] == 1 ) ? collect(length(t):-1:1)' : collect(1:length(t))'
         ta = float64(float32(t)) 
         tb = t - ta; hi = n*ta; lo = n*tb + (a+b+1)*.5*t
         pia = float64(float32(pi))
@@ -214,27 +214,27 @@ function feval_asy1(n::Int64, a::Float64, b::Float64, t, idx, flag)
     sinT = vcat( one , cumprod(onesM[2:end]*(.5*csc(.5*t))))
     cosT = .5*sec(.5*t)
 
-    j = transpose([0:M-2])
+    j = transpose(collect(0:M-2))
     vec = (.5+a+j).*(.5-a+j)./(j+1)./(2*n+a+b+j+2)
     P1 = [1 cumprod(vec,2)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = eye(M)
     for l = 0:M-1
-        j = transpose([0:(M-l-2)])
+        j = transpose(collect(0:(M-l-2)))
         vec = (.5+b+j).*(.5-b+j)./(j+1)./(2*n+a+b+j+l+2)
         P2[l+1+(1:length(j)),l+1] = cumprod(vec,2)
     end
     PHI = repmat(P1,M,1).*P2
 
-    j = transpose([0:M-2])
+    j = transpose(collect(0:M-2))
     vec = (.5+a+j).*(.5-a+j)./(j+1)./(2*(n-1)+a+b+j+2)
     P1 = [1 cumprod(vec,2)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = eye(M)
     for l = 0:M-1
-        j = transpose([0:(M-l-2)])
+        j = transpose(collect(0:(M-l-2)))
         vec = (.5+b+j).*(.5-b+j)./(j+1)./(2*(n-1)+a+b+j+l+2)
         P2[l+1+(1:length(j)),l+1] = cumprod(vec,2)
     end
@@ -243,12 +243,12 @@ function feval_asy1(n::Int64, a::Float64, b::Float64, t, idx, flag)
     S = 0; S2 = 0;
     SC = sinT
     for m = 0:M-1
-        l = [0:2:m]
+        l = collect(0:2:m)
         phi = PHI[m+1,l+1]
         dS1 = phi*SC[l+1,:].*cosA[m+1,:]
         phi2 = PHI2[m+1,l+1]
         dS12 = phi2*SC[l+1,:].*cosA2[m+1,:]
-        l = [1:2:m]
+        l = collect(1:2:m)
         phi = PHI[m+1,l+1]
         dS2 = phi*SC[l+1,:].*sinA[m+1,:]
         phi2 = PHI2[m+1,l+1]
@@ -277,7 +277,7 @@ function feval_asy1(n::Int64, a::Float64, b::Float64, t, idx, flag)
     g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880, 
          5246819/75246796800, -534703531/902961561600,
          -4483131259/86684309913600, 432261921612371/514904800886784000]
-    f(g,z) = sum(g.*[1,cumprod(ones(9)./z)])
+    f(g,z) = sum(g.*[1;cumprod(ones(9)./z)])
     C = p2*(f(g,n+a)*f(g,n+b)/f(g,2*n+a+b))*2/pi
     C2 = C*(a+b+2*n).*(a+b+1+2*n)./(4*(a+n).*(b+n))
 
