@@ -23,13 +23,13 @@ else
 end
 
 if mod(n,2) == 1                              # fold out
-    w = [flipud(x[2][:]), x[2][2:end]]
+    w = [flipdim(x[2][:],1); x[2][2:end]]
     w = (sqrt(pi)/sum(w))*w
-    x = ([-flipud(x[1]) ; x[1][2:end]], w)
+    x = ([-flipdim(x[1],1) ; x[1][2:end]], w)
 else
-    w = [flipud(x[2][:]), x[2][:]]
+    w = [flipdim(x[2][:],1); x[2][:]]
     w = (sqrt(pi)/sum(w))*w
-    x = ([-flipud(x[1]) ; x[1]], w)
+    x = ([-flipdim(x[1],1) ; x[1]], w)
 end
 
 end
@@ -255,7 +255,7 @@ function hermpts_gw( n::Int64 )
     w = sqrt(pi)*V[1,indx].^2            # weights
     
     # Enforce symmetry:
-    ii = floor(n/2)+1:n  
+    ii = floor(Int, n/2)+1:n  
     x = x[ii]  
     w = w[ii]
     return (x,w)
