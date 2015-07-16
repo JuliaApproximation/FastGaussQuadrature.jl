@@ -25,11 +25,11 @@ end
 if mod(n,2) == 1                              # fold out
     w = [flipdim(x[2][:],1); x[2][2:end]]
     w = (sqrt(pi)/sum(w))*w
-    x = ([-flipud(x[1]) ; x[1][2:end]], w)
+    x = ([-flipdim(x[1],1) ; x[1][2:end]], w)
 else
     w = [flipdim(x[2][:],1); x[2][:]]
     w = (sqrt(pi)/sum(w))*w
-    x = ([-flipud(x[1]) ; x[1]], w)
+    x = ([-flipdim(x[1],1) ; x[1]], w)
 end
 
 end
