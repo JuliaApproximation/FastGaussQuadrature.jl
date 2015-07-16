@@ -23,6 +23,7 @@ else
 end
 
 if mod(n,2) == 1                              # fold out
+<<<<<<< Updated upstream
     w = [flipdim(x[2][:],1); x[2][2:end]]
     w = (sqrt(pi)/sum(w))*w
     x = ([-flipdim(x[1],1) ; x[1][2:end]], w)
@@ -32,6 +33,16 @@ else
     x = ([-flipdim(x[1],1) ; x[1]], w)
 end
 
+=======
+     w = [flipdim(x[2][:],1); x[2][2:end]]
+     w = (sqrt(pi)/sum(w))*w
+     x = ([-flipdim(x[1],1) ; x[1][2:end]], w)
+ else
+     w = [flipdim(x[2][:],1); x[2][:]]
+     w = (sqrt(pi)/sum(w))*w
+     x = ([-flipdim(x[1],1) ; x[1]], w)
+ end
+>>>>>>> Stashed changes
 end
 
 function hermpts_asy( n::Int64 )
