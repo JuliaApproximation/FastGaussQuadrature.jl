@@ -1,9 +1,9 @@
-function gausslegendre( n::Int64 )
+function gausslegendre( n::Int )
 # GAUSSLEGENDRE(n)  COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
 if n < 0
     x = (Float64[],Float64[])
-elseif n == 0 
+elseif n == 0
     x = (Float64[],Float64[])
 elseif n == 1
     x = ([0.0],[2.0])
@@ -12,20 +12,20 @@ elseif n == 2
     w = Array(Float64,2)
     x[1] = -1/sqrt(3)
     x[2] = 1/sqrt(3)
-    w[1] = 1.0 
+    w[1] = 1.0
     w[2] =  1.0
     x = (x,w)
 elseif n == 3
     x = Array(Float64,3)
     w = Array(Float64,3)
-    x[1] = -sqrt(3/5) 
+    x[1] = -sqrt(3/5)
     x[2] = 0.0
-    x[3] = sqrt(3/5) 
+    x[3] = sqrt(3/5)
     w[1] = 5/9
     w[2] = 8/9
     w[3] = 5/9
     x = (x,w)
-elseif n == 4 
+elseif n == 4
     x = Array(Float64,4)
     w = Array(Float64,4)
     const a::Float64 = 2/7*sqrt(6/5)
@@ -42,10 +42,10 @@ elseif n == 5
     x = Array(Float64, 5)
     w = Array(Float64, 5)
     const b::Float64 = 2sqrt(10/7)
-    x[1] = -sqrt(5+b)/3 
+    x[1] = -sqrt(5+b)/3
     x[2] = -sqrt(5-b)/3
     x[3] = 0.0
-    x[4] = sqrt(5-b)/3 
+    x[4] = sqrt(5-b)/3
     x[5] = sqrt(5+b)/3
     w[1] = (322-13sqrt(70))/900
     w[2] = (322+13sqrt(70))/900
@@ -53,23 +53,23 @@ elseif n == 5
     w[4] = (322+13sqrt(70))/900
     w[5] = (322-13sqrt(70))/900
     x = (x, w);
-elseif n <= 60 
-# NEWTON'S METHOD WITH THREE-TERM RECURRENCE:   
-    x = rec( n::Int64 )
+elseif n <= 60
+# NEWTON'S METHOD WITH THREE-TERM RECURRENCE:
+    x = rec( n::Int )
 else
 # USE ASYMPTOTIC EXPANSIONS:
-    x = asy( n::Int64 )
+    x = asy( n::Int )
 end
-    return x   # nodes and weights in tuple. 
+    return x   # nodes and weights in tuple.
 end
 
-function asy( n::Int64 )
-# COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING ASYMPTOTIC EXPANSIONS. COMPLEXITY O(n). 
+function asy( n::Int )
+# COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING ASYMPTOTIC EXPANSIONS. COMPLEXITY O(n).
     # Nodes and weights:
     m = (mod(n,2)==0) ? n>>1 : (n+1)>>1
     a = besselZeroRoots(m)
     scale!(a,1/(n + 0.5))
-    x = legpts_nodes(n, a); 
+    x = legpts_nodes(n, a);
     w = legpts_weights(n, m, a)
     # Use symmetry to get the others:
     if ( mod(n, 2) == 1 )
@@ -82,7 +82,7 @@ function asy( n::Int64 )
     return x, w
 end
 
-function legpts_nodes(n::Int64, a::Array{Float64})
+function legpts_nodes(n::Int, a::Array{Float64})
 # ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE NODES.
     vn = 1/(n + 0.5)
     m = length(a)
@@ -96,7 +96,7 @@ function legpts_nodes(n::Int64, a::Array{Float64})
     return nodes
 end
 
-function legpts_weights(n::Int64, m::Int64, a::Array{Float64})
+function legpts_weights(n::Int, m::Int, a::Array{Float64})
 # ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE WEIGHTS.
     vn = 1/(n + 0.5);
     u = Array(Float64,m); ua = Array(Float64,m); weights = Array(Float64,m)
@@ -118,27 +118,27 @@ function legpts_weights(n::Int64, m::Int64, a::Array{Float64})
     return weights
 end
 
-function rec( n::Int64 ) 
-# COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING NEWTON'S METHOD. THREE-TERM RECURENCE 
-# IS USED FOR EVALUATION. COMPLEXITY O(n^2). 
+function rec( n::Int )
+# COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING NEWTON'S METHOD. THREE-TERM RECURENCE
+# IS USED FOR EVALUATION. COMPLEXITY O(n^2).
     hN = mod(n,2)
-    # Initial guesses: 
-    x0 = asy(n)[1]; x = x0[(n-hN)/2+1:n]   
+    # Initial guesses:
+    x0 = asy(n)[1]; x = x0[(n-hN)/2+1:n]
     # Perform Newton to find zeros of Legendre polynomial:
     PP = innerRec( n, x ); dx = -PP[1]./PP[2]; x += dx
-    # One more Newton for derivatives: 
+    # One more Newton for derivatives:
     PP = innerRec( n, x ); dx = -PP[1]./PP[2]; x += dx
     #PP = (n<45)? innerRec( n, x ) : PP
-    # Use symmetry to get the other Legendre nodes and weights: 
+    # Use symmetry to get the other Legendre nodes and weights:
     nodes = vcat( -x[(n+hN)/2:-1:hN+1] , x )
     weights = 2./((1-nodes.^2).*vcat( PP[2][(n+hN)/2:-1:1+hN] , PP[2] ).^2)
     return nodes, weights
 end
 
-function innerRec( n::Int64, x )
+function innerRec( n::Int, x )
 # EVALUATE LEGENDRE AND ITS DERIVATIVE USING THREE-TERM RECURRENCE RELATION.
-    N = size(x,1) 
-    myPm1 = Array(Float64,N); myPPm1 = Array(Float64,N) 
+    N = size(x,1)
+    myPm1 = Array(Float64,N); myPPm1 = Array(Float64,N)
     for j = 1:N
         xj = x[j]; Pm2 = 1.0; Pm1 = xj; PPm1 = 1.0; PPm2 = 0.0
         for k = 1:n-1
@@ -146,13 +146,13 @@ function innerRec( n::Int64, x )
             PPm2, PPm1 = PPm1, ((2k+1)*(Pm2 + xj*PPm1)-k*PPm2)/(k+1)
         end
         myPm1[j] = Pm1
-        myPPm1[j] = PPm1 
+        myPPm1[j] = PPm1
     end
     return myPm1, myPPm1
 end
 
 
-function besselZeroRoots(m::Int64)
+function besselZeroRoots(m::Int)
 #BESSEL0ROOTS ROOTS OF BESSELJ(0,x). USE ASYMPTOTICS.
 # Use McMahon's expansion for the remainder (NIST, 10.21.19):
     jk = Array(Float64,m); ak = Array(Float64,m); ak82 = Array(Float64,m)
@@ -176,7 +176,7 @@ function besselZeroRoots(m::Int64)
 end
 
 
-function besselJ1( m::Int64 )
+function besselJ1( m::Int )
 # BESSELJ1 EVALUATE BESSELJ(1,x)^2 AT ROOTS OF BESSELJ(0,x). USE ASYMPTOTICS.
 # Use Taylor series of (NIST, 10.17.3) and McMahon's expansion (NIST, 10.21.19):
     Jk2 = Array(Float64,m); ak = Array(Float64,m); ak2 = Array(Float64,m)
@@ -188,7 +188,7 @@ function besselJ1( m::Int64 )
             0.05403757319811628, 0.04266142901724309, 0.03524210349099610,
             0.03002107010305467, 0.02614739149530809, 0.02315912182469139, 0.02078382912226786]
     for jj=1:min(m,10) Jk2[jj] = ten[jj] end
-    for jj=11:min(m,15) Jk2[jj] = 1/(pi*ak[jj])*(c[7] + ak2[jj]^2*(c[5] + ak2[jj]*(c[4] + 
+    for jj=11:min(m,15) Jk2[jj] = 1/(pi*ak[jj])*(c[7] + ak2[jj]^2*(c[5] + ak2[jj]*(c[4] +
                 ak2[jj]*(c[3] + ak2[jj]*(c[2]+ak2[jj]*c[1]))))) end
     for jj=16:min(m,21) Jk2[jj] = 1/(pi*ak[jj])*(c[7] + ak2[jj]^2*(c[5] + ak2[jj]*(c[4] + ak2[jj]*(c[3] + ak2[jj]*c[2])))) end
     for jj=22:min(m,55) Jk2[jj] =  1/(pi*ak[jj])*(c[7] + ak2[jj]^2*(c[5] + ak2[jj]*(c[4] + ak2[jj]*c[3]))) end

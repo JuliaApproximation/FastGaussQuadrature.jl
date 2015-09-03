@@ -1,4 +1,4 @@
-function gaussradau( n::Int64 )
+function gaussradau( n::Int )
 #RADAUPTS   Gauss-Legendre-Radau Quadrature Nodes and Weights
 
     if ( n == 1 )
