@@ -1,4 +1,4 @@
-function gaussjacobi(n::Int64, a, b)
+function gaussjacobi(n::Int, a, b)
 #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
 
     if ( a == 0 && b == 0 )
@@ -19,49 +19,49 @@ function gaussjacobi(n::Int64, a, b)
         x = JacobiRec(n, a, b)
     elseif ( n > 100 )
         x = JacobiAsy(n, a, b)
-    else 
+    else
         error("1st argument must be a positive integer.")
     end
     return x
 end
 
 
-function JacobiRec(n::Int64, a::Float64, b::Float64)
+function JacobiRec(n::Int, a::Float64, b::Float64)
 #Compute nodes and weights using recurrrence relation.
     x1 = HalfRec(n, a, b, 1)
-    x2 = HalfRec(n, b, a, 0) 
-    x = vcat( -flipud(x2[1]) , x1[1] )
-    ders = vcat( flipud(x2[2]) , x1[2] )
+    x2 = HalfRec(n, b, a, 0)
+    x = vcat( -flipdim(x2[1], 1), x1[1] )
+    ders = vcat( flipdim(x2[2], 1) , x1[2] )
     w = 1./((1-x.^2).*ders.^2)
     w = 2^(a+b+1)*gamma(2+a) * gamma(2+b) / (gamma(2+a+b)*(a+1)*(b+1)) * w ./ sum(w)
     return x, w
 end
 
-function HalfRec(n::Int64, a::Float64, b::Float64, flag)
+function HalfRec(n::Int, a::Float64, b::Float64, flag)
 #HALFREC   Jacobi polynomial recurrence relation.
     # Asymptotic formula - only valid for positive x.
     r = (flag==1) ? collect(ceil(n/2):-1:1) : collect(floor(n/2):-1:1)
     C = (2*r+a-.5)*pi/(2*n+a+b+1)
     x = cos( C + 1/(2*n+a+b+1)^2 * ((.25-a^2)*cot(.5*C) - (.25-b^2)*tan(.5*C)) )
-    dx = 1.0 
+    dx = 1.0
     counter = 0
     # Loop until convergence:
     while ( norm(dx,Inf) > sqrt(eps(Float64))/1000 && counter < 10 )
         counter = counter + 1
         P = innerJacobiRec(n, x, a, b)
-        dx = -P[1]./P[2] 
+        dx = -P[1]./P[2]
         x += dx
     end
     # Once more for derivatives:
-    P = innerJacobiRec(n, x, a, b)     
+    P = innerJacobiRec(n, x, a, b)
     return x, P[2]
 end
 
-function innerJacobiRec(n::Int64, x::Array{Float64}, a::Float64, b::Float64)
+function innerJacobiRec(n::Int, x::Array{Float64}, a::Float64, b::Float64)
 # EVALUATE JACOBI POLYNOMIALS AND ITS DERIVATIVE USING THREE-TERM RECURRENCE.
     #P, Pm1, PP, PPm1 = [.5*(a-b+(a+b+2)*x)], ones(x), .5*(a+b+2)*ones(x), zeros(x)
     N = length(x)
-    P = Array(Float64,N); Pm1 = Array(Float64,N); PP = Array(Float64,N); PPm1 = Array(Float64,N); 
+    P = Array(Float64,N); Pm1 = Array(Float64,N); PP = Array(Float64,N); PPm1 = Array(Float64,N);
     for j = 1:N
         P[j] = .5*(a-b+(a+b+2)*x[j]); Pm1[j] = 1.0; PP[j] = .5*(a+b+2); PPm1[j] = 0.0
         for k = 1:n-1
@@ -76,10 +76,10 @@ function innerJacobiRec(n::Int64, x::Array{Float64}, a::Float64, b::Float64)
     return P, PP
 end
 
-function weightsConstant( n::Int64, a::Float64, b::Float64 )
+function weightsConstant( n::Int, a::Float64, b::Float64 )
     # Compute the constant for weights:
     M = min(20, n-1)
-    C = 1.0 
+    C = 1.0
     p::Float64 = -a*b/n
     for m = 1:M
         C += p
@@ -89,7 +89,7 @@ function weightsConstant( n::Int64, a::Float64, b::Float64 )
     return 2^(a+b+1)*C
 end
 
-function JacobiAsy(n::Int64, a::Float64, b::Float64)
+function JacobiAsy(n::Int, a::Float64, b::Float64)
 #ASY   Compute nodes and weights using asymptotic formulae.
 
     # Determine switch between interior and boundary regions:
@@ -98,26 +98,26 @@ function JacobiAsy(n::Int64, a::Float64, b::Float64)
     bdyidx2 = nbdy:-1:1
 
     # Interior formula:
-    x = asy1(n, a, b, nbdy) 
+    x = asy1(n, a, b, nbdy)
     w = x[2]; x = x[1]
 
     # Boundary formula (right):
-    xbdy = boundary(n, a, b, nbdy);  
+    xbdy = boundary(n, a, b, nbdy);
     x[bdyidx1] = xbdy[1]
     w[bdyidx1] = xbdy[2]
-    
+
     # Boundary formula (left):
     if ( !(a == b) )
-        xbdy = boundary(n, b, a, nbdy)  
+        xbdy = boundary(n, b, a, nbdy)
     end
-    x[bdyidx2] = -xbdy[1] 
+    x[bdyidx2] = -xbdy[1]
     w[bdyidx2] = xbdy[2]
-    
+
     w *= weightsConstant(n, a, b)
     return x[:], w[:]
 end
 
-function asy1(n::Int64, a::Float64, b::Float64, nbdy)
+function asy1(n::Int, a::Float64, b::Float64, nbdy)
 # Algorithm for computing nodes and weights in the interior.
 
     # Approximate roots via asymptotic formula: (Gatteschi and Pittaluga, 1985)
@@ -127,7 +127,7 @@ function asy1(n::Int64, a::Float64, b::Float64, nbdy)
     # First half (x > 0):
     t = tt[tt .<= pi/2]'
     mint = t[end-nbdy+1]
-    idx = 1:max(findfirst(float64(t .< mint))-1, 1)
+    idx = 1:max(findfirst(t .< mint)-1, 1)
 
     dt = 1.0; counter = 0
     # Newton iteration
@@ -149,7 +149,7 @@ function asy1(n::Int64, a::Float64, b::Float64, nbdy)
     tmp = a; a = b; b = tmp
     t = pi - tt[1:(n-length(x))]'
     mint = t[nbdy]
-    idx = max(findfirst(float64(t .> mint)), 1):length(t)
+    idx = max(findfirst(t .> mint), 1):length(t)
 
     dt = 1.0; counter = 0;
     # Newton iteration
@@ -169,9 +169,9 @@ function asy1(n::Int64, a::Float64, b::Float64, nbdy)
     return x, w
 end
 
-function feval_asy1(n::Int64, a::Float64, b::Float64, t, idx, flag)
+function feval_asy1(n::Int, a::Float64, b::Float64, t, idx, flag)
 # Evaluate the interior asymptotic formula at x = cos(t).
-    
+
     # Number of terms in the expansion:
     M = 20
 
@@ -184,7 +184,7 @@ function feval_asy1(n::Int64, a::Float64, b::Float64, t, idx, flag)
 
     if ( flag == 1 )
         k = ( idx[1] == 1 ) ? collect(length(t):-1:1)' : collect(1:length(t))'
-        ta = float64(float32(t)) 
+        ta = float64(float32(t))
         tb = t - ta; hi = n*ta; lo = n*tb + (a+b+1)*.5*t
         pia = float64(float32(pi))
         pib = -8.742278000372485e-08; #pib = pi - pia
@@ -274,7 +274,7 @@ function feval_asy1(n::Int64, a::Float64, b::Float64, t, idx, flag)
         s = s + ds
     end
     p2 = exp(s)*sqrt(2*pi)*sqrt((n+a)*(n+b)/(2*n+a+b))/(2*n+a+b+1)
-    g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880, 
+    g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,
          5246819/75246796800, -534703531/902961561600,
          -4483131259/86684309913600, 432261921612371/514904800886784000]
     f(g,z) = sum(g.*[1;cumprod(ones(9)./z)])
@@ -289,11 +289,11 @@ function feval_asy1(n::Int64, a::Float64, b::Float64, t, idx, flag)
     denom = 1./real(sin(t/2).^(a+.5).*cos(t/2).^(b+.5))
     vals = vals.*denom
     ders = ders.*denom
-     
+
     return (vals, ders)
 end
 
-function boundary(n::Int64, a::Float64, b::Float64, npts)
+function boundary(n::Int, a::Float64, b::Float64, npts)
 # Algorithm for computing nodes and weights near the boundary.
 
     # Use Newton iterations to find the first few Bessel roots:
@@ -303,7 +303,7 @@ function boundary(n::Int64, a::Float64, b::Float64, npts)
     if ( npts > smallK )
         mu = 4*a^2;
         a8 = 8*([length(jk)+1:npts]'+.5*a-.25)*pi
-        jk2 = .125*a8-(mu-1)./a8 - 4*(mu-1)*(7*mu-31)/3./a8.^3 - 
+        jk2 = .125*a8-(mu-1)./a8 - 4*(mu-1)*(7*mu-31)/3./a8.^3 -
           32*(mu-1)*(83*mu.^2-983*mu+3779)/15./a8.^5 -
           64*(mu-1)*(6949*mu^3-153855*mu^2+1585743*mu-6277237)/105./a8.^7
         jk = [jk ; jk2]
@@ -324,22 +324,22 @@ function boundary(n::Int64, a::Float64, b::Float64, npts)
     end
     vals = innerJacobiRec(n, x, a, b);     # Evaluate via asymptotic formula.
     dx = -vals[1]./vals[2]                        # Newton update
-    x += dx    
-    
+    x += dx
+
     # flip:
     x = x[npts:-1:1]
     ders = vals[2]; vals = vals[1]
     ders = ders[npts:-1:1]
 
-    # Revert to x-space:     
+    # Revert to x-space:
     w = 1./((1-x.^2).*ders.^2)
     return x, w
 end
 
-function besselRoots(nu::Float64, m::Int64)
+function besselRoots(nu::Float64, m::Int)
 # BESSELROOTS(NU, M) returns the first M roots of besselj(nu, x).
 # Find an approximation:
-    jk = Array(Float64, m) 
+    jk = Array(Float64, m)
     m1 = 3
     if ( nu == 0 )
         xs = 2.404825557695773
@@ -349,7 +349,7 @@ function besselRoots(nu::Float64, m::Int64)
         nu1 = nu + 1;
         # See Piessens 1984:
         xs = 2*sqrt(nu+1)*(1 + nu1/4 - 7*nu1^2/96 + 49*nu1^3/1152 - 8363*nu1/276480);
-        m1 = min(max(2*ceil(abs(log10(nu1))), 3), m);
+        m1 = floor(Int, min(max(2*ceil(abs(log10(nu1))), 3), m));
     end
 
     jk[1] = besselNewton(nu, xs);
@@ -377,6 +377,6 @@ function besselNewton(nu::Float64, x::Float64)
         dx = u./du
         x -= dx
         counter += 1
-    end  
+    end
     return x
 end
