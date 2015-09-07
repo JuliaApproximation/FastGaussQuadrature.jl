@@ -183,16 +183,16 @@ function HermiteInitialGuesses( n::Int )
 # These initial guess are good near x = sqrt(n+1/2);
 if mod(n,2) == 1
     m = (n-1)>>1
-    bess = [1:m]'*pi
+    bess = collect(1:m)'*pi
     a = .5
 else
     m = n>>1
-    bess = ([0:m-1]'+.5)*pi
+    bess = (collect(0:m-1)'+.5)*pi
     a = -.5
 end
 nu = 4*m + 2*a + 2
 T(t) = t.^(2/3).*(1+5/48*t.^(-2)-5/36*t.^(-4)+(77125/82944)*t.^(-6) -108056875/6967296*t.^(-8)+162375596875/334430208*t.^(-10));
-airyrts = -T(3/8*pi*(4*[1:m]'-1))
+airyrts = -T(3/8*pi*(4*collect(1:m)'-1))
 
 airyrts_exact = [-2.338107410459762           # Exact Airy roots.
     -4.087949444130970
@@ -209,7 +209,7 @@ airyrts[1:10] = airyrts_exact  # correct first 10.
 x_init = sqrt(abs(nu + 2^(2/3)*airyrts*nu^(1/3) + 1/5*2^(4/3)*airyrts.^2*nu^(-1/3) +
     (11/35-a^2-12/175*airyrts.^3)/nu + (16/1575*airyrts+92/7875*airyrts.^4)*2^(2/3)*nu^(-5/3) -
     (15152/3031875*airyrts.^5+1088/121275*airyrts.^2)*2^(1/3)*nu^(-7/3)))
-x_init_airy = real(fliplr(x_init))
+x_init_airy = real(flipdim(x_init,2))
 
 # Tricomi initial guesses. Equation (2.1) in [1]. Originally in [2].
 # These initial guesses are good near x = 0 . Note: zeros of besselj(+/-.5,x)
@@ -217,7 +217,7 @@ x_init_airy = real(fliplr(x_init))
 # x_init_bess =  bess/sqrt(nu).*sqrt((1+ (bess.^2+2*(a^2-1))/3/nu^2) );
 Tnk0 = pi/2*ones(m)
 nu = (4*m+2*a+2)
-rhs = (4*m-4*[1:m]+3)./nu*pi
+rhs = (4*m-4*collect(1:m)+3)./nu*pi
 
 for k = 1:7
     val = Tnk0 - sin(Tnk0) - rhs
@@ -231,7 +231,8 @@ x_init_sin = sqrt(nu*tnk - (5./(4*(1-tnk).^2) - 1./(1-tnk)-1+3*a^2)/3/nu)
 
 # Patch together
 p = 0.4985+eps(Float64)
-x_init = [x_init_sin[1:floor(p*n)] ; x_init_airy[ceil(p*n):end]]
+x_init = [x_init_sin[1:convert(Int,floor(p*n))] ;
+x_init_airy[convert(Int,ceil(p*n)):end]]
 
 if mod(n, 2) == 1
     x_init = [0 ; x_init]
