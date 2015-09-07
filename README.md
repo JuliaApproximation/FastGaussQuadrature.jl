@@ -2,7 +2,7 @@ FastGaussQuadrature
 =========
 A Julia package to compute `n`-point Gauss quadrature nodes and weights to 16-digit accuracy and in `O(n)` time. So far the package includes `gausschebyshev()`, `gausslegendre()`, `gaussjacobi()`, `gaussradau()`, `gausslobatto()`, and `gausshermite()`. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>. 
 
-An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.org/wiki/Gaussian_quadrature">here</a>.
+An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.org/wiki/Gaussian_quadrature">here</a>. For a quirky account on the history of computing Gauss-Legendre quadrature, see [3].
 
 ## Our Aims 
 
@@ -85,9 +85,9 @@ Gauss quadrature for the weight function `w(x) = exp(-x^2)`.
 
 * For `n<200`: Use Newton's method to solve `Hn(x)=0`. Evaluate `Hn` and `Hn'` by three-term recurrence. 
 
-* For `n>=200`: Use Newton's method to solve `Hn(x)=0`. Evaluate `Hn` and `Hn'` by a uniform asymptotic expansion, see <a href="http://arxiv.org/abs/1410.5286">[4]</a>. 
+* For `n>=200`: Use Newton's method to solve `Hn(x)=0`. Evaluate `Hn` and `Hn'` by a uniform asymptotic expansion, see <a href="http://arxiv.org/abs/1410.5286">[5]</a>. 
 * 
-The paper <a href="http://arxiv.org/abs/1410.5286">[4]</a> also derives an `O(n)` algorithm for generalized Gauss-Hermite nodes and weights associated to weight functions of the form `exp(-V(x))`, where `V(x)` is a real polynomial. 
+The paper <a href="http://arxiv.org/abs/1410.5286">[5]</a> also derives an `O(n)` algorithm for generalized Gauss-Hermite nodes and weights associated to weight functions of the form `exp(-V(x))`, where `V(x)` is a real polynomial. 
 
 ## Example usage
 
@@ -111,4 +111,6 @@ elapsed time: 0.009797319 seconds
 
 [3] J. C. Mason and D. C. Handscomb, <a href="http://books.google.com/books?id=8FHf0P3to0UC&lpg=PP1&dq=Mason%20and%20Handscomb&pg=PP1#v=onepage&q=Mason%20and%20Handscomb&f=false">"Chebyshev Polynomials"</a>, CRC Press, 2002.
 
-[4] A. Townsend, T. Trogdon, and S. Olver, <a href="http://arxiv.org/abs/1410.5286">"Fast computation of Gauss quadrature nodes and weights on the whole real line"</a>, submitted, 2014.
+[4] A. Townsend, <a href="http://math.mit.edu/~ajt/papers/QuadratureEssay.pdf"> The race for high order Gauss-Legendre quadrature</a>, in SIAM News, March 2015.  
+
+[5] A. Townsend, T. Trogdon, and S. Olver, <a href="http://arxiv.org/abs/1410.5286">"Fast computation of Gauss quadrature nodes and weights on the whole real line"</a>, submitted, 2014.
