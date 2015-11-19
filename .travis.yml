@@ -1,0 +1,12 @@
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - 0.3
+  - 0.4
+  - nightly
+notifications:
+  email: false
+after_success:
+  - julia -e 'cd(Pkg.dir("FastGaussQuadrature")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
