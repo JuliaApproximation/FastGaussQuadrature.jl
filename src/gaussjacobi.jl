@@ -227,7 +227,7 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx, flag)
     end
     PHI = repmat(P1,M,1).*P2
 
-    j = transpose(collect(0:M-2))
+    j = transpose(0:M-2)
     vec = (.5+a+j).*(.5-a+j)./(j+1)./(2*(n-1)+a+b+j+2)
     P1 = [1 cumprod(vec,2)]
     P1[3:4:end] = -P1[3:4:end]
@@ -242,21 +242,23 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx, flag)
 
     S = 0; S2 = 0;
     SC = sinT
-    for m = 0:M-1
-        l = collect(0:2:m)
-        phi = PHI[m+1,l+1]
-        dS1 = phi*SC[l+1,:].*cosA[m+1,:]
-        phi2 = PHI2[m+1,l+1]
-        dS12 = phi2*SC[l+1,:].*cosA2[m+1,:]
-        l = collect(1:2:m)
-        phi = PHI[m+1,l+1]
-        dS2 = phi*SC[l+1,:].*sinA[m+1,:]
-        phi2 = PHI2[m+1,l+1]
-        dS22 = phi2*SC[l+1,:].*sinA2[m+1,:]
-        if m > 10 && norm(dS1[idx] + dS2[idx], Inf) < eps(Float64)/100 break end
+    for m = 1:M
+        l = 1:2:m
+        phi = PHI[m:m, l]
+        dS1 = phi * SC[l, :] .* cosA[m:m, :]
+        phi2 = PHI2[m:m, l]
+        dS12 = phi2*SC[l, :] .* cosA2[m:m, :]
+        l = 2:2:m
+        phi = PHI[m:m, l]
+        dS2 = phi * SC[l, :] .* sinA[m:m, :]
+        phi2 = PHI2[m:m, l]
+        dS22 = phi2 * SC[l, :] .* sinA2[m:m, :]
+        if m - 1 > 10 && norm(dS1[idx] + dS2[idx], Inf) < eps(Float64) / 100
+            break
+        end
         S = S + dS1 + dS2
         S2 = S2 + dS12 + dS22
-        SC[1:m+1,:] = broadcast(.*,SC[1:m+1,:],cosT)
+        SC[1:m,:] = broadcast(.*,SC[1:m,:],cosT)
     end
 
     # Constant out the front:
