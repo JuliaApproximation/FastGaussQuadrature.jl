@@ -1,5 +1,6 @@
 module FastGaussQuadrature
-   using Base
+
+using Compat
 
 export gausslegendre
 export gausschebyshev

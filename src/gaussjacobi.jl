@@ -76,21 +76,21 @@ function innerJacobiRec(n::Int, x::Array{Float64}, a::Float64, b::Float64)
     return P, PP
 end
 
-function weightsConstant( n::Int, a::Float64, b::Float64 )
+function weightsConstant(n::Int, a::Float64, b::Float64)
     # Compute the constant for weights:
-    M = min(20, n-1)
+    M = min(20, n - 1)
     C = 1.0
-    p::Float64 = -a*b/n
+    p = -a*b/n
     for m = 1:M
         C += p
         p *= -(m+a)*(m+b)/(m+1)/(n-m)
-        if ( abs(p / C) < eps(Float64)/100 ) break end
+        abs(p / C) < eps(Float64) / 100 && break
     end
-    return 2^(a+b+1)*C
+    return 2^(a + b + 1) * C
 end
 
 function JacobiAsy(n::Int, a::Float64, b::Float64)
-#ASY   Compute nodes and weights using asymptotic formulae.
+    #ASY   Compute nodes and weights using asymptotic formulae.
 
     # Determine switch between interior and boundary regions:
     nbdy = 10
@@ -98,23 +98,22 @@ function JacobiAsy(n::Int, a::Float64, b::Float64)
     bdyidx2 = nbdy:-1:1
 
     # Interior formula:
-    x = asy1(n, a, b, nbdy)
-    w = x[2]; x = x[1]
+    x, w = asy1(n, a, b, nbdy)
 
     # Boundary formula (right):
-    xbdy = boundary(n, a, b, nbdy);
+    xbdy = boundary(n, a, b, nbdy)
     x[bdyidx1] = xbdy[1]
     w[bdyidx1] = xbdy[2]
 
     # Boundary formula (left):
-    if ( !(a == b) )
+    if a != b
         xbdy = boundary(n, b, a, nbdy)
     end
     x[bdyidx2] = -xbdy[1]
     w[bdyidx2] = xbdy[2]
 
     w *= weightsConstant(n, a, b)
-    return x[:], w[:]
+    return x, w
 end
 
 function asy1(n::Int, a::Float64, b::Float64, nbdy)
@@ -196,9 +195,7 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx, flag)
             sgn = -sgn
             fact = fact*(2*j+3)*(2*j+2)
             DH = DH.*dh2
-            if ( norm(dc,Inf) < eps(Float64)/2000 )
-                break
-            end
+            norm(dc, Inf) < eps(Float64) / 2000 && break
         end
         tmp = -tmp; tmp[1] = -tmp[1]
         tmp = sign(cosA[1,2]*tmp[2])*tmp
@@ -214,27 +211,27 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx, flag)
     sinT = vcat( one , cumprod(onesM[2:end]*(.5*csc(.5*t))))
     cosT = .5*sec(.5*t)
 
-    j = transpose(collect(0:M-2))
+    j = transpose(0:M-2)
     vec = (.5+a+j).*(.5-a+j)./(j+1)./(2*n+a+b+j+2)
     P1 = [1 cumprod(vec,2)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = eye(M)
     for l = 0:M-1
-        j = transpose(collect(0:(M-l-2)))
+        j = transpose(0:(M-l-2))
         vec = (.5+b+j).*(.5-b+j)./(j+1)./(2*n+a+b+j+l+2)
         P2[l+1+(1:length(j)),l+1] = cumprod(vec,2)
     end
     PHI = repmat(P1,M,1).*P2
 
-    j = transpose(collect(0:M-2))
+    j = transpose(0:M-2)
     vec = (.5+a+j).*(.5-a+j)./(j+1)./(2*(n-1)+a+b+j+2)
     P1 = [1 cumprod(vec,2)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = eye(M)
     for l = 0:M-1
-        j = transpose(collect(0:(M-l-2)))
+        j = transpose(0:(M-l-2))
         vec = (.5+b+j).*(.5-b+j)./(j+1)./(2*(n-1)+a+b+j+l+2)
         P2[l+1+(1:length(j)),l+1] = cumprod(vec,2)
     end
@@ -242,21 +239,23 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx, flag)
 
     S = 0; S2 = 0;
     SC = sinT
-    for m = 0:M-1
-        l = collect(0:2:m)
-        phi = PHI[m+1,l+1]
-        dS1 = phi*SC[l+1,:].*cosA[m+1,:]
-        phi2 = PHI2[m+1,l+1]
-        dS12 = phi2*SC[l+1,:].*cosA2[m+1,:]
-        l = collect(1:2:m)
-        phi = PHI[m+1,l+1]
-        dS2 = phi*SC[l+1,:].*sinA[m+1,:]
-        phi2 = PHI2[m+1,l+1]
-        dS22 = phi2*SC[l+1,:].*sinA2[m+1,:]
-        if m > 10 && norm(dS1[idx] + dS2[idx], Inf) < eps(Float64)/100 break end
+    for m = 1:M
+        l = 1:2:m
+        phi = PHI[m:m, l]
+        dS1 = phi * SC[l, :] .* cosA[m:m, :]
+        phi2 = PHI2[m:m, l]
+        dS12 = phi2*SC[l, :] .* cosA2[m:m, :]
+        l = 2:2:m
+        phi = PHI[m:m, l]
+        dS2 = phi * SC[l, :] .* sinA[m:m, :]
+        phi2 = PHI2[m:m, l]
+        dS22 = phi2 * SC[l, :] .* sinA2[m:m, :]
+        if m - 1 > 10 && norm(dS1[idx] + dS2[idx], Inf) < eps(Float64) / 100
+            break
+        end
         S = S + dS1 + dS2
         S2 = S2 + dS12 + dS22
-        SC[1:m+1,:] = broadcast(.*,SC[1:m+1,:],cosT)
+        SC[1:m,:] = broadcast(.*,SC[1:m,:],cosT)
     end
 
     # Constant out the front:
