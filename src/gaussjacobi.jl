@@ -173,7 +173,7 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
     # Algorithm for computing nodes and weights in the interior.
 
     # Approximate roots via asymptotic formula: (Gatteschi and Pittaluga, 1985)
-    K = (2*collect(n:-1:1)+a-.5)*pi/(2*n+a+b+1)
+    K = (2*(n:-1:1)+a-.5)*pi/(2*n+a+b+1)
     tt = K + 1/(2*n+a+b+1)^2*((.25-a^2)*cot(.5*K)-(.25-b^2)*tan(.5*K))
 
     # First half (x > 0):
@@ -217,9 +217,7 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
     t += vals[1]./vals[2]                                 # Newton update.
 
     # Store:
-    x = [-cos(t) x];
-    w = [1./vals[2].^2 w];
-    return x, w
+    [-cos(vec(t));vec(x)],[1./vec(vals[2]).^2;vec(w)]
 end
 
 function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)

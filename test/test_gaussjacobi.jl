@@ -36,3 +36,8 @@ x, w = gaussjacobi(10013, .9, -.1)
 @test abs(x[13]  + 0.999992061552711) < tol
 @test abs(w[2] - 1.509654630405615e-06) < tol
 @test abs(w[13] - 7.548275262993863e-06) < tol
+
+
+# tests bug where row vectors were returned
+@test isa(x,Vector{Float64})
+@test isa(w,Vector{Float64})
