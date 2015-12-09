@@ -180,35 +180,30 @@ function rec(n)
     # THREE-TERM RECURENCE IS USED FOR EVALUATION. COMPLEXITY O(n^2).
     # Initial guesses:
     x0 = asy(n)[1]
-    x = x0[n ÷ 2 + 1:n]
+    x = x0[1:n ÷ 2 + 1]
     # Perform Newton to find zeros of Legendre polynomial:
     PP1, PP2 = innerRec(n, x)
     @inbounds @simd for i in 1:length(x)
         x[i] -= PP1[i] / PP2[i]
     end
-    # One more Newton for derivatives:
+        # One more Newton for derivatives:
     PP1, PP2 = innerRec(n, x)
     @inbounds @simd for i in 1:length(x)
         x[i] -= PP1[i] / PP2[i]
     end
-    # PP1, PP2 = (n < 45) ? innerRec(n, x) : (PP1, PP2)
+
     # Use symmetry to get the other Legendre nodes and weights:
     m = length(x)
     resize!(x, n)
     resize!(PP2, n)
-    @inbounds for i in 1:m
-        vx = x[i]
-        vpp = PP2[i]
-        x[n + 1 - i] = -vx
-        PP2[n + 1 - i] = vpp
-        x[n - m + i] = vx
-        PP2[n - m + i] = vpp
+    @inbounds for i in 1:m-1
+        x[n + 1 - i] = -x[i]
+        PP2[n + 1 - i] = -PP2[i]
     end
-    @inbounds mod(n, 2) == 1 && (x[m] = 0.0)
     @inbounds for i in 1:n
         PP2[i] = 2 / ((1 - x[i]^2) * PP2[i]^2)
     end
-    return x, PP2
+    x,PP2
 end
 
 function innerRec(n, x)
@@ -319,7 +314,7 @@ function besselJ1(m)
     @inbounds for jj = 280:min(m,2279)
         ak = π * (jj - .25)
         ak2 = (1 / ak)^2
-        Jk2[jj] = 1 / (π * ak) * muladd(ak^2, c[5], c[7])
+        Jk2[jj] = 1 / (π * ak) * muladd(ak2^2, c[5], c[7])
     end
     @inbounds for jj = 2280:m
         ak = π * (jj - .25)

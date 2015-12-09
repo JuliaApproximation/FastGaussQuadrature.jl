@@ -1,11 +1,17 @@
 # Test for gausslegendre().
 
+
+for n=2:10  # check all special cases
+    x, w = gausslegendre(n)
+    @test_approx_eq dot( w,(x.^2)) 2/3
+end
+
 tol = 1e-14
 n = 42
 x, w = gausslegendre(n)
 @test length(x) == n && length(w) == n
-@test abs(x[37] - 0.910959724904127) < tol
-@test abs(w[37] - 0.030479240699603) < tol
+@test_approx_eq_eps x[37]  0.910959724904127 tol
+@test_approx_eq_eps w[37] 0.030479240699603 tol
 
 @test_approx_eq dot( w,(x.^2)) 2/3
 @test_approx_eq dot( w,exp(x)) exp(1)-exp(-1)
