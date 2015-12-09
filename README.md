@@ -93,11 +93,11 @@ The paper <a href="http://arxiv.org/abs/1410.5286">[5]</a> also derives an `O(n)
 
 ```
 @time nodes, weights = gausslegendre( 100000 );
-0.016279 seconds (19 allocations: 2.671 MB)
+0.007890 seconds (19 allocations: 2.671 MB)
 
 # integrates f(x) = x^2 from -1 to 1
-@time dot( weight,(nodes.^2))
-elapsed time: 0.009797319 seconds
+@time dot( weights, nodes.^2 )
+0.004264 seconds (7 allocations: 781.484 KB)
 0.666666666666666
 ```
 
