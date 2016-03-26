@@ -14,11 +14,13 @@ function gaussjacobi(n::Int, a::Float64, b::Float64)
         Float64[], Float64[]
     elseif n == 1
         [(b - a) / (a + b + 2)], [2^(a + b + 1) * beta(a + 1, b + 1)]
-    elseif n <= 100 && min(a,b) < 5.
+    elseif min(a,b) <= -1.
+        error("The Jacobi parameters correspond to a nonintegrable weight function")
+    elseif n <= 100 && max(a,b) < 5.
         JacobiREC(n, a, b)        
-    elseif n > 100 && min(a,b) < 5.
+    elseif n > 100 && max(a,b) < 5.
         JacobiAsy(n, a, b)
-    elseif n <= 4000 && min(a,b)>=5.
+    elseif n <= 4000 && max(a,b)>=5.
         JacobiGW(n, a, b)
     else
         error("1st argument must be a positive integer.")
