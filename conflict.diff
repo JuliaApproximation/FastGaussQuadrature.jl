@@ -1,0 +1,28 @@
+diff --git a/src/gausshermite.jl b/src/gausshermite.jl
+index 7a6d689..6fbafb5 100644
+--- a/src/gausshermite.jl
++++ b/src/gausshermite.jl
+@@ -23,15 +23,14 @@ else
+ end
+ 
+ if mod(n,2) == 1                              # fold out
+-    w = [flipud(x[2][:]), x[2][2:end]]
+-    w = (sqrt(pi)/sum(w))*w
+-    x = ([-flipud(x[1]) ; x[1][2:end]], w)
+-else
+-    w = [flipud(x[2][:]), x[2][:]]
+-    w = (sqrt(pi)/sum(w))*w
+-    x = ([-flipud(x[1]) ; x[1]], w)
+-end
+-
++     w = [flipdim(x[2][:],1); x[2][2:end]]
++     w = (sqrt(pi)/sum(w))*w
++     x = ([-flipdim(x[1],1) ; x[1][2:end]], w)
++ else
++     w = [flipdim(x[2][:],1); x[2][:]]
++     w = (sqrt(pi)/sum(w))*w
++     x = ([-flipdim(x[1],1) ; x[1]], w)
++ end
+ end
+ 
+ function hermpts_asy( n::Int64 )
