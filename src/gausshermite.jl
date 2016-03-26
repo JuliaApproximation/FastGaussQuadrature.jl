@@ -1,25 +1,25 @@
-function gausshermite( n::Int64 )
-# GAUSSHERMITE(n) COMPUTE THE GAUSS-HERMITE NODES AND WEIGHTS IN O(n) time. 
+function gausshermite( n::Int )
+# GAUSSHERMITE(n) COMPUTE THE GAUSS-HERMITE NODES AND WEIGHTS IN O(n) time.
 
 
-if n < 0 
-    x = (Float64[],Float64[]) 
+if n < 0
+    x = (Float64[],Float64[])
     return x
-elseif n == 0 
-    x = (Float64[],Float64[]) 
+elseif n == 0
+    x = (Float64[],Float64[])
     return x
-elseif n == 1 
+elseif n == 1
     x = ([0.0],[sqrt(pi)])
     return x
-elseif n <= 20 
+elseif n <= 20
    # GW algorithm
    x = hermpts_gw( n )
-elseif n <= 200 
+elseif n <= 200
    # REC algorithm
    x = hermpts_rec( n )
 else
    # ASY algorithm
-   x = hermpts_asy( n ) 
+   x = hermpts_asy( n )
 end
 
 if mod(n,2) == 1                              # fold out
@@ -45,7 +45,7 @@ end
 >>>>>>> Stashed changes
 end
 
-function hermpts_asy( n::Int64 )
+function hermpts_asy( n::Int )
 # Compute Hermite nodes and weights using asymptotic formula
 
 x0 = HermiteInitialGuesses( n ) # get initial guesses
@@ -56,8 +56,8 @@ for k = 1:20
     val = hermpoly_asy_airy(n, theta0);
     dt = -val[1]./(sqrt(2)*sqrt(2n+1)*val[2].*sin(theta0))
     theta0 = theta0 - dt;                        # Newton update
-    if norm(dt,Inf) < sqrt(eps(Float64))/10 
-       break 
+    if norm(dt,Inf) < sqrt(eps(Float64))/10
+       break
     end
 end
 t0 = cos(theta0)
@@ -68,7 +68,7 @@ w = (exp(-x.^2)./ders.^2)';            # quadrature weights
 x = (x, w)
 end
 
-function hermpts_rec( n::Int64 )
+function hermpts_rec( n::Int )
 # Compute Hermite nodes and weights using recurrence relation.
 
 x0 = HermiteInitialGuesses( n )
@@ -79,8 +79,8 @@ for kk = 1:10
     dx = val[1]./val[2]
     dx[ isnan( dx ) ] = 0
     x0 = x0 - dx
-    if norm(dx, Inf)<sqrt(eps(Float64)) 
-        break 
+    if norm(dx, Inf)<sqrt(eps(Float64))
+        break
     end
 end
 x = x0/sqrt(2)
@@ -89,7 +89,7 @@ w = exp(-x.^2)./val[2].^2           # quadrature weights
 x = (x, w)
 end
 
-function hermpoly_rec( n::Int64, x0)
+function hermpoly_rec( n::Int, x0)
 # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
 
 # evaluate:
@@ -103,18 +103,18 @@ val = (H, (-x0.*H + sqrt(n)*Hold))
 end
 
 
-function hermpoly_asy_airy(n::Int64, theta)
+function hermpoly_asy_airy(n::Int, theta)
 # HERMPOLY_ASY evaluation hermite poly using Airy asymptotic formula in
 # theta-space.
 
 musq = 2n+1;
-cosT = cos(theta) 
+cosT = cos(theta)
 sinT = sin(theta)
 sin2T = 2*cosT.*sinT
 eta = .5*theta - .25*sin2T
 chi = -(3*eta/2).^(2/3)
 phi = (-chi./sinT.^2).^(1/4)
-C = 2*sqrt(pi)*musq^(1/6)*phi 
+C = 2*sqrt(pi)*musq^(1/6)*phi
 Airy0 = real(airy(musq.^(2/3)*chi))
 Airy1 = real(airy(1,musq.^(2/3)*chi))
 
@@ -181,7 +181,7 @@ dval = C.*dval
 val = (val, dval)
 end
 
-function HermiteInitialGuesses( n::Int64 )
+function HermiteInitialGuesses( n::Int )
 #HERMITEINTITIALGUESSES(N), Initial guesses for Hermite zeros.
 #
 # [1] L. Gatteschi, Asymptotics and bounds for the zeros of Laguerre
@@ -194,16 +194,16 @@ function HermiteInitialGuesses( n::Int64 )
 # These initial guess are good near x = sqrt(n+1/2);
 if mod(n,2) == 1
     m = (n-1)>>1
-    bess = [1:m]'*pi
+    bess = collect(1:m)'*pi
     a = .5
 else
     m = n>>1
-    bess = ([0:m-1]'+.5)*pi 
+    bess = (collect(0:m-1)'+.5)*pi
     a = -.5
 end
 nu = 4*m + 2*a + 2
 T(t) = t.^(2/3).*(1+5/48*t.^(-2)-5/36*t.^(-4)+(77125/82944)*t.^(-6) -108056875/6967296*t.^(-8)+162375596875/334430208*t.^(-10));
-airyrts = -T(3/8*pi*(4*[1:m]'-1))
+airyrts = -T(3/8*pi*(4*collect(1:m)'-1))
 
 airyrts_exact = [-2.338107410459762           # Exact Airy roots.
     -4.087949444130970
@@ -218,9 +218,9 @@ airyrts_exact = [-2.338107410459762           # Exact Airy roots.
 airyrts[1:10] = airyrts_exact  # correct first 10.
 
 x_init = sqrt(abs(nu + 2^(2/3)*airyrts*nu^(1/3) + 1/5*2^(4/3)*airyrts.^2*nu^(-1/3) +
-    (11/35-a^2-12/175*airyrts.^3)/nu + (16/1575*airyrts+92/7875*airyrts.^4)*2^(2/3)*nu^(-5/3) - 
+    (11/35-a^2-12/175*airyrts.^3)/nu + (16/1575*airyrts+92/7875*airyrts.^4)*2^(2/3)*nu^(-5/3) -
     (15152/3031875*airyrts.^5+1088/121275*airyrts.^2)*2^(1/3)*nu^(-7/3)))
-x_init_airy = real(fliplr(x_init))
+x_init_airy = real(flipdim(x_init,2))
 
 # Tricomi initial guesses. Equation (2.1) in [1]. Originally in [2].
 # These initial guesses are good near x = 0 . Note: zeros of besselj(+/-.5,x)
@@ -228,7 +228,7 @@ x_init_airy = real(fliplr(x_init))
 # x_init_bess =  bess/sqrt(nu).*sqrt((1+ (bess.^2+2*(a^2-1))/3/nu^2) );
 Tnk0 = pi/2*ones(m)
 nu = (4*m+2*a+2)
-rhs = (4*m-4*[1:m]+3)./nu*pi
+rhs = (4*m-4*collect(1:m)+3)./nu*pi
 
 for k = 1:7
     val = Tnk0 - sin(Tnk0) - rhs
@@ -242,7 +242,8 @@ x_init_sin = sqrt(nu*tnk - (5./(4*(1-tnk).^2) - 1./(1-tnk)-1+3*a^2)/3/nu)
 
 # Patch together
 p = 0.4985+eps(Float64)
-x_init = [x_init_sin[1:floor(p*n)] ; x_init_airy[ceil(p*n):end]]
+x_init = [x_init_sin[1:convert(Int,floor(p*n))] ;
+x_init_airy[convert(Int,ceil(p*n)):end]]
 
 if mod(n, 2) == 1
     x_init = [0 ; x_init]
@@ -255,8 +256,8 @@ return x_init
 end
 
 
-function hermpts_gw( n::Int64 ) 
-# Golub--Welsch algorithm. Used here for n<=20. 
+function hermpts_gw( n::Int )
+# Golub--Welsch algorithm. Used here for n<=20.
 
     beta = sqrt(.5*(1:n-1))              # 3-term recurrence coeffs
     T = diagm(beta, 1) + diagm(beta, -1)   # Jacobi matrix
@@ -264,10 +265,10 @@ function hermpts_gw( n::Int64 )
     indx = sortperm(D)                  # Hermite points
     x = D[indx]
     w = sqrt(pi)*V[1,indx].^2            # weights
-    
+
     # Enforce symmetry:
-    ii = floor(Int, n/2)+1:n  
-    x = x[ii]  
+    ii = floor(Int, n/2)+1:n
+    x = x[ii]
     w = w[ii]
     return (x,w)
 end

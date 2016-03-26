@@ -1,8 +1,9 @@
 module FastGaussQuadrature
-   using Base
 
-export gausslegendre 
-export gausschebyshev 
+using Compat
+
+export gausslegendre
+export gausschebyshev
 export gausshermite
 export gaussjacobi
 export gausslobatto
