@@ -67,7 +67,7 @@ Gauss quadrature for the weight functions `w(x) = (1-x)^a(1+x)^b`, `a,b>-1`.
 
 *  For `n>100`: Use Newton's method to solve `Pn(x)=0`. Evaluate `Pn` and `Pn'` by an asymptotic expansion (in the interior of `[-1,1]`) and the three-term recurrence `O(n^-2)` close to the endpoints. (This is a small modification to the algorithm described in <a href="http://epubs.siam.org/doi/abs/10.1137/120889873">[2]</a>.)
 
-*Warning:* `a` and `b` need to be relatively small `(-1<a,b<10)`.
+* For `max(a,b)>5`: Use the Golub-Welsch algorithm requiring `O(n^2)` operations. 
 
 ## The algorithm for Gauss-Radau
 Gauss quadrature for the weight function `w(x)=1`, except the endpoint `-1` is included as a quadrature node.
