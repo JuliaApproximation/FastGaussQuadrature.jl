@@ -17,7 +17,7 @@ function gaussjacobi(n::Int, a::Float64, b::Float64)
     elseif min(a,b) <= -1.
         error("The Jacobi parameters correspond to a nonintegrable weight function")
     elseif n <= 100 && max(a,b) < 5.
-        JacobiREC(n, a, b)        
+        JacobiRec(n, a, b)        
     elseif n > 100 && max(a,b) < 5.
         JacobiAsy(n, a, b)
     elseif n <= 4000 && max(a,b)>=5.
