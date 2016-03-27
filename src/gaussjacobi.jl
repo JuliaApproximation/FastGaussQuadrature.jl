@@ -431,4 +431,3 @@ function JacobiGW( n::Int64, a::Float64, b::Float64 )
     w = w/sum(w);
     x, w
 end
-end
