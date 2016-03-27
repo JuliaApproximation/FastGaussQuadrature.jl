@@ -319,6 +319,7 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
 
     # Use relation for derivative:
     ders = (n*(a-b-(2*n+a+b)*cos(t)).*vals + 2*(n+a)*(n+b)*S2)/(2*n+a+b)./sin(t)
+    t = abs( t )
     denom = 1./real(sin(t/2).^(a+.5).*cos(t/2).^(b+.5))
     vals = vals.*denom
     ders = ders.*denom
@@ -331,17 +332,7 @@ function boundary(n::Int, a::Float64, b::Float64, npts)
 
     # Use Newton iterations to find the first few Bessel roots:
     smallK = min(30, npts)
-    jk = besselRoots(a, min(npts, smallK))
-    # Use asy formula for larger ones (See NIST 10.21.19, Olver 1974 p247)
-    if npts > smallK
-        mu = 4*a^2
-        a8 = 8*([length(jk)+1:npts]'+.5*a-.25)*pi
-        jk2 = .125*a8-(mu-1)./a8 - 4*(mu-1)*(7*mu-31)/3./a8.^3 -
-          32*(mu-1)*(83*mu.^2-983*mu+3779)/15./a8.^5 -
-          64*(mu-1)*(6949*mu^3-153855*mu^2+1585743*mu-6277237)/105./a8.^7
-        jk = [jk ; jk2]
-    end
-    jk = real(jk[1:npts])
+    jk = besselroots(a, min(npts, smallK))
 
     # Approximate roots via asymptotic formula: (see Olver 1974)
     phik = jk/(n + .5*(a + b + 1))
@@ -367,51 +358,6 @@ function boundary(n::Int, a::Float64, b::Float64, npts)
     # Revert to x-space:
     w = 1./((1-x.^2).*ders.^2)
     return x, w
-end
-
-function besselRoots(nu::Float64, m::Int)
-# BESSELROOTS(NU, M) returns the first M roots of besselj(nu, x).
-# Find an approximation:
-    jk = Array(Float64, m)
-    m1 = 3
-    if ( nu == 0 )
-        xs = 2.404825557695773
-    elseif ( nu > 0 )
-        xs = nu + 1.8557*nu^(1/3)
-    else
-        nu1 = nu + 1;
-        # See Piessens 1984:
-        xs = 2*sqrt(nu+1)*(1 + nu1/4 - 7*nu1^2/96 + 49*nu1^3/1152 - 8363*nu1/276480);
-        m1 = floor(Int, min(max(2*ceil(abs(log10(nu1))), 3), m));
-    end
-
-    jk[1] = besselNewton(nu, xs);
-    if ( m > 1 )
-        jk[2] = besselNewton(nu, jk[1]+.9*pi)
-    end
-    if ( m > 2)
-        for k = 3:m1
-            jk[k] = besselNewton(nu, jk[k-1]+.99*pi)
-        end
-        for k = m1+1:m
-            jk[k] = besselNewton(nu, jk[k-1]+pi);
-        end
-    end
-    return jk
-end
-
-function besselNewton(nu::Float64, x::Float64)
-# BESSELNEWTON(NU, JK)   Find roots of Bessel function using Newton iteration.
-    dx = 1.0
-    counter = 0
-    while ( (dx > sqrt(eps(Float64)/1000)) && counter < 20 )
-        u = besselj(nu, x)
-        du = besselj(nu-1, x) - nu./x*u
-        dx = u./du
-        x -= dx
-        counter += 1
-    end
-    return x
 end
 
 function JacobiGW( n::Int64, a::Float64, b::Float64 ) 
