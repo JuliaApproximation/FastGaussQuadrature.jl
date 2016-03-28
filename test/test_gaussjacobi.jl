@@ -62,3 +62,12 @@ x, w = gaussjacobi(100, 19., 21.)
 x, w = gaussjacobi(10000, .1, .2)
 @test abs(x[1] - -0.999999963363548) < tol 
 @test abs(w[500] - 2.183393039546711e-05) < tol
+
+
+
+x,w=gaussjacobi(20,11.,0.)
+# tests bug where row vectors were returned
+@test isa(x,Vector{Float64})
+@test isa(w,Vector{Float64})
+
+
