@@ -1,3 +1,7 @@
+gaussjacobi(n::Number, a::Number, b::Number) =
+    gaussjacobi(Int(n),Float64(a),Float64(b))
+
+
 function gaussjacobi(n::Int, a::Float64, b::Float64)
     #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
     if a == 0. && b == 0.
