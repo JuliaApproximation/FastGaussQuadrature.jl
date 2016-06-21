@@ -30,7 +30,7 @@ function laguerreGW( n::Int64 )
     
 end
 
-########################## Routines for the GLR algorithm ##########################
+########################## Routines for GLR algorithm ##########################
 
 function laguerreGLR( n::Int64 )
     
@@ -182,7 +182,7 @@ function rk2_Lag(t, tn, x, n::Int64)
     x
 end
 
-########################## Routines for the RH algorithm ##########################
+########################## Routines for RH algorithm ##########################
 
 function laguerreRH( n::Int64 )
 
