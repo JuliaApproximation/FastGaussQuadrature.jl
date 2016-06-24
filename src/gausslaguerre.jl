@@ -1,5 +1,5 @@
 function gausslaguerre( n::Int64 )
-    
+
 # TODO: This code needs optimizing. 
 if  n == 0
     Float64[], Float64[]
@@ -7,13 +7,14 @@ elseif n == 1
     [1.0], [1.0]
 elseif n == 2
     [2.-sqrt(2.) 2.+sqrt(2.)], [(2.+sqrt(2.))/4 (2.-sqrt(2.))/4]
+elseif n < 0
+    laguerreRH( -n, true )  # Use RH and only compute the representable weights
 elseif n <= 128 
-    laguerreGW( n )   # Use Golub-Welsch
+    laguerreGW( n )         # Use Golub-Welsch
 elseif n <= 4200
-    laguerreGLR( n )  # Use GLR
-else  
-    #laguerreGLR( n )  # Use GLR
-    laguerreRH( n )   # Use RH
+    laguerreGLR( n )        # Use GLR
+else
+    laguerreRH( n, false )  # Use RH
 end
     
 end
@@ -184,26 +185,26 @@ end
 
 ########################## Routines for the RH algorithm ##########################
 
-function laguerreRH( n::Int64 )
+function laguerreRH( n::Int64, compRepr::Bool )
 
-# mn = min(ceil(17*sqrt(n)),n); # Gives about the values where the weights are about realmin.
-mn = n;
+if compRepr
+	mn = min(ceil(17*sqrt(n)),n); # Gives about the values where the weights are about realmin.
+else
+	mn = n;
+end
 
-#x = [ besselroots(0.0, 3).^2/(4*n + 2); zeros(mn-3,1) ];
 x = [ transpose(besselroots(0.0, 3).^2/(4*n + 2) )  zeros(1,mn-3) ];
 w = zeros(1, mn);
 fn = float(n);
 
 factor0 = 2.757254379232566e-04*fn^(-6) + 1.511212766999818e-03*fn^(-5) - 8.937757201646138e-04*fn^(-4) - 4.783950617283954e-03*fn^(-3) + 1.388888888888890e-02*fn^(-2) + 1.666666666666667e-01*fn^(-1) + 1;
-factor1 =  4.467345512307702e-04*(fn - 1)^(-6) + 1.543592617087788e-04*(fn - 1)^(-5) -1.419431584362170e-03*(fn - 1)^(-4) + 2.276234567901241e-03*(fn - 1)^(-3) + 4.513888888888890e-02*(fn - 1)^(-2) + 2.916666666666667e-01*(fn - 1)^(-1) + 1;
+factor1 = 1.786938204923081e-03*(fn-1)^(-6) + 6.174370468351152e-04*(fn-1)^(-5) - 5.677726337448679e-03*(fn-1)^(-4) + 9.104938271604964e-03*(fn-1)^(-3) + 1.805555555555556e-01*(fn-1)^(-2) + 1.166666666666667*(fn-1)^(-1) + 1;
 
 factorx = sqrt(factor1/factor0)/(2 - 2/n);
-factorw = -(1 - 1/(n + 1) )^(n + 1)*(1 - 1/n)*exp(1 + 2*log(2) )*2*pi*sqrt(factor0*factor1/(n + 1) );
+factorw = -(1 - 1/(n + 1) )^(n + 1)*(1 - 1/n)*exp(1 + 2*log(2) )*4*pi*sqrt(factor0*factor1);
 
 # This is a heuristic for the number of terms in the expansions that follow.
 T = ceil(25/log(n) );
-
-#print(T, factorx, factorw);
 
 poly = pl;
 
@@ -214,8 +215,8 @@ for k = 1:mn
     end
     if x[k] > 3.7*n
         poly = pr;
-    elseif x[k] > 2e-2
-        # The fixed delta in the RHP would mean this bound is proportional to n, but x(1:k) are O(1/n) so choose bound in between them O(n^0) to make more use of the expansion in the bulk.
+    elseif x[k] > sqrt(n)
+        # The fixed delta in the RHP would mean this bound is proportional to n, but x(1:k) are O(1/n) so choose bound in between them to make more use of the expansion in the bulk.
         poly = pb;
     end
     step = x[k];
@@ -230,7 +231,7 @@ for k = 1:mn
         step = pe/(poly(n-1, x[k], 1, T)*factorx - pe/2);
         if (abs(pe) >= abs(ov)*(1-5e5*eps(Float64)) ) 
             # The function values do not decrease enough any more.
-            x[k] = ox; # Set to previous value and quit.
+            x[k] = ox; # Set to the previous value and quit.
             break
         end
         ox = x[k];
@@ -242,7 +243,13 @@ for k = 1:mn
     end
     w[k] = factorw/poly(n-1, x[k], 1, T)/poly(n+1, x[k], 0, T)/exp( x[k] );
     if ( w[k] == 0 ) && ( k > 1 ) && ( w[k-1] > 0 ) # We could stop now.
-        warn("The weights are below the smallest positive floating point number for k >= about $k.");
+        if compRepr
+		x = x[1:k-1];
+		w = w[1:k-1];
+		return (x,w);
+	else
+		warn("The weights are below the smallest positive floating point number for k >= about $k.");
+	end
     end
 end
 x, w
@@ -251,11 +258,11 @@ end
 # Compute the expansion of the orthonormal polynomial in the bulk without e^(x/2)
 function pb(np, y, alpha, T)
 z = y/4/np;
-mxi = 2im*( sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ); # = -xin
+m2nxi = 2im*np*( sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ); # = -2*n*xin
 
 phi = 2*z - 1 + 2*sqrt(z)*sqrt(z - 1 + 0im);
 if T == 1
-    return real( 1/z^(1/4)/(z-1)^(1/4)*(exp(-np*mxi)*sqrt(phi)*(phi/z)^(alpha/2) + z^(-alpha)*exp(np*mxi)*1i/sqrt(phi)*(phi/z)^(-alpha/2) ) );
+    return real( 1/z^(1/4)/(z-1)^(1/4)*(exp(-m2nxi)*sqrt(phi)*(phi/z)^(alpha/2) + z^(-alpha)*exp(m2nxi)*1i/sqrt(phi)*(phi/z)^(-alpha/2) ) );
 end
 R = [0, 0];
 # Getting the higher order terms is hard-coded for speed and code length, but can be made to get arbitrary orders for general weight functions.
@@ -282,7 +289,7 @@ elseif (alpha == 1)
     end
     R = R + [1, 0] + ([0.046875, 0.01171875im]*z^(-1) + [-0.046875, 0.06119791666666667im]*(z - 1)^(-1) + [-0.02604166666666667, 0.006510416666666667im]*(z - 1)^(-2) )/np^1;
 end
-p = real( (sqrt(phi)*R[1] - 4^alpha*1im/sqrt(phi)*R[2] )*(phi/z)^(alpha/2)*exp(-np*mxi) + (1im/sqrt(phi)*R[1] + 4^alpha*sqrt(phi)*R[2] )*(phi*z)^(-alpha/2)*exp(np*mxi) );
+p = real( (sqrt(phi)*R[1] - 4^alpha*1im/sqrt(phi)*R[2] )*(phi/z)^(alpha/2)*exp(-m2nxi) + (1im/sqrt(phi)*R[1] + 4^alpha*sqrt(phi)*R[2] )*(phi*z)^(-alpha/2)*exp(m2nxi) );
 end
 
 # Compute the expansion of the orthonormal polynomial near zero without e^(x/2)
@@ -324,15 +331,12 @@ p = real( sqrt(2*pi)*(-1)^np*sqrt(npb)/z^(1/4)/(1 - z)^(1/4)*z^(-alpha/2)*( (sin
 
 end
 
-
-
 # Compute the expansion of the orthonormal polynomial near 4n without e^(x/2)
 function pr(np, y, alpha, T)
 z = y/4/np;
-mxi = 2im*( sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ); # = -xin
-fn = (np*3/2*mxi)^(2/3);
+fn = (np*3im*( sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ) )^(2/3);
 if T == 1
-    return real( 2*sqrt(pi)/z^(1/4)/(z - 1)^(1/4)*z^(-alpha/2)*(cos( (alpha + 1)/2*acos(2*z - 1) )*fn^(1/4)*airy(0,fn) + -1im*sin( (alpha + 1)/2*acos(2*z - 1) )*fn^(-1/4)*airy(1,fn) ) );
+    return real( 4*sqrt(pi)/z^(1/4)/(z - 1)^(1/4)*z^(-alpha/2)*(cos( (alpha + 1)/2*acos(2*z - 1) )*fn^(1/4)*airy(0,fn) + -1im*sin( (alpha + 1)/2*acos(2*z - 1) )*fn^(-1/4)*airy(1,fn) ) );
 end
 
 RR = [0, 0];
@@ -360,7 +364,7 @@ elseif ( alpha == 1 )
     RR = RR + [1, 0] + ([0.04047619047619047, -0.03928571428571431im] + [-0.04222222222222222, -0.008015873015873025im]*z^1 + [0.04308472479901051, 0.009451041022469598im]*z^2 + [-0.04361026909598338, -0.01006952095523524im]*z^3 + [0.04396981497716192, 0.0104078944789149im]*z^4 + [-0.04423440188249792, -0.01062009860203378im]*z^5 + [0.04443907573247043, 0.01076543684375636im]*z^6 + [-0.04460324252123175, -0.01087128029713879im]*z^7 )/np^1;
 end
 
-p = real( 2*sqrt(pi)/z^(1/4)/(z + 0im - 1)^(1/4)*z^(-alpha/2)*( (RR[1]*cos( (alpha + 1)/2*acos(2*z - 1) ) -1im*cos( (alpha - 1)/2*acos(2*z - 1) )*RR[2]*4^alpha )*fn^(1/4)*airy(0,fn) + (-1im*sin( (alpha + 1)/2*acos(2*z - 1) )*RR[1] -sin( (alpha - 1)/2*acos(2*z - 1) )*RR[2]*4^alpha)*fn^(-1/4)*airy(1,fn) ) );
+p = real( 4*sqrt(pi)/z^(1/4)/(z + 0im - 1)^(1/4)*z^(-alpha/2)*( (RR[1]*cos( (alpha + 1)/2*acos(2*z - 1) ) -1im*cos( (alpha - 1)/2*acos(2*z - 1) )*RR[2]*4^alpha )*fn^(1/4)*airy(0,fn) + (-1im*sin( (alpha + 1)/2*acos(2*z - 1) )*RR[1] -sin( (alpha - 1)/2*acos(2*z - 1) )*RR[2]*4^alpha)*fn^(-1/4)*airy(1,fn) ) );
 
 end
 
