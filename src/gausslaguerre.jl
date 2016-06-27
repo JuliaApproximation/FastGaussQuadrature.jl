@@ -188,41 +188,42 @@ end
 function laguerreRH( n::Int64, compRepr::Bool )
 
 if compRepr
-	mn = min(ceil(17*sqrt(n)),n); # Gives about the values where the weights are about realmin.
+	# Get a heuristic for the indices where the weights are about above realmin.
+	mn = min(Int64(ceil(17*sqrt(n))),n);
 else
 	mn = n;
 end
-
+# Initial guesses
 x = [ transpose(besselroots(0.0, 3).^2/(4*n + 2) )  zeros(1,mn-3) ];
 w = zeros(1, mn);
 fn = float(n);
 
 factor0 = 2.757254379232566e-04*fn^(-6) + 1.511212766999818e-03*fn^(-5) - 8.937757201646138e-04*fn^(-4) - 4.783950617283954e-03*fn^(-3) + 1.388888888888890e-02*fn^(-2) + 1.666666666666667e-01*fn^(-1) + 1;
 factor1 = 1.786938204923081e-03*(fn-1)^(-6) + 6.174370468351152e-04*(fn-1)^(-5) - 5.677726337448679e-03*(fn-1)^(-4) + 9.104938271604964e-03*(fn-1)^(-3) + 1.805555555555556e-01*(fn-1)^(-2) + 1.166666666666667*(fn-1)^(-1) + 1;
-
+# We factored out some constants from the ratio or product of the asymptotic expansions.
 factorx = sqrt(factor1/factor0)/(2 - 2/n);
 factorw = -(1 - 1/(n + 1) )^(n + 1)*(1 - 1/n)*exp(1 + 2*log(2) )*4*pi*sqrt(factor0*factor1);
 
 # This is a heuristic for the number of terms in the expansions that follow.
 T = ceil(25/log(n) );
-
+# Start with the expansion in terms of Bessel functions
 poly = pl;
 
-ls = zeros(mn,1);
 for k = 1:mn
-    if ( k > 3 )
+    if ( k > 3 ) # Use quadratic extrapolation for the initial guesses
         x[k] = 3*x[k-1] - 3*x[k-2] + x[k-3];
     end
     if x[k] > 3.7*n
+	# Use the expansion in terms of the (expensive) Airy function, although the weights will underflow already for n = 300
         poly = pr;
     elseif x[k] > sqrt(n)
-        # The fixed delta in the RHP would mean this bound is proportional to n, but x(1:k) are O(1/n) so choose bound in between them to make more use of the expansion in the bulk.
+        # The fixed delta in the RHP would mean this bound has to be proportional to n, but x(1:k) are O(1/n) so choose the bound in between them to make more use of the (cheap) expansion in the bulk.
         poly = pb;
     end
     step = x[k];
-    l = 0;
-    ov = Inf;
-    ox = x[k];
+    l = 0; # Newton-Raphson iteration number
+    ov = Inf; # Previous/old value
+    ox = x[k]; # Old x
     # [FIXME] Accuracy of the expansions up to machine precision would lower this bound.
     while ( ( abs(step) > eps(Float64)*400*x[k] ) && ( l < 20) )
         l = l + 1;
@@ -230,7 +231,7 @@ for k = 1:mn
         # poly' = (p*exp(-Q/2) )' = exp(-Q/2)*(p' -p/2) with orthonormal p
         step = pe/(poly(n-1, x[k], 1, T)*factorx - pe/2);
         if (abs(pe) >= abs(ov)*(1-5e5*eps(Float64)) ) 
-            # The function values do not decrease enough any more.
+            # The function values do not decrease enough any more due to roundoff errors.
             x[k] = ox; # Set to the previous value and quit.
             break
         end
@@ -248,7 +249,7 @@ for k = 1:mn
 		w = w[1:k-1];
 		return (x,w);
 	else
-		warn("The weights are below the smallest positive floating point number for k >= about $k.");
+		warn("The weights are below the smallest positive floating point number for k >= about $k: use gausslaguerre(-n) to stop here.");
 	end
     end
 end
@@ -259,7 +260,6 @@ end
 function pb(np, y, alpha, T)
 z = y/4/np;
 m2nxi = 2im*np*( sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ); # = -2*n*xin
-
 phi = 2*z - 1 + 2*sqrt(z)*sqrt(z - 1 + 0im);
 if T == 1
     return real( 1/z^(1/4)/(z-1)^(1/4)*(exp(-m2nxi)*sqrt(phi)*(phi/z)^(alpha/2) + z^(-alpha)*exp(m2nxi)*1i/sqrt(phi)*(phi/z)^(-alpha/2) ) );
@@ -296,7 +296,7 @@ end
 function pl(np, y, alpha, T)
 # [FIXME] Ensure analytic continuation of all functions to avoid adding eps*1i.
 z = (1+eps(Float64)*1im)*y/4/np;
-npb = 2*np*(pi/2 + sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ); # = 2i n sqrt(phitn)
+npb = 2*np*(pi/2 + sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ); # = 2i*n*sqrt(phitn)
 
 if T == 1
     return real( sqrt(2*pi)*(-1)^np*sqrt(npb)/z^(1/4)/(1 - z)^(1/4)*z^(-alpha/2)*(sin( (alpha + 1)/2*acos(2*z - 1) - pi*alpha/2)*besselj(alpha,npb) + cos( (alpha + 1)/2*acos(2*z - 1) - pi*alpha/2)*(besselj(alpha-1,npb) - alpha/(npb)*besselj(alpha, npb) ) ) )
