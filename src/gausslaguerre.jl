@@ -206,7 +206,7 @@ factorw = -(1 - 1/(n + 1) )^(n + 1)*(1 - 1/n)*exp(1 + 2*log(2) )*4*pi*sqrt(facto
 
 # This is a heuristic for the number of terms in the expansions that follow.
 T = ceil(25/log(n) );
-# Start with the expansion in terms of Bessel functions
+# Start with the expansion in terms of Bessel functions.
 poly = pl;
 
 for k = 1:mn
