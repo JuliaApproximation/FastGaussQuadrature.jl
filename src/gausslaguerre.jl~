@@ -311,7 +311,8 @@ function asyBessel(np::Int64, y::Float64, alpha::Float64, T::Int64)
     # [FIXME] Ensure analytic continuation of all functions to avoid adding eps*1i.
     z = (1+eps(Float64)*1im)*y/4/np
     npb = 2*np*(pi/2 + sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ) # = 2i*n*sqrt(phitn)
-    if T == 1
+
+    if true #T == 1
         return real( sqrt(2*pi)*(-1)^np*sqrt(npb)/z^(1/4)/(1 - z)^(1/4)*z^(-alpha/2)*(sin( (alpha + 1)/2*acos(2*z - 1) - pi*alpha/2)*besselj(alpha,npb) + cos( (alpha + 1)/2*acos(2*z - 1) - pi*alpha/2)*(besselj(alpha-1,npb) - alpha/(npb)*besselj(alpha, npb) ) ) )
     end
     # Use the series expansion of R because it is faster and we use asyBessel only very close to zero to have less calls to besselj.
