@@ -265,10 +265,11 @@ end
 function asyBulk(np, y, alpha, T)
     z = y/4/np
     mnxi = 2*np*( sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ) # = n*xin/i
+    d = z-1
     if T == 1
         return real(2/z^(1/4+alpha/2)/(1-z)^(1/4)*cos(acos(2*z-1)*(1/2+alpha/2)-mnxi-pi/4) )
     end
-    d = z-1
+
     R1 = 0.0
     R2 = 0.0
     # Getting the higher order terms is hard-coded for speed and code length, but can be made to get arbitrary orders for general weight functions.
@@ -436,6 +437,7 @@ function asyAiry(np, y, alpha, T)
     if T == 1
         return real( 4*sqrt(pi)/z^(1/4)/(z - 1 + 0im)^(1/4)*z^(-alpha/2)*(cos( (alpha + 1)/2*acos(2*z - 1) )*fn^(1/4)*airy(0,fn) + -1im*sin( (alpha + 1)/2*acos(2*z - 1) )*fn^(-1/4)*airy(1,fn) ) )
     end
+
     d = z - 1
     R1 = 0.0
     R2 = 0.0
