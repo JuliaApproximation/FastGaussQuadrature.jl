@@ -11,7 +11,7 @@ elseif n < 0
     laguerreRH( -n, true )  # Use RH and only compute the representable weights
 elseif n <= 128 
     laguerreGW( n )         # Use Golub-Welsch
-elseif n <= 4200
+elseif n <= 148
     laguerreGLR( n )        # Use GLR
 else
     laguerreRH( n, false )  # Use RH
@@ -207,7 +207,7 @@ function laguerreRH( n::Int64, compRepr::Bool )
 
     # This is a heuristic for the number of terms in the expansions that follow.
     T = ceil(Int64, 25/log(n) )
-
+    noUnderflow = true
     for k = 1:mn
         if ( k > 3 ) # Use quadratic extrapolation for the initial guesses.
             x[k] = 3*x[k-1] - 3*x[k-2] + x[k-3]
@@ -216,7 +216,7 @@ function laguerreRH( n::Int64, compRepr::Bool )
         l = 0 # Newton-Raphson iteration number
         ov = 1.0e30 # Previous/old value
         ox = x[k] # Old x
-        # [FIXME] Accuracy of the expansions up to machine precision would lower this bound.
+        # Accuracy of the expansions up to machine precision would lower this bound.
         while ( ( abs(step) > eps(Float64)*400*x[k] ) && ( l < 20) )
             l = l + 1
             pe = polyAsyRH(n, x[k], 0, T)
@@ -231,16 +231,19 @@ function laguerreRH( n::Int64, compRepr::Bool )
             x[k] = x[k] -step
             ov = pe
     end
-    w[k] = factorw/polyAsyRH(n-1, x[k], 1, T)/polyAsyRH(n+1, x[k], 0, T)/exp( x[k] )
+    if noUnderflow
+        w[k] = factorw/polyAsyRH(n-1, x[k], 1, T)/polyAsyRH(n+1, x[k], 0, T)/exp( x[k] )
+    end
     if l == 20
         error("No convergence")
-    elseif ( w[k] == 0 ) && ( k > 1 ) && ( w[k-1] > 0 ) # We could stop now.
+    elseif noUnderflow && ( w[k] == 0 ) && ( k > 1 ) && ( w[k-1] > 0 ) # We could stop now as the weights underflow.
         if compRepr
 		x = x[1:k-1]
 		w = w[1:k-1]
 		return (x,w)
 	    else
 	    	warn("The weights are below the smallest positive floating point number for k >= about $k: use gausslaguerre(-n) to stop here.")
+                noUnderflow = false
 	    end
         end
     end
@@ -255,7 +258,7 @@ function polyAsyRH(np, y, alpha, T)
         # The fixed delta in the RHP would mean this bound has to be proportional to n, but x(1:k) are O(1/n) so choose the bound in between them to make more use of the (cheap) expansion in the bulk.
         return asyBessel(np, y, alpha, T)
     elseif y > 3.7*(np+alpha)
-	# Use the expansion in terms of the (expensive) Airy function, although the weights will underflow already for n = 300.
+	# Use the expansion in terms of the (expensive) Airy function, although the weights will underflow already for n = 186.
         return asyAiry(np, y, alpha, T)
     end
     asyBulk(np, y, alpha, T)
@@ -328,7 +331,7 @@ function asyBulk(np, y, alpha, T)
         end
         if ( T >= 3 )
             R1 = R1 + (-0.00048828125*z^(-1) )/np^2
-            R2 = R2 + (+0.007812500000000007*z^(-1) )/np^2
+            R2 = R2 + (+0.0078125*z^(-1) )/np^2
             R1 = R1 + (+0.0004882812499999989*d^(-1) -0.01177300347222222*d^(-2) )/np^2
             R2 = R2 + (-0.0529513888888889*d^(-1) -0.1154513888888889*d^(-2) )/np^2
             R1 = R1 + (-0.02468532986111112*d^(-3) )/np^2
@@ -422,7 +425,7 @@ function asyBessel(np, y, alpha, T)
         R1 = R1 + (-0.03481481481481481*z^3 -0.003174603174603177*z^2 )/np^1
         R2 = R2 + (+0.1358730158730159*z^3 +0.1476190476190476*z^2 )/np^1
         R1 = R1 + (+0.03333333333333333*z^1 +0.08333333333333333 )/np^1 + 1
-        R2 = R2 + (+0.1333333333333333*z^1 +0.5000000000000001 )/np^1
+        R2 = R2 + (+0.1333333333333333*z^1 +0.5 )/np^1
     end
 
     p = real( sqrt(2*pi)*(-1)^np*sqrt(npb)/z^(1/4)/(1 - z)^(1/4)*z^(-alpha/2)*( (sin( (alpha + 1)/2*acos(2*z - 1) - pi*alpha/2)*R1 -sin( (alpha - 1)/2*acos(2*z - 1) - pi*alpha/2)*R2)*besselj(alpha, npb) + (cos( (alpha + 1)/2*acos(2*z - 1)- pi*alpha/2)*R1 - cos( (alpha - 1)/2*acos(2*z - 1) - pi*alpha/2)*R2)*(besselj(alpha-1, npb) - alpha/npb*besselj(alpha, npb) ) ) )
@@ -433,10 +436,10 @@ end
 function asyAiry(np, y, alpha, T)
     z = y/4/np
     fn = (np*3im*( sqrt(z)*sqrt(1 - z) - acos(sqrt(z) ) ) )^(2/3)
-    if T == 1
-        return real( 4*sqrt(pi)/z^(1/4)/(z - 1 + 0im)^(1/4)*z^(-alpha/2)*(cos( (alpha + 1)/2*acos(2*z - 1) )*fn^(1/4)*airy(0,fn) + -1im*sin( (alpha + 1)/2*acos(2*z - 1) )*fn^(-1/4)*airy(1,fn) ) )
-    end
     d = z - 1
+    if T == 1
+        return real( 4*sqrt(pi)/z^(1/4)/(d + 0im)^(1/4)*z^(-alpha/2)*(cos( (alpha + 1)/2*acos(2*z - 1) )*fn^(1/4)*airy(0,fn) + -1im*sin( (alpha + 1)/2*acos(2*z - 1) )*fn^(-1/4)*airy(1,fn) ) )
+    end
     R1 = 0.0
     R2 = 0.0
     if ( alpha == 0 )
@@ -511,7 +514,7 @@ function asyAiry(np, y, alpha, T)
         R2 = R2 + (+0.0320634920634921*d^1 +0.1571428571428572 )/np^1
     end
 
-    real( 4*sqrt(pi)/z^(1/4)/(z - 1 + 0im)^(1/4)*z^(-alpha/2)*( (R1*cos( (alpha + 1)/2*acos(2*z - 1) ) -cos( (alpha - 1)/2*acos(2*z - 1) )*R2)*fn^(1/4)*airy(0,fn) + 1im*(-sin( (alpha + 1)/2*acos(2*z - 1) )*R1 +sin( (alpha - 1)/2*acos(2*z - 1) )*R2)*fn^(-1/4)*airy(1,fn) ) )
+    real( 4*sqrt(pi)/z^(1/4)/(d + 0im)^(1/4)*z^(-alpha/2)*( (R1*cos( (alpha + 1)/2*acos(2*z - 1) ) -cos( (alpha - 1)/2*acos(2*z - 1) )*R2)*fn^(1/4)*airy(0,fn) + 1im*(-sin( (alpha + 1)/2*acos(2*z - 1) )*R1 +sin( (alpha - 1)/2*acos(2*z - 1) )*R2)*fn^(-1/4)*airy(1,fn) ) )
 
 end
 
