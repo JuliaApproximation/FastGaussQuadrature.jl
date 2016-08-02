@@ -206,8 +206,8 @@ airyrts_exact = [-2.338107410459762           # Exact Airy roots.
     -10.040174341558084
     -11.008524303733260
     -11.936015563236262
-    -12.828776752865757];
-    airyrts[1:minimum(m,10)] = airyrts_exact(1:minimum(m,10));  # correct first 10.
+    -12.828776752865757]
+airyrts[1:10] = airyrts_exact  # correct first 10.
 
 x_init = sqrt(abs(nu + 2^(2/3)*airyrts*nu^(1/3) + 1/5*2^(4/3)*airyrts.^2*nu^(-1/3) +
     (11/35-a^2-12/175*airyrts.^3)/nu + (16/1575*airyrts+92/7875*airyrts.^4)*2^(2/3)*nu^(-5/3) -
