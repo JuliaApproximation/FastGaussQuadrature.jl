@@ -288,7 +288,7 @@ function laguerreRH( n::Int64, compRepr::Bool, alpha::Float64 )
 	    end
         end
     end
-    x, w
+    x[:], w[:]
 end
 
 # Compute the expansion of the orthonormal polynomial without e^(x/2) nor a constant factor based on some heuristics
