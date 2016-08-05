@@ -52,3 +52,22 @@ x, w = gaussjacobi(10013, .9, -.1)
 # tests bug where row vectors were returned
 @test isa(x,Vector{Float64})
 @test isa(w,Vector{Float64})
+
+# test last alpha and beta parameters: 
+x, w = gaussjacobi(100, 19., 21.)
+@test abs(x[87] - 0.832211446176040) < tol 
+@test abs(w[50] - 0.064530500882703) < tol
+
+# test for small alpha and beta: 
+x, w = gaussjacobi(10000, .1, .2)
+@test abs(x[1] - -0.999999963363548) < tol 
+@test abs(w[500] - 2.183393039546711e-05) < tol
+
+
+
+x,w=gaussjacobi(20,11.,0.)
+# tests bug where row vectors were returned
+@test isa(x,Vector{Float64})
+@test isa(w,Vector{Float64})
+
+
