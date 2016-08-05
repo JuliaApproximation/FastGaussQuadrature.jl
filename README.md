@@ -124,4 +124,4 @@ The paper <a href="http://arxiv.org/abs/1410.5286">[6]</a> also derives an `O(n)
 
 [5] A. Townsend, <a href="http://math.mit.edu/~ajt/papers/QuadratureEssay.pdf"> The race for high order Gauss-Legendre quadrature</a>, in SIAM News, March 2015.  
 
-[6] A. Townsend, T. Trogdon, and S. Olver, <a href="http://arxiv.org/abs/1410.5286">"Fast computation of Gauss quadrature nodes and weights on the whole real line"</a>, submitted, 2014.
+[6] A. Townsend, T. Trogdon, and S. Olver, <a href="http://arxiv.org/abs/1410.5286">"Fast computation of Gauss quadrature nodes and weights on the whole real line"</a>, to appear in IMA Numer. Anal., 2014.
