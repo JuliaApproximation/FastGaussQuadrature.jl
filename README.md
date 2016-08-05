@@ -1,5 +1,7 @@
-FastGaussQuadrature
+FastGaussQuadrature.jl
 =========
+[![Build Status](https://travis-ci.org/ajt60gaibb/FastGaussQuadrature.jl.svg?branch=master)](https://travis-ci.org/ajt60gaibb/FastGaussQuadrature.jl) [![Coverage Status](https://coveralls.io/repos/github/ajt60gaibb/FastGaussQuadrature.jl/badge.svg?branch=master)](https://coveralls.io/github/ajt60gaibb/FastGaussQuadrature.jl?branch=master)
+
 A Julia package to compute `n`-point Gauss quadrature nodes and weights to 16-digit accuracy and in `O(n)` time. So far the package includes `gausschebyshev()`, `gausslegendre()`, `gaussjacobi()`, `gaussradau()`, `gausslobatto()`, `gausslaguerre()`, and `gausshermite()`. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>.
 
 An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.org/wiki/Gaussian_quadrature">here</a>. For a quirky account on the history of computing Gauss-Legendre quadrature, see <a href="http://math.mit.edu/~ajt/papers/QuadratureEssay.pdf">[4]</a>.
