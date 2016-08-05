@@ -19,6 +19,7 @@ if ( (method == "default") && ( (m != 1) || (qm != 1.0) ) ) || (method == "gen")
     (x,w)
 elseif (method == "default") && (n == 0)
     Float64[], Float64[]
+<<<<<<< HEAD
 elseif (method == "default") && (n == 1)
     [1.0+alpha], [1.0]
 elseif (method == "default") && (n == 2)

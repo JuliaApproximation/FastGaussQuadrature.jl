@@ -13,7 +13,6 @@ x, w = gausslaguerre( n )
 # Test a larger n (using GLR)
 n = 251
 x, w = gausslaguerre( n )
-
 @test abs(dot(x,w) - 1) < 100*tol
 @test abs(dot(x.^2,w) - 2) < 100*tol
 @test abs(x[37] - 13.309000189442097) < tol
@@ -22,6 +21,5 @@ x, w = gausslaguerre( n )
 # Test an even larger n (using RH)
 n = 5000
 x, w = gausslaguerre( n )
-
 @test abs(dot(x,w) - 1) < 100*tol
 @test abs(dot(x.^2,w) - 2) < 100*tol

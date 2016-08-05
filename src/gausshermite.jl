@@ -179,20 +179,23 @@ function HermiteInitialGuesses( n::Int )
 # [2] F. G. Tricomi, Sugli zeri delle funzioni di cui si conosce una
 # rappresentazione asintotica, Ann. Mat. Pura Appl. 26 (1947), pp. 283-300.
 
+# Error if n < 20 because initial guesses are based on asymptotic expansions: 
+@assert n>=20    
+    
 # Gatteschi formula involving airy roots [1].
 # These initial guess are good near x = sqrt(n+1/2);
 if mod(n,2) == 1
     m = (n-1)>>1
-    bess = collect(1:m)'*pi
+    bess = collect(1:m)*pi
     a = .5
 else
     m = n>>1
-    bess = (collect(0:m-1)'+.5)*pi
+    bess = (collect(0:m-1)+.5)*pi
     a = -.5
 end
 nu = 4*m + 2*a + 2
 T(t) = t.^(2/3).*(1+5/48*t.^(-2)-5/36*t.^(-4)+(77125/82944)*t.^(-6) -108056875/6967296*t.^(-8)+162375596875/334430208*t.^(-10));
-airyrts = -T(3/8*pi*(4*collect(1:m)'-1))
+airyrts = -T(3/8*pi*(4*collect(1:m)-1))
 
 airyrts_exact = [-2.338107410459762           # Exact Airy roots.
     -4.087949444130970
@@ -203,13 +206,13 @@ airyrts_exact = [-2.338107410459762           # Exact Airy roots.
     -10.040174341558084
     -11.008524303733260
     -11.936015563236262
-    -12.828776752865757];
+    -12.828776752865757]
 airyrts[1:10] = airyrts_exact  # correct first 10.
 
 x_init = sqrt(abs(nu + 2^(2/3)*airyrts*nu^(1/3) + 1/5*2^(4/3)*airyrts.^2*nu^(-1/3) +
     (11/35-a^2-12/175*airyrts.^3)/nu + (16/1575*airyrts+92/7875*airyrts.^4)*2^(2/3)*nu^(-5/3) -
     (15152/3031875*airyrts.^5+1088/121275*airyrts.^2)*2^(1/3)*nu^(-7/3)))
-x_init_airy = real(flipdim(x_init,2))
+x_init_airy = real( flipdim(x_init,1) )
 
 # Tricomi initial guesses. Equation (2.1) in [1]. Originally in [2].
 # These initial guesses are good near x = 0 . Note: zeros of besselj(+/-.5,x)
