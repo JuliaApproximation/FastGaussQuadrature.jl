@@ -7,7 +7,7 @@ elseif n == 1
     [1.0], [1.0]
 elseif n == 2
     [2.-sqrt(2.) 2.+sqrt(2.)], [(2.+sqrt(2.))/4 (2.-sqrt(2.))/4]
-elseif n <= 128 
+elseif n <= 250 
     laguerreGW( n )   # Use Golub-Welsch
 else  
     laguerreGLR( n )  # Use GLR 
