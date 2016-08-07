@@ -1,6 +1,7 @@
 using Base.Test
 using FastGaussQuadrature
 
+include("test_gausschebyshev.jl")
 include("test_gausslegendre.jl")
 include("test_gaussjacobi.jl")
 include("test_gaussradau.jl")
