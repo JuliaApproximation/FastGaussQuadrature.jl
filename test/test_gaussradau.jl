@@ -1,4 +1,17 @@
 # Test for GaussRadau()
+
+n = 1 
+x, w = gaussradau(n)
+@test_approx_eq x[1] -1.
+@test_approx_eq w[1] 2.
+
+n = 2 
+x, w = gaussradau(n)
+@test_approx_eq x[1] -1.
+@test_approx_eq x[2] 1./3.
+@test_approx_eq w[1] .5
+@test_approx_eq w[2] 1.5
+
 tol = 1e-14
 n = 42
 ntests = 4

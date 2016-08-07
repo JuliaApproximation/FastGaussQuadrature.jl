@@ -2,6 +2,11 @@
 
 tol = 1e-14
 
+n = 18; 
+x,w = gausshermite( n )
+@test (length(x) == n && length(w) == n)
+@test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < tol)
+
 # Test a small n:
 n = 42
 x,w = gausshermite( n )
