@@ -1235,7 +1235,7 @@ function asyBulkgen(np, z, alpha, T::Int64, qm, m::Int64, UQ, mnxi)
     R = [1 0]
     for k = 1:T-1
         for i = 1:ceil(Int64, 3*T/2)
-            R = R + (UQ[1,:,k,i,1]/(z-1)^i + UQ[1,:,k,i,2]/z^i)/np^k
+            R[:] = R[:] + (UQ[1,:,k,i,1]/(z-1)^i + UQ[1,:,k,i,2]/z^i)/np^k
         end
     end
     p = real( 2/(z+0im)^(1/4 + alpha/2)*(cos(acos(2*z-1+0im)*(1/2+alpha/2) - mnxi-pi/4)*R[1]-cos(acos(2*z-1+0im)*(-1/2+alpha/2)-mnxi-pi/4)*R[2]*1im*4^alpha)/(1 - z+0im)^(1/4) )
@@ -1249,7 +1249,7 @@ function asyBesselgen(np, z, alpha, T::Int64, qm, m::Int64, UQ, npb, useQ::Bool)
     if useQ
         for k = 1:T-1
             for i = 1:min(size(UQ,4),9-k)
-                R = R + UQ[1, :, k, i, 4]*z^(i-1)/np^k
+                R[:] = R[:] + UQ[1, :, k, i, 4]*z^(i-1)/np^k
             end
         end
     else
@@ -1264,9 +1264,9 @@ function asyBesselgen(np, z, alpha, T::Int64, qm, m::Int64, UQ, npb, useQ::Bool)
             sL[:,:,m] = brac(m-1,alpha)/2^(1+2*m)/(npb/2im/np)^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/2/z^(1/2)/d^(1/2)*[(-phi)^(alpha/2)  0 ; 0   (-phi)^(-alpha/2) ]*[((-1)^m)/m*(alpha^2+m/2-1/4)     (m-1/2)*1im  ;  -((-1)^m)*(m-1/2)*1im    (alpha^2+m/2-1/4)/m]*[(-phi)^(-alpha/2)  0 ; 0   (-phi)^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] -mod(m+1,2)*(4*alpha^2+2*m-1)/m*eye(2,2) )
         end
         for k = 1:T-1
-            R += (Rko[k,:] - sL[1,:,k])/np^k
+            R[:] += (Rko[k,:] - sL[1,:,k])/np^k
             for m = 1:k-1
-                R -= Rko[k-m,:]*sL[:,:,m]/np^k
+                R[:] -= Rko[k-m,:]*sL[:,:,m]/np^k
             end
         end
     end
@@ -1282,7 +1282,7 @@ function asyAirygen(np, z, alpha, T::Int64, qm, m::Int64, UQ, fn, useQ::Bool, xi
     if useQ
         for k = 1:T-1
             for i = 1:min(size(UQ,4),9-k)
-                R = R + UQ[1, :, k, i, 3]*d^(i-1)/np^k
+                R[:] = R[:] + UQ[1, :, k, i, 3]*d^(i-1)/np^k
             end
         end
     else
@@ -1296,9 +1296,9 @@ function asyAirygen(np, z, alpha, T::Int64, qm, m::Int64, UQ, fn, useQ::Bool, xi
             sR[:,:,m] = nuk(m)/xin^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/8/z^(1/2)/d^(1/2)*[phi^(alpha/2)  0 ; 0   phi^(-alpha/2) ]*[(-1.0)^m  -m*6im ; 6im*m*(-1)^m    1.0]*[phi^(-alpha/2)  0 ; 0   phi^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] - mod(m+1,2)*eye(2,2) )
         end
         for k = 1:T-1
-            R += (Rko[k,:] -sR[1,:,k])/np^k
+            R[:] += (Rko[k,:] -sR[1,:,k])/np^k
             for m = 1:k-1
-                R -= Rko[k-m,:]*sR[:,:,m]/np^k
+                R[:] -= Rko[k-m,:]*sR[:,:,m]/np^k
             end
         end
     end
