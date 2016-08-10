@@ -1,6 +1,4 @@
-# Test gausslaguerre.jl 
-include("../src/besselroots.jl")
-include("../src/gausslaguerre.jl")
+# Test jl
 
 # Test integration
 tol = 3.e-13
