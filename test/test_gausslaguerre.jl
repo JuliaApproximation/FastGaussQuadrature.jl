@@ -1,4 +1,13 @@
 # Test jl
+import gausslaguerre.getUQ
+import gausslaguerre.asyAiry
+import gausslaguerre.asyAirygen
+import gausslaguerre.asyBessel
+import gausslaguerre.asyBesselgen
+import gausslaguerre.asyBulk
+import gausslaguerre.asyBulkgen
+import gausslaguerre.polyAsyRH
+import gausslaguerre.polyAsyRHgen
 
 # Test integration
 tol = 3.e-13

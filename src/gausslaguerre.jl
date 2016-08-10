@@ -5,7 +5,7 @@
 # METHOD = "RH" will use asymptotics of Laguerre polynomials, and METHOD = "RHW" is O(sqrt(n)) as it stops when the weights are below realmin. gausslaguerre(round(Int64, (n/17)^2), "RHW") returns about n nodes and weights above realmin(Float64) for large n.
 # METHOD = "gen" can generate an arbitrary number of terms of the asymptotic expansion of Laguerre-type polynomials, orthogonal with respect to x^alpha*exp(-qm*x^m). "genW" does the same, but stops as the weights underflow.
 # METHOD = "default" uses "gen" when m or qm are not one, "GW" when 2 < n < 128 and else "RH".
-function gausslaguerre( n::Int64, alpha::Float64=0.0, method::ASCIIString="default",  qm::Float64=1.0, m::Int64=1 )
+function gausslaguerre( n::Int64, alpha::Float64=0.0, method::String="default",  qm::Float64=1.0, m::Int64=1 )
 
 if ( imag(alpha) != 0 ) || ( alpha < -1 )
     error(string("alpha = ", alpha, " is not allowed.") )
@@ -1320,7 +1320,7 @@ function nuk(n)
     nu = -gamma(3*n-1/2)*2^n/27^n/2/n/sqrt(pi)/gamma(n*2)
 end
 function brac(n,alpha)
-    b = prod(4*alpha^2-(2*(1:n)-1).^2 )/(2^(2*n)*factorial(n))
+    b = prod(4*alpha^2-(2*(1:n)-1).^2 )/(2^(2*n)*gamma(1.0+n))
 end
 
 # Compute the W or V-matrices to construct the asymptotic expansion of R.
@@ -1362,7 +1362,7 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
         rr = zeros(ns[mo+2]+1) # Coeffs in the expansion of sqrt(2-2*sqrt(1-w))
         for kt = ns
             for l = 0:kt
-                q[kt+1] = q[kt+1] + poch(1/2,kt-l)*u[kt-l+1,l+1]/(-2)^(kt-l)/factorial(kt-l)/(1+2*(kt-l) )
+                q[kt+1] = q[kt+1] + poch(1/2,kt-l)*u[kt-l+1,l+1]/(-2)^(kt-l)/gamma(1.0+kt-l)/(1+2*(kt-l) )
                 rr[kt+1] = rr[kt+1] + binom(1/2,kt-l)*v[kt-l+1,l+1]*2^(kt-l)
             end
         end
@@ -1391,12 +1391,12 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
         ns = ns[1:mo+1] # Reset ns to its value before computing f's
         g[1,1,1] = -1/f[2,1]
         for n = 1:mo
-            g[1,n+1,1] = -sum(g[1,1:n,1]*f[(n+2):-1:3,1])/f[2,1]
+            g[1,n+1,1] = -sum(g[1,1:n,1].*f[(n+2):-1:3,1])/f[2,1]
         end
     else # Left disk: near z=0
         if (m == 1)
             for n = ns
-                f[n+1,1] = -(binom(1/2,n)*(-1)^n + poch(1/2,n)./(1+2*n)./factorial(n))
+                f[n+1,1] = -(binom(1/2,n)*(-1)^n + poch(1/2,n)./(1+2*n)./gamma(1.0+n))
             end
         else
             for n = ns
@@ -1404,17 +1404,17 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
                 for k = 0:min(m-1,n)
                     f[n+1,1] = f[n+1,1] + binom(1/2,n-k)*(-1)^(n-k)*A[m-k]
                 end
-                f[n+1,1] = -f[n+1,1]/2/m/A[m+1]-poch(1/2,n)./(1+2*n)./factorial(n)
+                f[n+1,1] = -f[n+1,1]/2/m/A[m+1]-poch(1/2,n)./(1+2*n)./gamma(1.0+n)
             end
         end
         g[1,1,1] = 1/f[1,1]
         for n = 1:mo
-            g[1,n+1,1] = -sum(g[1,1:n,1]*f[(n+1):-1:2,1])/f[1,1]
+            g[1,n+1,1] = -sum(g[1,1:n,1].*f[(n+1):-1:2,1])/f[1,1]
         end
     end
     rho = (1+1im)*zeros(2*mo+3,mo+1)
     for n = ns
-        rho[2,n+1] = poch(1/2,n)/factorial(n)/(1+2*n)*(-r)^n
+        rho[2,n+1] = poch(1/2,n)/gamma(1.0+n)/(1+2*n)*(-r)^n
     end
     rho[1,1] = 1
     for i = 2:(maxOrder-1)
@@ -1436,12 +1436,12 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
     for n = ns
         js = 0:n
         for j = js
-            OmOdd[n+1] = OmOdd[n+1] + (-1)^j/factorial(2.0*j)*(-2*alpha/sqrt(-r+0.0im))^(2*j)*rho[2*j+1,n-j+1]
-            XiOdd[n+1] = XiOdd[n+1] + (-1)^j/factorial(2.0*j)*(-2*(alpha+1)/sqrt(-r+0.0im))^(2*j)*rho[2*j+1,n-j+1]
-            ThOdd[n+1] = ThOdd[n+1] + (-1)^j/factorial(2.0*j)*(-2*(alpha-1)/sqrt(-r+0.0im))^(2*j)*rho[2*j+1,n-j+1]
-            OmEven[n+1] = OmEven[n+1] + (-1)^j/factorial(2*j+1.0)*(-2*alpha/sqrt(-r+0.0im))^(2*j+1)*rho[2*j+2,n-j+1]
-            XiEven[n+1] = XiEven[n+1] + (-1)^j/factorial(2*j+1.0)*(-2*(alpha+1)/sqrt(-r+0.0im))^(2*j+1)*rho[2*j+2,n-j+1]
-            ThEven[n+1] = ThEven[n+1] + (-1)^j/factorial(2*j+1.0)*(-2*(alpha-1)/sqrt(-r+0.0im))^(2*j+1)*rho[2*j+2,n-j+1]
+            OmOdd[n+1] = OmOdd[n+1] + (-1)^j/gamma(1.0+2.0*j)*(-2*alpha/sqrt(-r+0.0im))^(2*j)*rho[2*j+1,n-j+1]
+            XiOdd[n+1] = XiOdd[n+1] + (-1)^j/gamma(1.0+2.0*j)*(-2*(alpha+1)/sqrt(-r+0.0im))^(2*j)*rho[2*j+1,n-j+1]
+            ThOdd[n+1] = ThOdd[n+1] + (-1)^j/gamma(1.0+2.0*j)*(-2*(alpha-1)/sqrt(-r+0.0im))^(2*j)*rho[2*j+1,n-j+1]
+            OmEven[n+1] = OmEven[n+1] + (-1)^j/gamma(1.0+2*j+1.0)*(-2*alpha/sqrt(-r+0.0im))^(2*j+1)*rho[2*j+2,n-j+1]
+            XiEven[n+1] = XiEven[n+1] + (-1)^j/gamma(1.0+2*j+1.0)*(-2*(alpha+1)/sqrt(-r+0.0im))^(2*j+1)*rho[2*j+2,n-j+1]
+            ThEven[n+1] = ThEven[n+1] + (-1)^j/gamma(1.0+2*j+1.0)*(-2*(alpha-1)/sqrt(-r+0.0im))^(2*j+1)*rho[2*j+2,n-j+1]
         end
         for j = js
             OmO[n+1] = OmO[n+1] + binom(-1/2,j)*(r)^j*OmOdd[n-j+1]
