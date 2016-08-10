@@ -63,6 +63,8 @@ for wei = 1:3
     end
 end
 
+end
+
 # Test whether higher-order terms correspond between "RH(W)", "gen(W)" and exact results computed in high precision.
 n = NaN
 tolHot = eps(Float64)*10

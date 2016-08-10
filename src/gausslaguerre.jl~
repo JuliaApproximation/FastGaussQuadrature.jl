@@ -103,7 +103,7 @@ function laguerreRH( n::Int64, compRepr::Bool, alpha::Float64 )
         while ( ( abs(step) > eps(Float64)*40*x[k] ) && ( l < 20) )
             l = l + 1
             pe = polyAsyRH(n, x[k], alpha, T)
-            if (abs(pe) >= abs(ov)*(1-35*eps(Float64)) )
+            if (abs(pe) >= abs(ov)*(1-35*eps(Float64)) ) # Test
                 # The function values do not decrease enough any more due to roundoff errors.
                 x[k] = ox # Set to the previous value and quit.
                 break
@@ -157,7 +157,7 @@ function asyBulk(np, y, alpha, T)
     d = z-1
     R1 = 0.0
     R2 = 0.0
-    # Getting the higher order terms is hard-coded for speed and code length, but can be made to get arbitrary orders for general weight functions by using method="gen(W)".
+    # Getting the higher order terms is hard-coded for speed and code length, but can be made to get arbitrary orders for general weight functions.
     if (alpha == 0)
         if ( T >= 7 )
             R1 = R1 + (+6.975493821675553e-05*z^(-1) +2.308068495174802e-05*z^(-2) )/np^6
@@ -759,6 +759,7 @@ function asyBessel(np, y, alpha, T)
         R1 = R1 + (1/12*alpha^2)/np^1 + 1
         R2 = R2 + (1/6*alpha^2 + 1/4*alpha + 1/12)/np^1
     end
+#print("Bessel R1 =", R1, ", ", R2, "\n\n")
     p = real( sqrt(2*pi)*(-1)^np*sqrt(npb)/z^(1/4)/(1 - z)^(1/4)*z^(-alpha/2)*( (sin( (alpha + 1)/2*acos(2*z - 1) - pi*alpha/2)*R1 -sin( (alpha - 1)/2*acos(2*z - 1) - pi*alpha/2)*R2)*besselj(alpha, npb) + (cos( (alpha + 1)/2*acos(2*z - 1)- pi*alpha/2)*R1 - cos( (alpha - 1)/2*acos(2*z - 1) - pi*alpha/2)*R2)*(besselj(alpha-1, npb) - alpha/npb*besselj(alpha, npb) ) ) )
 end
 
@@ -1094,6 +1095,7 @@ function asyAiry(np, y, alpha, T)
         R1 = R1 + (1/48*alpha^4 + 7/240*alpha^2 - 1/105)/np^1 + 1
         R2 = R2 + (1/48*alpha^4 + 1/12*alpha^3 + 7/240*alpha^2 + 1/60*alpha + 1/140)/np^1
     end
+#print("Airy R1 =", R1, ", R2=", R2, "\n\n")
     p = real( 4*sqrt(pi)/z^(1/4)/(d + 0im)^(1/4)*z^(-alpha/2)*( (R1*cos( (alpha + 1)/2*acos(2*z - 1) ) -cos( (alpha - 1)/2*acos(2*z - 1) )*R2)*fn^(1/4)*airy(0,fn) + 1im*(-sin( (alpha + 1)/2*acos(2*z - 1) )*R1 +sin( (alpha - 1)/2*acos(2*z - 1) )*R2)*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airy(1,fn) ) )
 end
 
@@ -1156,10 +1158,10 @@ function asyRHgen(n, compRepr, alpha, m, qm)
         ov = realmax(Float64) # Previous/old value
         ox = x[k] # Old x
         # Accuracy of the expansions up to machine precision would lower this bound.
-        while ( ( abs(step) > eps(Float64)*40*x[k] ) && ( l < 20) )
+        while ( ( abs(step) > eps(Float64)*100*x[k] ) && ( l < 20) )
             l = l + 1
             pe = polyAsyRHgen(n, x[k], alpha, T, qm, m, UQ0)
-            if (abs(pe) >= abs(ov)*(1-35*eps(Float64)) ) 
+            if (abs(pe) >= abs(ov)*(1-5e3*eps(Float64)) ) 
                 # The function values do not decrease enough any more due to roundoff errors.
                 x[k] = ox # Set to the previous value and quit.
                 break
@@ -1183,6 +1185,7 @@ function asyRHgen(n, compRepr, alpha, m, qm)
         end
         if noUnderflow&& useFinDiff
             hh = max(sqrt(eps(Float64))*x[k], sqrt(eps(Float64)) )
+#            w[k] = hh/(polyAsyRHgen(n-1,x[k]+hh,alpha,T,qm,m,UQ0) -polyAsyRHgen(n-1,x[k],alpha,T,qm,m,UQ0))/polyAsyRHgen(n+1,x[k],alpha,T,qm,m,UQ0)/exp(qm*x[k]^m) # This leaves out a constant factor, given by a ratio of leading order coefficients and normalising constants
             w[k] = hh/(polyAsyRHgen(n,x[k]+hh,alpha,T,qm,m,UQ0) -polyAsyRHgen(n,x[k],alpha,T,qm,m,UQ0))/polyAsyRHgen(n-1,x[k],alpha,T,qm,m,UQ0)/exp(qm*x[k]^m) # This leaves out a constant factor, given by a ratio of leading order coefficients and normalising constants
         elseif noUnderflow
             w[k] = factorw/polyAsyRHgen(n-1, x[k], alpha+1, T, qm, m, UQ1)/polyAsyRHgen(n+1, x[k], alpha, T,qm,m,UQ0)/exp( x[k] )
@@ -1262,14 +1265,18 @@ function asyBesselgen(np, z, alpha, T::Int64, qm, m::Int64, UQ, npb, useQ::Bool)
                 Rko[m,:] += UQ[1, :, m, i, 1]/d^i+UQ[1, :, m, i, 2]/z^i
             end
             sL[:,:,m] = brac(m-1,alpha)/2^(1+2*m)/(npb/2im/np)^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/2/z^(1/2)/d^(1/2)*[(-phi)^(alpha/2)  0 ; 0   (-phi)^(-alpha/2) ]*[((-1)^m)/m*(alpha^2+m/2-1/4)     (m-1/2)*1im  ;  -((-1)^m)*(m-1/2)*1im    (alpha^2+m/2-1/4)/m]*[(-phi)^(-alpha/2)  0 ; 0   (-phi)^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] -mod(m+1,2)*(4*alpha^2+2*m-1)/m*eye(2,2) )
+#            sL[:,:,m] = brac(m-1,alpha)/4^(1+m)/(npb/2im/np)^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/2/z^(1/2)/d^(1/2)*[(-phi)^(alpha/2)  0 ; 0   (-phi)^(-alpha/2) ]*[((-1)^m)/m*(alpha^2+m/2-1/4)     (m-1/2)*1im  ;  -((-1)^m)*(m-1/2)*1im    (alpha^2+m/2-1/4)/m]*[(-phi)^(-alpha/2)  0 ; 0   (-phi)^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] -2*mod(m+1,2)*(4*alpha^2+2*m-1)/m*eye(2,2) )
         end
+#print(Rko, "=Rko, ", sL, "\n\n")
         for k = 1:T-1
             R += (Rko[k,:] - sL[1,:,k])/np^k
+#            R -= sL[1,:,k]/np^k
             for m = 1:k-1
                 R -= Rko[k-m,:]*sL[:,:,m]/np^k
             end
         end
     end
+#print("Besgen R =", R, ",Q=", UQ[1,1,:,:,4], "\n\n")
     p = real( sqrt(2*pi)*(-1)^np*sqrt(npb)/(z+0im)^(1/4+alpha/2)/(1 - z+0im)^(1/4)*( (sin( (alpha + 1)/2*acos(2*z - 1+0im) - pi*alpha/2)*R[1] -sin( (alpha - 1)/2*acos(2*z - 1+0im) - pi*alpha/2)*R[2]*1im*4^alpha)*besselj(alpha, npb) + (cos( (alpha + 1)/2*acos(2*z - 1+0im)- pi*alpha/2)*R[1] - cos( (alpha - 1)/2*acos(2*z - 1+0im) - pi*alpha/2)*R[2]*1im*4^alpha)*(besselj(alpha-1, npb) - alpha/npb*besselj(alpha, npb) ) ) )
 end
 
@@ -1294,14 +1301,18 @@ function asyAirygen(np, z, alpha, T::Int64, qm, m::Int64, UQ, fn, useQ::Bool, xi
                 Rko[m,:] += UQ[1, :, m, i, 1]/d^i+UQ[1, :, m, i, 2]/z^i
             end
             sR[:,:,m] = nuk(m)/xin^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/8/z^(1/2)/d^(1/2)*[phi^(alpha/2)  0 ; 0   phi^(-alpha/2) ]*[(-1.0)^m  -m*6im ; 6im*m*(-1)^m    1.0]*[phi^(-alpha/2)  0 ; 0   phi^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] - mod(m+1,2)*eye(2,2) )
+#            sR[:,:,m] = nuk(m)/(-xin)^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/8/z^(1/2)/d^(1/2)*[phi^(alpha/2)  0 ; 0   phi^(-alpha/2) ]*[(-1.0)^m  -m*6im ; 6im*m*(-1)^m    1.0]*[phi^(-alpha/2)  0 ; 0   phi^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] - mod(m+1,2)*eye(2,2) )
         end
+#print(Rko, "=Rko, ", sR, "\n\n")
         for k = 1:T-1
             R += (Rko[k,:] -sR[1,:,k])/np^k
+#            R -= sR[1,:,k]/np^k
             for m = 1:k-1
                 R -= Rko[k-m,:]*sR[:,:,m]/np^k
             end
         end
     end
+#print("Airygen R =", R, "\n\n")#, UQ[1,1,:,1,:], "\n\n")
     p = real( 4*sqrt(pi)/(z+0im)^(1/4+alpha/2)/d^(1/4)*( (R[1]*cos( (alpha + 1)/2*acos(2*z - 1+0im) ) -cos( (alpha - 1)/2*acos(2*z - 1+0im) )*R[2]*1im*4^alpha)*fn^(1/4)*airy(0,fn) + 1im*(-sin( (alpha + 1)/2*acos(2*z - 1+0im) )*R[1] +sin( (alpha - 1)/2*acos(2*z - 1+0im) )*R[2]*1im*4^alpha)*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airy(1,fn) ) )
 end
 
