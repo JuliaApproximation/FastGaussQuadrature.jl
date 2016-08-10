@@ -5,7 +5,7 @@
 # METHOD = "RH" will use asymptotics of Laguerre polynomials, and METHOD = "RHW" is O(sqrt(n)) as it stops when the weights are below realmin. gausslaguerre(round(Int64, (n/17)^2), "RHW") returns about n nodes and weights above realmin(Float64) for large n.
 # METHOD = "gen" can generate an arbitrary number of terms of the asymptotic expansion of Laguerre-type polynomials, orthogonal with respect to x^alpha*exp(-qm*x^m). "genW" does the same, but stops as the weights underflow.
 # METHOD = "default" uses "gen" when m or qm are not one, "GW" when 2 < n < 128 and else "RH".
-function gausslaguerre( n::Int64, alpha::Float64=0.0, method::String="default",  qm::Float64=1.0, m::Int64=1 )
+function gausslaguerre( n::Int64, alpha::Float64=0.0, method::AbstractString="default",  qm::Float64=1.0, m::Int64=1 )
 
 if ( imag(alpha) != 0 ) || ( alpha < -1 )
     error(string("alpha = ", alpha, " is not allowed.") )

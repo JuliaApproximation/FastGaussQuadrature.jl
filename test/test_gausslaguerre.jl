@@ -1,13 +1,4 @@
-# Test jl
-import gausslaguerre.getUQ
-import gausslaguerre.asyAiry
-import gausslaguerre.asyAirygen
-import gausslaguerre.asyBessel
-import gausslaguerre.asyBesselgen
-import gausslaguerre.asyBulk
-import gausslaguerre.asyBulkgen
-import gausslaguerre.polyAsyRH
-import gausslaguerre.polyAsyRHgen
+# Test gausslaguerre.jl
 
 # Test integration
 tol = 3.e-13
@@ -78,25 +69,25 @@ tolEx = np*4e-15
 T = ceil(Int64, 34/log(np) )
 @test T == 7
 for alpha = [0.0; 4.15]
-    UQ = getUQ(alpha, 1.0, 1, T+1)
+    UQ = gausslaguerre.getUQ(alpha, 1.0, 1, T+1)
 
     z = 0.95 # > 3.7/4
     mnxi = 2*np*( sqrt(z)*sqrt(1 - z) - acos(sqrt(z) ) )
     fn = (mnxi*3im/2)^(2/3)
-    aRHa = asyAiry(np, 4*np*z, alpha, T)
-    @test abs(asyAirygen(np, z, alpha, T, 1.0, 1, UQ, fn, true) -aRHa)./abs(aRHa) < tolHot
+    aRHa = gausslaguerre.asyAiry(np, 4*np*z, alpha, T)
+    @test abs(gausslaguerre.asyAirygen(np, z, alpha, T, 1.0, 1, UQ, fn, true) -aRHa)./abs(aRHa) < tolHot
     # Not using Q has an explicit substraction of ceil(3*T/2)-order poles, so loosen the tolerance.
-    @test abs(asyAirygen(np, z, alpha, T, 1.0, 1, UQ, fn, false, mnxi*1im/np) -aRHa)./abs(aRHa) < 300*tolHot
+    @test abs(gausslaguerre.asyAirygen(np, z, alpha, T, 1.0, 1, UQ, fn, false, mnxi*1im/np) -aRHa)./abs(aRHa) < 300*tolHot
     z = 0.01 # < sqrt(np)/4/np
     mnxi = 2*np*( sqrt(z)*sqrt(1 - z) - acos(sqrt(z) ) )
-    aRHe = asyBessel(np, 4*np*z, alpha, T)
-    @test abs(asyBesselgen(np, z, alpha, T, 1.0, 1, UQ, mnxi + pi*np, true) -aRHe)./abs(aRHe) < 20*tolHot
-    @test abs(asyBesselgen(np, z, alpha, T, 1.0, 1, UQ, mnxi + pi*np, false) -aRHe)./abs(aRHe) < 20*tolHot
+    aRHe = gausslaguerre.asyBessel(np, 4*np*z, alpha, T)
+    @test abs(gausslaguerre.asyBesselgen(np, z, alpha, T, 1.0, 1, UQ, mnxi + pi*np, true) -aRHe)./abs(aRHe) < 20*tolHot
+    @test abs(gausslaguerre.asyBesselgen(np, z, alpha, T, 1.0, 1, UQ, mnxi + pi*np, false) -aRHe)./abs(aRHe) < 20*tolHot
 
     z = 0.35
     mnxi = 2*np*( sqrt(z)*sqrt(1 - z) - acos(sqrt(z) ) )
-    aRHu = asyBulk(np, 4*np*z, alpha, T)
-    @test abs(asyBulkgen(np, z, alpha, T, 1.0, 1, UQ, mnxi) -aRHu)./abs(aRHu) < tolHot
+    aRHu = gausslaguerre.asyBulk(np, 4*np*z, alpha, T)
+    @test abs(gausslaguerre.asyBulkgen(np, z, alpha, T, 1.0, 1, UQ, mnxi) -aRHu)./abs(aRHu) < tolHot
 
     a = alpha
     factorp = (1/3840*a^10 - 5/2304*a^9 + 11/2304*a^8 + 7/1920*a^7 - 229/11520*a^6 + 107/34560*a^5 + 2653/103680*a^4 - 989/155520*a^3 -         3481/311040*a^2 + 139/103680*a + 9871/6531840)/np^5
@@ -129,8 +120,8 @@ for alpha = [0.0; 4.15]
     end
     for n = ceil(Int64, linspace(111, 5000, 5) )
         for z = linspace(1e-4, 0.99, 10)
-            aRH = polyAsyRH(n, 4*n*z, alpha, T)
-            @test abs(polyAsyRHgen(n, 4*n*z, alpha, T, 1.0, 1, UQ) -aRH)/abs(aRH) < 2*tolEx
+            aRH = gausslaguerre.polyAsyRH(n, 4*n*z, alpha, T)
+            @test abs(gausslaguerre.polyAsyRHgen(n, 4*n*z, alpha, T, 1.0, 1, UQ) -aRH)/abs(aRH) < 2*tolEx
         end
     end
 end
