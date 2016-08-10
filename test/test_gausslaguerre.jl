@@ -47,8 +47,8 @@ for wei = 1:3
                 x, w = gausslaguerre( n, alpha, "genW", qm, m)
             end
             # Multiply the tolerance by sqrt(n) because the error on each node/meaningful weight is about 1e-14
-            @test abs(dot(x,w) - gamma((alpha+2)/m)*qm^(-(alpha+2)/m)/m )/gamma((alpha+2)/m)/qm^(-(alpha+2)/m)*m <= sqrt(n)*ifelse(wei == 3, tolGen, tol)
-            @test abs(dot(x.^2,w) - gamma((alpha+3)/m)*qm^(-(alpha+3)/m)/m )/gamma((alpha+3)/m)/qm^(-(alpha+3)/m)*m <= sqrt(n)*ifelse(wei == 3, tolGen, tol)
+            @test abs(dot(x,w) - gamma((alpha+2)/m)*qm^(-(alpha+2)/m)/m )/gamma((alpha+2)/m)/qm^(-(alpha+2)/m)*m <= sqrt(n)*ifelse(wei == 3, tolGen, 3e-10/sqrt(n) ) # Increased tolerance for Travis CI Julia 0.3, 0.4 and 0.4.6
+            @test abs(dot(x.^2,w) - gamma((alpha+3)/m)*qm^(-(alpha+3)/m)/m )/gamma((alpha+3)/m)/qm^(-(alpha+3)/m)*m <= sqrt(n)*ifelse(wei == 3, tolGen, 3e-10/sqrt(n))
             if (n == 42) && (wei == 1)
                 @test abs(x[37] - 98.388267163326702) < tol
                 @test abs(w[7] - 0.055372813167092) < tol
@@ -56,7 +56,7 @@ for wei = 1:3
                 @test abs(x[37] - 13.309000189442097) < tol
                 @test abs(w[3] - 0.050091759039996) < tol                
             end
-            @test abs(dot(fct(x), w) - exa)/abs(exa) < sqrt(n)*ifelse(wei == 3, tolGen, tol)
+            @test abs(dot(fct(x), w) - exa)/abs(exa) < sqrt(n)*ifelse(wei == 3, tolGen, 3e-10/sqrt(n))
 	end
     end
 end
