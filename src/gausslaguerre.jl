@@ -1266,7 +1266,7 @@ function asyBesselgen(np, z, alpha, T::Int64, qm, m::Int64, UQ, npb, useQ::Bool)
         for k = 1:T-1
             R += reshape((Rko[k,:] - sL[1,:,k])/np^k,(1,2))
             for m = 1:k-1
-                R -= reshape(Rko[k-m,:]*sL[:,:,m]/np^k,(1,2))
+                R -= reshape(reshape(Rko[k-m,:],(1,2))*sL[:,:,m]/np^k,(1,2))
             end
         end
     end
@@ -1298,7 +1298,7 @@ function asyAirygen(np, z, alpha, T::Int64, qm, m::Int64, UQ, fn, useQ::Bool, xi
         for k = 1:T-1
             R += reshape((Rko[k,:] -sR[1,:,k])/np^k,(1,2))
             for m = 1:k-1
-                R -= reshape(Rko[k-m,:]*sR[:,:,m]/np^k,(1,2))
+                R -= reshape(reshape(Rko[k-m,:],(1,2))*sR[:,:,m]/np^k,(1,2))
             end
         end
     end
