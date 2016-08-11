@@ -1391,7 +1391,7 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
         ns = ns[1:mo+1] # Reset ns to its value before computing f's
         g[1,1,1] = -1/f[2,1]
         for n = 1:mo
-            g[1,n+1,1] = -sum(g[1,1:n,1].*f[(n+2):-1:3,1])/f[2,1]
+            g[1,n+1,1] = -sum(reshape(g[1,1:n,1],(n,1)).*reshape(f[(n+2):-1:3,1],(n,1) ) )/f[2,1]
         end
     else # Left disk: near z=0
         if (m == 1)
@@ -1409,7 +1409,7 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
         end
         g[1,1,1] = 1/f[1,1]
         for n = 1:mo
-            g[1,n+1,1] = -sum(g[1,1:n,1].*f[(n+1):-1:2,1])/f[1,1]
+            g[1,n+1,1] = -sum(reshape(g[1,1:n,1],(n,1)).*reshape(f[(n+1):-1:2,1],(n,1)) )/f[1,1]
         end
     end
     rho = (1+1im)*zeros(2*mo+3,mo+1)
