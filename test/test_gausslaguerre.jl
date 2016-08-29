@@ -1,4 +1,4 @@
-# Test gausslaguerre.jl 
+# Test gausslaguerre.jl
 import FastGaussQuadrature.getUQ
 import FastGaussQuadrature.asyAiry
 import FastGaussQuadrature.asyAirygen
@@ -15,7 +15,7 @@ tolGen = 2.e-9
 # Possibly set srand(...) to get the same results for integration of a random polynomial.
 ns = [42; 251; 5000];
 for wei = 1:3
-    if wei == 1; alpha = 0.0;qm = 1.0; m = 1; 
+    if wei == 1; alpha = 0.0;qm = 1.0; m = 1;
     elseif wei == 2; alpha = pi+0.1; qm = 1.0; m = 1;
     elseif wei == 3; alpha = 0.67; qm = 0.34; m = 4;
     end
@@ -63,7 +63,7 @@ for wei = 1:3
                 @test abs(w[7] - 0.055372813167092) < tol
             elseif (n == 251) && (wei == 1)
                 @test abs(x[37] - 13.309000189442097) < tol
-                @test abs(w[3] - 0.050091759039996) < tol                
+                @test abs(w[3] - 0.050091759039996) < tol
             end
             @test abs(dot(fct(x), w) - exa)/abs(exa) < sqrt(n)*ifelse(wei == 3, tolGen, tol)
 	end
@@ -86,7 +86,7 @@ for alpha = [0.0; 4.15]
     aRHa = asyAiry(np, 4*np*z, alpha, T)
     @test abs(asyAirygen(np, z, alpha, T, 1.0, 1, UQ, fn, true) -aRHa)./abs(aRHa) < tolHot
     # Not using Q has an explicit substraction of ceil(3*T/2)-order poles, so loosen the tolerance.
-    @test abs(asyAirygen(np, z, alpha, T, 1.0, 1, UQ, fn, false, mnxi*1im/np) -aRHa)./abs(aRHa) < 300*tolHot 
+    @test abs(asyAirygen(np, z, alpha, T, 1.0, 1, UQ, fn, false, mnxi*1im/np) -aRHa)./abs(aRHa) < 300*tolHot
 
     z = 0.01 # < sqrt(np)/4/np
     mnxi = 2*np*( sqrt(z)*sqrt(1 - z) - acos(sqrt(z) ) )
@@ -108,11 +108,11 @@ for alpha = [0.0; 4.15]
     # Add an asymptotic approximation of gamma(alpha+n+1)/gamma(n+1)
     factorp = (4*np)^(-alpha/2-1/2)*sqrt(1/2/pi)/sqrt(factorp)*sqrt(np^alpha*(1+alpha*(alpha+1)/2/np + alpha*(3*alpha^3+2*alpha^2-3*alpha-2)/24/np^2 + alpha^2*(alpha+1)^2*(alpha^2-3*alpha+2)/48/np^3 + alpha*(15*alpha^7-60*alpha^6-10*alpha^5+192*alpha^4 -25*alpha^3-180*alpha^2+20*alpha+48)/5760/np^4 + alpha^2*(alpha+1)^2*(3*alpha^6-31*alpha^5+109*alpha^4-125*alpha^3-88*alpha^2+276*alpha-144)/11520/np^5) )
     if alpha == 0.0
-        @test norm([+6.975493821675553e-05    -8.294589753829749e-05/1im]-UQ[1,:,6,1,2])/norm(UQ[1,:,6,1,2]) < tolHot
-        @test norm([-6.975493821675553e-05    +1.401453805748335e-05/1im]-UQ[1,:,6,1,1])/norm(UQ[1,:,6,1,1]) < tolHot*10
+        @test norm([+6.975493821675553e-05  ,  -8.294589753829749e-05/1im]-vec(UQ[1,:,6,1,2]))/norm(UQ[1,:,6,1,2]) < tolHot
+        @test norm([-6.975493821675553e-05  ,  +1.401453805748335e-05/1im]-vec(UQ[1,:,6,1,1]))/norm(UQ[1,:,6,1,1]) < tolHot*10
         # We choose to test the constants most prone to errors.
-        @test norm([-0.01196102063075393      +0.1904949571852236/1im]-UQ[1,:,6,3,4])/norm(UQ[1,:,6,1,4]) < tolHot*1e3
-        @test norm([+1.309628097160176e-05    -0.001326131973043531/1im]-UQ[1,:,6,3,3])/norm(UQ[1,:,6,1,3]) < tolHot*10
+        @test norm([-0.01196102063075393    ,  +0.1904949571852236/1im]-vec(UQ[1,:,6,3,4]))/norm(UQ[1,:,6,1,4]) < tolHot*1e3
+        @test norm([+1.309628097160176e-05  ,  -0.001326131973043531/1im]-vec(UQ[1,:,6,3,3]))/norm(UQ[1,:,6,1,3]) < tolHot*10
 
         # Compare with results obtained from a high precision calculation of the Laguerre polynomials with standard normalisation.
         @test abs(-4.9327289759964085492326419516911524182405e163/exp(0.95*4*np/2)/factorp -aRHa)/abs(aRHa) < tolEx
@@ -136,5 +136,3 @@ for alpha = [0.0; 4.15]
         end
     end
 end
-
-
