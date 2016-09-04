@@ -19,8 +19,9 @@ for wei = 1:3
     elseif wei == 2; alpha = pi+0.1; qm = 1.0; m = 1;
     elseif wei == 3; alpha = 0.67; qm = 0.34; m = 4;
     end
-    println("    α = $alpha")
+
     for ni = 1:length(ns)
+        println("    α = $alpha, n = $ni")
         n = ns[ni]
 	# Make sure the integrand does not overflow at x[n]
         d = min(2*n-1, ceil(Int64, log(realmax(Float64)-4*n)/n ) )
