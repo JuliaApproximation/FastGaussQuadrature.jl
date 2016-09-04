@@ -21,7 +21,6 @@ for wei = 1:3
     end
 
     for ni = 1:length(ns)
-        println("    α = $alpha, n = $ni")
         n = ns[ni]
 	# Make sure the integrand does not overflow at x[n]
         d = min(2*n-1, ceil(Int64, log(realmax(Float64)-4*n)/n ) )
@@ -43,18 +42,24 @@ for wei = 1:3
             if (ni == 1)
                 # Golub-Welsch is the accurate algorithm for low n but does not allow m or qm != 1.
                 if wei == 3; continue; end
+                println("    α = $alpha, n = $ni, Golub-Welsch")
                 x, w = gausslaguerre( n, alpha )
             elseif methi == 1
+                println("    α = $alpha, n = $ni, default")
                 x, w = gausslaguerre( n, alpha, "default", qm, m)
             elseif methi == 2
                 if wei == 3; continue; end # General weight
+                println("    α = $alpha, n = $ni, RH")
                 x, w = gausslaguerre( n, alpha, "RH", qm, m)
             elseif methi == 3
                 if wei == 3; continue; end # General weight
+                println("    α = $alpha, n = $ni, RHW")
                 x, w = gausslaguerre( n, alpha, "RHW", qm, m)
             elseif methi == 4
+                println("    α = $alpha, n = $ni, gen")
                 x, w = gausslaguerre( n, alpha, "gen", qm, m)
             elseif methi == 5
+                println("    α = $alpha, n = $ni, genW")
                 x, w = gausslaguerre( n, alpha, "genW", qm, m)
             end
             # Multiply the tolerance by sqrt(n) because the error on each node/meaningful weight should be about 1e-14
@@ -68,7 +73,7 @@ for wei = 1:3
                 @test abs(w[3] - 0.050091759039996) < tol
             end
             @test abs(dot(fct(x), w) - exa)/abs(exa) < sqrt(n)*ifelse(wei == 3, tolGen, tol)
-	end
+	    end
     end
 end
 
