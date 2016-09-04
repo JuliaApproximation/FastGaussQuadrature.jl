@@ -19,6 +19,7 @@ for wei = 1:3
     elseif wei == 2; alpha = pi+0.1; qm = 1.0; m = 1;
     elseif wei == 3; alpha = 0.67; qm = 0.34; m = 4;
     end
+    println("    α = $alpha")
     for ni = 1:length(ns)
         n = ns[ni]
 	# Make sure the integrand does not overflow at x[n]
@@ -78,6 +79,7 @@ tolEx = np*4e-15
 T = ceil(Int64, 34/log(np) )
 @test T == 7
 for alpha = [0.0; 4.15]
+    println("    α = $alpha")
     UQ = getUQ(alpha, 1.0, 1, T+1)
 
     z = 0.95 # > 3.7/4
