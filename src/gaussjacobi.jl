@@ -4,7 +4,9 @@ gaussjacobi(n::Number, a::Number, b::Number) =
 
 function gaussjacobi(n::Int, a::Float64, b::Float64)
     #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
-    if a == 0. && b == 0.
+    if n < 0
+        error("gaussjacobi($n,$a,$b) not defined: n must be positive.")
+    elseif a == 0. && b == 0.
         gausslegendre(n)
     elseif a == -0.5 && b == -0.5
         gausschebyshev(n, 1)
@@ -27,7 +29,7 @@ function gaussjacobi(n::Int, a::Float64, b::Float64)
     elseif n <= 4000 && max(a,b)>=5.
         JacobiGW(n, a, b)
     else
-        error("1st argument must be a positive integer.")
+        error("gaussjacobi($n,$a,$b) is not implemented: n must be ≤ 4000 for max(a,b)≥5.")
     end
 end
 
