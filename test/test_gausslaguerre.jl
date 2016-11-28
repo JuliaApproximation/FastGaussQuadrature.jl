@@ -144,3 +144,11 @@ for alpha = [0.0; 4.15]
         end
     end
 end
+
+
+## Test type is correct
+
+
+x,w=gausslaguerre(2,0.0)
+@test isa(x,Vector{Float64})
+@test isa(w,Vector{Float64})

@@ -1,50 +1,48 @@
 # (x,w) = gausslaguerre(n) returns n Gauss-Laguerre nodes and weights.
 # (x,w) = gausslaguerre(n,alpha) allows generalized Gauss-Laguerre quadrature.
 # (x,w) = gausslaguerre(n,alpha,method) allows the user to select which method to use.
-# METHOD = "GW" will use the traditional Golub-Welsch eigenvalue method, which is best for when N is small. 
+# METHOD = "GW" will use the traditional Golub-Welsch eigenvalue method, which is best for when N is small.
 # METHOD = "RH" will use asymptotics of Laguerre polynomials, and METHOD = "RHW" is O(sqrt(n)) as it stops when the weights are below realmin. gausslaguerre(round(Int64, (n/17)^2), "RHW") returns about n nodes and weights above realmin(Float64) for large n.
 # METHOD = "gen" can generate an arbitrary number of terms of the asymptotic expansion of Laguerre-type polynomials, orthogonal with respect to x^alpha*exp(-qm*x^m). "genW" does the same, but stops as the weights underflow.
 # METHOD = "default" uses "gen" when m or qm are not one, "GW" when 2 < n < 128 and else "RH".
 function gausslaguerre( n::Int64, alpha::Float64=0.0, method::AbstractString="default",  qm::Float64=1.0, m::Int64=1 )
+    if ( imag(alpha) != 0 ) || ( alpha < -1 )
+        error(string("alpha = ", alpha, " is not allowed.") )
+    elseif ( (m != 1) || (qm != 1) ) && ( (method != "gen") && (method != "genW") && (method != "default") )
+        error(string("Method ", method, " is not implemented for generalised weights.") )
+    end
 
-if ( imag(alpha) != 0 ) || ( alpha < -1 )
-    error(string("alpha = ", alpha, " is not allowed.") )
-elseif ( (m != 1) || (qm != 1) ) && ( (method != "gen") && (method != "genW") && (method != "default") )
-    error(string("Method ", method, " is not implemented for generalised weights.") )
-end
-
-if ( (method == "default") && ( (m != 1) || (qm != 1.0) ) ) || (method == "gen") || (method == "genW")
-    (x,w) = asyRHgen(n, method == "genW", alpha, m, qm)
-    w = w/sum(w)*gamma((alpha+1)/m)*qm^(-(alpha+1)/m)/m # We left out a constant factor while computing w in case we use finite differences
-    (x,w)
-elseif (method == "default") && (n == 0)
-    Float64[], Float64[]
-elseif (method == "default") && (n == 1)
-    [1.0+alpha], [1.0]
-elseif (method == "default") && (n == 2)
-    [alpha+2.-sqrt(alpha+2.) alpha+2.+sqrt(alpha+2.)], [((alpha-sqrt(alpha+2)+2)*gamma(alpha+2))/(2*(alpha+2)*(sqrt(alpha+2)-1)^2)  ((alpha+sqrt(alpha+2)+2)*gamma(alpha+2))/(2*(alpha+2)*(sqrt(alpha+2)+1)^2)]
-elseif method == "RHW"
-    laguerreRH( n, true, alpha )   # Use RH and only compute the representable weights
-elseif ( (method == "default") && (n < 128 ) ) || (method == "GW")
-    laguerreGW( n, alpha )         # Use Golub-Welsch
-elseif (method == "RH") || ( (method == "default") && (n >= 128) )
-    laguerreRH( n, false, alpha )  # Use RH
-else
-    error(string("Wrong method string, got ", method) )
-end
-    
+    if ( (method == "default") && ( (m != 1) || (qm != 1.0) ) ) || (method == "gen") || (method == "genW")
+        (x,w) = asyRHgen(n, method == "genW", alpha, m, qm)
+        w = w/sum(w)*gamma((alpha+1)/m)*qm^(-(alpha+1)/m)/m # We left out a constant factor while computing w in case we use finite differences
+        (x,w)
+    elseif (method == "default") && (n == 0)
+        Float64[], Float64[]
+    elseif (method == "default") && (n == 1)
+        [1.0+alpha], [1.0]
+    elseif (method == "default") && (n == 2)
+        [alpha+2.-sqrt(alpha+2.),alpha+2.+sqrt(alpha+2.)], [((alpha-sqrt(alpha+2)+2)*gamma(alpha+2))/(2*(alpha+2)*(sqrt(alpha+2)-1)^2),((alpha+sqrt(alpha+2)+2)*gamma(alpha+2))/(2*(alpha+2)*(sqrt(alpha+2)+1)^2)]
+    elseif method == "RHW"
+        laguerreRH( n, true, alpha )   # Use RH and only compute the representable weights
+    elseif ( (method == "default") && (n < 128 ) ) || (method == "GW")
+        laguerreGW( n, alpha )         # Use Golub-Welsch
+    elseif (method == "RH") || ( (method == "default") && (n >= 128) )
+        laguerreRH( n, false, alpha )  # Use RH
+    else
+        error(string("Wrong method string, got ", method) )
+    end
 end
 
 function laguerreGW( n::Int64, alpha::Float64 )
-# Calculate Gauss-Laguerre nodes and weights based on Golub-Welsch       
-    
+# Calculate Gauss-Laguerre nodes and weights based on Golub-Welsch
+
     alph = 2*(1:n)-1+alpha           # 3-term recurrence coeffs
     beta = sqrt( (1:n-1).*(alpha + (1:n-1) ) )
     T = diagm(beta,1) + diagm(alph) + diagm(beta,-1)  # Jacobi matrix
     x, V = eig( T )                  # eigenvalue decomposition
     w = gamma(alpha+1)*V[1,:].^2     # Quadrature weights
     x, vec(w)
-    
+
 end
 
 ########################## Routines for the RH algorithm ##########################
@@ -313,7 +311,7 @@ function asyBulk(np, y, alpha, T)
             R1 = R1 + (-7/10485760*alpha^12 + 77/6291456*alpha^11 - 8023/94371840*alpha^10 + 194831/754974720*alpha^9)*d^(-1)/np^6
             R1 = R1 + (-1697501/9059696640*alpha^8 - 3268067/4529848320*alpha^7 + 232121/169869312*alpha^6 + 708119/2548039680*alpha^5)*d^(-1)/np^6
             R1 = R1 + (-578367767/326149079040*alpha^4 + 7120279/21743271936*alpha^3 +4384859317/6849130659840*alpha^2 - 464353573/5218385264640*alpha - 6115336781/87668872445952)*d^(-1)/np^6
-            R2 = R2 + (-1/368640*alpha^12 + 3101/94371840*alpha^11 - 4729/37748736*alpha^10 + 387539/6794772480*alpha^9)*d^(-1)/np^6 
+            R2 = R2 + (-1/368640*alpha^12 + 3101/94371840*alpha^11 - 4729/37748736*alpha^10 + 387539/6794772480*alpha^9)*d^(-1)/np^6
             R2 = R2 + (698591/1132462080*alpha^8 - 610643/704643072*alpha^7 - 1822295/1811939328*alpha^6 + 154675561/81537269760*alpha^5)*d^(-1)/np^6
             R2 = R2 + (212982187/326149079040*alpha^4 - 1334636401/978447237120*alpha^3 -789100727/4566087106560*alpha^2 + 25497378911/109586090557440*alpha + 69110929651/4931374075084800)*d^(-1)/np^6
             R1 = R1 + (-13/37748736*alpha^12 + 49/23592960*alpha^11 + 2197/188743680*alpha^10 - 405053/3397386240*alpha^9)*d^(-2)/np^6
@@ -1105,7 +1103,7 @@ function asyRHgen(n, compRepr, alpha, m, qm)
     T = ceil(Int64, 34/log(n) ) # Heuristic for number of terms, should be scaled by the logarithm of eps(Float64) over the machine precision.
     UQ0 = getUQ(alpha, qm ,m, T)
     if compRepr
-        mn = min(n,ceil(Int64, exp(exp(1/m)*1.05)*n^(1-1/2/m) )) 
+        mn = min(n,ceil(Int64, exp(exp(1/m)*1.05)*n^(1-1/2/m) ))
     else
         mn = n
     end
@@ -1124,7 +1122,7 @@ function asyRHgen(n, compRepr, alpha, m, qm)
     w = zeros(mn)
     if useFinDiff
         x = [bes*(2*m-1)^2/16/m^2/n^2*softEdge ; zeros(mn-itric) ]
-    else	
+    else
         ak = [-13.69148903521072; -12.828776752865757; -11.93601556323626;    -11.00852430373326; -10.04017434155809; -9.02265085340981; -7.944133587120853;    -6.786708090071759; -5.520559828095551; -4.08794944413097; -2.338107410459767]
         t = 3*pi/2*( (igatt:-1:12)-0.25) # [DLMF (9.9.6)]
         ak = [-t.^(2/3).*(1 + 5/48./t.^2 - 5/36./t.^4 + 77125/82944./t.^6     -10856875/6967296./t.^8); ak[max(1,12-igatt):11] ]
@@ -1159,7 +1157,7 @@ function asyRHgen(n, compRepr, alpha, m, qm)
         while ( ( abs(step) > eps(Float64)*40*x[k] ) && ( l < 20) )
             l = l + 1
             pe = polyAsyRHgen(n, x[k], alpha, T, qm, m, UQ0)
-            if (abs(pe) >= abs(ov)*(1-35*eps(Float64)) ) 
+            if (abs(pe) >= abs(ov)*(1-35*eps(Float64)) )
                 # The function values do not decrease enough any more due to roundoff errors.
                 x[k] = ox # Set to the previous value and quit.
                 break
@@ -1428,7 +1426,7 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
         end
     end
     OmOdd = (1+1im)*zeros(mo+1); OmEven = (1+1im)*zeros(mo+1)
-    XiOdd = (1+1im)*zeros(mo+1); XiEven = (1+1im)*zeros(mo+1) 
+    XiOdd = (1+1im)*zeros(mo+1); XiEven = (1+1im)*zeros(mo+1)
     ThOdd = (1+1im)*zeros(mo+1); ThEven = (1+1im)*zeros(mo+1)
     OmO = (1+1im)*zeros(mo+1); OmE = (1+1im)*zeros(mo+1)
     XiO = (1+1im)*zeros(mo+1); XiE = (1+1im)*zeros(mo+1)
@@ -1453,7 +1451,7 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
         end
     end
     Ts = (1+1im)*zeros(2,2,mo+1) # = G_{k,n}^{odd/even} depending on k, overwritten on each new k
-    WV = (1+1im)*zeros(2,2,maxOrder-1,mo+1) 
+    WV = (1+1im)*zeros(2,2,maxOrder-1,mo+1)
     for k = 1:(maxOrder-1)
         Ts[:,:,:] = 0
         if r == 1
@@ -1471,7 +1469,7 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
         else
             if mod(k,2) == 1
                 for n = 0:mo
-                    Ts[:,:,n+1] = -(alpha^2+k/2-1/4)/k*[-(-1)^n*(2*binom(-1/2,n-1)*(n>0)+binom(-1/2,n))*2    -1im*4^(-alpha)*2*(-1)^n*binom(-1/2,n)  ;  -1im*4^(alpha)*2*(-1)^n*binom(-1/2,n)     ( (-1)^n*(2*binom(-1/2,n-1)*(n>0) +binom(-1/2,n))*2)] - (k-1/2)*[2*OmO[n+1]   4^(-alpha)*2im*XiO[n+1]  ;   4^(alpha)*2im*ThO[n+1]   -2*OmO[n+1]] # binom(-1/2,-1) should be zero  
+                    Ts[:,:,n+1] = -(alpha^2+k/2-1/4)/k*[-(-1)^n*(2*binom(-1/2,n-1)*(n>0)+binom(-1/2,n))*2    -1im*4^(-alpha)*2*(-1)^n*binom(-1/2,n)  ;  -1im*4^(alpha)*2*(-1)^n*binom(-1/2,n)     ( (-1)^n*(2*binom(-1/2,n-1)*(n>0) +binom(-1/2,n))*2)] - (k-1/2)*[2*OmO[n+1]   4^(-alpha)*2im*XiO[n+1]  ;   4^(alpha)*2im*ThO[n+1]   -2*OmO[n+1]] # binom(-1/2,-1) should be zero
                     WV[:,:,k,n+1] = -(-1)^(ceil(Int64, k/2)+1)*(1im*sqrt(2))^k*(-2+0im)^(-k/2)/4^(k+1)*brac(k-1,alpha)*sum(repeat(reshape(g[k,1:(n+1) ], (1,1,n+1) ), outer=[2,2,1]).*Ts[:,:,(n+1):-1:1],3)
                 end
             else
@@ -1495,7 +1493,7 @@ function getUQ(alpha, qm, m::Int64, maxOrder::Int64)
     Vr = getV(alpha, qm, m, maxOrder, 1)
     Vl = getV(alpha, qm, m, maxOrder, -1)
     UQ = (1+1im)*zeros(2,2,maxOrder-1,ceil(Int64,3*maxOrder/2)+2, 4)
-    for kt = 0:(maxOrder-2) 
+    for kt = 0:(maxOrder-2)
         # Uright(:,:,(maxOrder-1)+1,:) will not be used later on because first term in expansions is without U's
         for mt = 0:(ceil(Int64,3*(kt+1)/2)-1)
             UQ[:,:,kt+1,mt+1,1] = Vr[:,:,kt+1,ceil(Int64,3*(kt+1)/2)-mt]
@@ -1534,6 +1532,3 @@ function getUQ(alpha, qm, m::Int64, maxOrder::Int64)
     end
     UQ
 end
-
-
-
