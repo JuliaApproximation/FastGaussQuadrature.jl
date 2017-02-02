@@ -57,7 +57,7 @@ function legpts_nodes(n, a)
     # ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE NODES.
     vn = 1 / (n + 0.5)
     m = length(a)
-    nodes = cot(a)
+    nodes = cot.(a)
     vn² = vn * vn
     vn⁴ = vn² * vn²
     @inbounds if n <= 255
@@ -109,7 +109,7 @@ function legpts_weights(n, m, a)
     # ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE WEIGHTS.
     vn = 1 / (n + 0.5)
     vn² = vn^2
-    weights = Array(Float64, m)
+    weights = Array{Float64}(m)
     if n <= 850000
         @inbounds for i in 1:m
             weights[i] = cot(a[i])
@@ -209,8 +209,8 @@ end
 function innerRec(n, x)
     # EVALUATE LEGENDRE AND ITS DERIVATIVE USING THREE-TERM RECURRENCE RELATION.
     N = size(x, 1)
-    myPm1 = Array(Float64, N)
-    myPPm1 = Array(Float64, N)
+    myPm1 = Array{Float64}(N)
+    myPPm1 = Array{Float64}(N)
     @inbounds for j = 1:N
         xj = x[j]
         Pm2 = 1.0
@@ -242,7 +242,7 @@ const besselZeros_20 = [2.4048255576957728, 5.5200781102863106,
 function besselZeroRoots(m)
     # BESSEL0ROOTS ROOTS OF BESSELJ(0,x). USE ASYMPTOTICS.
     # Use McMahon's expansion for the remainder (NIST, 10.21.19):
-    jk = Array(Float64, m)
+    jk = Array{Float64}(m)
     p = (1071187749376 / 315, 0.0, -401743168 / 105, 0.0, 120928 / 15,
          0.0, -124 / 3, 0.0, 1.0, 0.0)
     # First 20 are precomputed:
@@ -281,7 +281,7 @@ function besselJ1(m)
     # BESSELJ1 EVALUATE BESSELJ(1,x)^2 AT ROOTS OF BESSELJ(0,x).
     # USE ASYMPTOTICS. Use Taylor series of (NIST, 10.17.3) and McMahon's
     # expansion (NIST, 10.21.19):
-    Jk2 = Array(Float64, m)
+    Jk2 = Array{Float64}(m)
     c = (-171497088497 / 15206400, 461797 / 1152, -172913 / 8064,
          151 / 80, -7 / 24, 0.0, 2.0)
     # First 10 are precomputed:
