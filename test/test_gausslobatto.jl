@@ -24,4 +24,4 @@ x,w = gausslobatto(n)
 @test ( x[1] == -1 && x[n] == 1 )
 
 @test dot( w,(x.^2)) ≈ 2/3
-@test dot( w,exp(x)) ≈ exp(1)-exp(-1)
+@test dot( w,exp.(x)) ≈ exp(1)-exp(-1)
