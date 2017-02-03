@@ -1,3 +1,5 @@
+
+
 # Test for gausslegendre().
 
 
@@ -10,8 +12,8 @@ tol = 1e-14
 n = 42
 x, w = gausslegendre(n)
 @test length(x) == n && length(w) == n
-@test x[37] ≈ 0.910959724904127 atol=tol
-@test w[37] ≈ 0.030479240699603 atol=tol
+@test ≈(x[37],0.910959724904127;atol=tol)
+@test ≈(w[37],0.030479240699603;atol=tol)
 
 @test dot( w,(x.^2)) ≈ 2/3
 @test dot( w,exp.(x)) ≈ exp(1)-exp(-1)

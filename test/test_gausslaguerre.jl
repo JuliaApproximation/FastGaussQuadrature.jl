@@ -14,6 +14,14 @@ tol = 3.e-13
 tolGen = 2.e-9
 # Possibly set srand(...) to get the same results for integration of a random polynomial.
 ns = [42; 251; 5000];
+
+# the following were computed using quadgk
+quadgk_exa = [3.2176248255905825e14  4.298744794628054e18   844.0328465154408
+              3.0483026539043077      902.5428056960185    1.6962837924111536
+              1.120730668666291     29.98453680681862      1.0146978179749486]
+
+
+srand(0)
 for wei = 1:3
     if wei == 1; alpha = 0.0;qm = 1.0; m = 1;
     elseif wei == 2; alpha = pi+0.1; qm = 1.0; m = 1;
@@ -37,7 +45,9 @@ for wei = 1:3
         end
         fcti(x) = fct(x).*exp(-qm*x.^m).*x^(alpha)
         # Test integration of a random polynomial which should be integrated exactly:
-        exa = quadgk(fcti, 0, Inf, reltol = tol)[1]
+        exa = quadgk_exa[ni,wei]
+
+
         for methi = 1:ifelse(ni == 1, 1, 5)
             if (ni == 1)
                 # Golub-Welsch is the accurate algorithm for low n but does not allow m or qm != 1.
@@ -137,7 +147,7 @@ for alpha = [0.0; 4.15]
         @test abs(-2395.51952258921326919097391744358588135/exp(0.01*4*np/2)/factorp -aRHe)/abs(aRHe) < tolEx
     end
 
-    for n = ceil(Int64, linspace(111, 5000, 5) )
+    for n = ceil.([Int64], linspace(111, 5000, 5) )
         for z = linspace(1e-4, 0.99, 10)
             aRH = polyAsyRH(n, 4*n*z, alpha, T)
             @test abs(polyAsyRHgen(n, 4*n*z, alpha, T, 1.0, 1, UQ) -aRH)/abs(aRH) < 2*tolEx

@@ -226,7 +226,7 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
     t += vals[1]./vals[2]                                 # Newton update.
 
     # Store:
-    [.-(cos.(vec(t)));vec(x)],[1./vec(vals[2]).^2;vec(w)]
+    [(-).(cos.(vec(t)));vec(x)],[1./vec(vals[2]).^2;vec(w)]
 end
 
 function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
