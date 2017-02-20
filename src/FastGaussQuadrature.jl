@@ -1,6 +1,6 @@
 module FastGaussQuadrature
 
-using Compat
+using Compat, SpecialFunctions
 
 export gausslegendre
 export gausschebyshev
@@ -10,6 +10,8 @@ export gaussjacobi
 export gausslobatto
 export gaussradau
 export besselroots
+
+import SpecialFunctions: besselj, airyai, airyaiprime
 
 include("gausslegendre.jl")
 include("gausschebyshev.jl")

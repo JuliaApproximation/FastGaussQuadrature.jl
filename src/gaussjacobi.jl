@@ -38,8 +38,8 @@ function JacobiRec(n::Int, a::Float64, b::Float64)
     x11, x12 = HalfRec(n, a, b, 1)
     x21, x22 = HalfRec(n, b, a, 0)
 
-    x = Array(Float64, n)
-    w = Array(Float64, n)
+    x = Array{Float64}(n)
+    w = Array{Float64}(n)
     m1 = length(x11)
     m2 = length(x21)
     sum_w = 0.0
@@ -76,15 +76,15 @@ function HalfRec(n::Int, a::Float64, b::Float64, flag)
     a1 = .25 - a^2
     b1 = .25 - b^2
     c1² = c1^2
-    x = Array(Float64, m)
+    x = Array{Float64}(m)
     @inbounds for i in 1:m
         C = muladd(2.0, r[i], a - .5) * (π * c1)
         C_2 = 0.5 * C
         x[i] = cos(muladd(c1², muladd(-b1, tan(C_2), a1 * cot(C_2)), C))
     end
 
-    P1 = Array(Float64, m)
-    P2 = Array(Float64, m)
+    P1 = Array{Float64}(m)
+    P2 = Array{Float64}(m)
     # Loop until convergence:
     for _ in 1:10
         innerJacobiRec!(n, x, a, b, P1, P2)
@@ -133,8 +133,8 @@ end
 function innerJacobiRec(n, x, a, b)
     # EVALUATE JACOBI POLYNOMIALS AND ITS DERIVATIVE USING THREE-TERM RECURRENCE.
     N = length(x)
-    P = Array(Float64, N)
-    PP = Array(Float64, N)
+    P = Array{Float64}(N)
+    PP = Array{Float64}(N)
     innerJacobiRec!(n, x, a, b, P, PP)
     P, PP
 end
@@ -182,8 +182,8 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
     # Algorithm for computing nodes and weights in the interior.
 
     # Approximate roots via asymptotic formula: (Gatteschi and Pittaluga, 1985)
-    K = (2*(n:-1:1)+a-.5)*pi/(2*n+a+b+1)
-    tt = K + 1/(2*n+a+b+1)^2*((.25-a^2)*cot(.5*K)-(.25-b^2)*tan(.5*K))
+    K = (2*(n:-1:1).+a.-0.5).*pi./(2*n+a+b+1)
+    tt = K .+ (1/(2*n+a+b+1)^2).*((0.25-a^2).*cot.(0.5.*K).-(0.25-b^2).*tan.(0.5*K))
 
     # First half (x > 0):
     t = tt[tt .<= pi/2]'
@@ -204,7 +204,7 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
     t += vals[1]./vals[2]                                 # Newton update.
 
     # Store:
-    x = cos(t)
+    x = cos.(t)
     w = 1./vals[2].^2
 
     # Second half (x < 0):
@@ -226,7 +226,7 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
     t += vals[1]./vals[2]                                 # Newton update.
 
     # Store:
-    [-cos(vec(t));vec(x)],[1./vec(vals[2]).^2;vec(w)]
+    [(-).(cos.(vec(t)));vec(x)],[1./vec(vals[2]).^2;vec(w)]
 end
 
 function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
@@ -236,23 +236,23 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
     M = 20
 
     # Some often used vectors/matrices:
-    onesT = ones(1,length(t)); onesM = ones(M); MM = (collect(0:M-1)')';
+    onesT = ones(length(t))'; onesM = ones(M); MM = collect(0:M-1);
 
     # The sine and cosine terms:
-    alpha = (.5*(2*n+a+b+1+MM))*onesT .* (onesM*t) - .5*(a+.5)*pi
-    cosA = cos(alpha); sinA = sin(alpha)
+    alpha = (0.5*(2*n+a+b+1+MM))*onesT .* (onesM*t) - 0.5*(a+0.5)*pi
+    cosA = cos.(alpha); sinA = sin.(alpha)
 
-    sinT = onesM*sin(t)
-    cosT = onesM*cos(t)
-    cosA2 = cosA.*cosT + sinA.*sinT
-    sinA2 = sinA.*cosT - cosA.*sinT
+    sinT = onesM*sin.(t)
+    cosT = onesM*cos.(t)
+    cosA2 = cosA.*cosT .+ sinA.*sinT
+    sinA2 = sinA.*cosT .- cosA.*sinT
 
     one = ones(t)
-    sinT = vcat( one , cumprod(onesM[2:end]*(.5*csc(.5*t))))
-    cosT = .5*sec(.5*t)
+    sinT = vcat( one , cumprod(onesM[2:end].*(0.5.*csc.(0.5.*t))))
+    cosT = 0.5.*sec.(0.5.*t)
 
     j = transpose(0:M-2)
-    vec = (.5+a+j).*(.5-a+j)./(j+1)./(2*n+a+b+j+2)
+    vec = (0.5.+a.+j).*(0.5.-a.+j)./(j.+1)./(2*n.+a.+b.+j.+2)
     P1 = [1 cumprod(vec,2)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
@@ -281,25 +281,25 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
     SC = sinT
     for m = 1:M
         l = 1:2:m
-        phi = PHI[m:m, l]
-        dS1 = phi * SC[l, :] .* cosA[m:m, :]
-        phi2 = PHI2[m:m, l]
-        dS12 = phi2*SC[l, :] .* cosA2[m:m, :]
+        phi = PHI[m, l]'
+        dS1 = phi * SC[l, :] .* cosA[m, :]'
+        phi2 = PHI2[m, l]'
+        dS12 = phi2*SC[l, :] .* cosA2[m, :]'
         l = 2:2:m
-        phi = PHI[m:m, l]
-        dS2 = phi * SC[l, :] .* sinA[m:m, :]
-        phi2 = PHI2[m:m, l]
-        dS22 = phi2 * SC[l, :] .* sinA2[m:m, :]
+        phi = PHI[m, l]'
+        dS2 = phi * SC[l, :] .* sinA[m, :]'
+        phi2 = PHI2[m, l]'
+        dS22 = phi2 * SC[l, :] .* sinA2[m, :]'
         if m - 1 > 10 && norm(dS1[idx] + dS2[idx], Inf) < eps(Float64) / 100
             break
         end
         S = S + dS1 + dS2
         S2 = S2 + dS12 + dS22
-        SC[1:m,:] = broadcast(.*,SC[1:m,:],cosT)
+        SC[1:m,:] = SC[1:m,:].*cosT
     end
 
     # Constant out the front:
-    dsa = .5*(a^2)/n; dsb = .5*(b^2)/n; dsab = .25*(a+b)^2/n
+    dsa = 0.5*(a^2)/n; dsb = 0.5*(b^2)/n; dsab = 0.25*(a+b)^2/n
     ds = dsa + dsb - dsab; s = ds; j = 1
     dsold = ds # to fix a = -b bug.
     while ( (abs(ds/s) + dsold) > eps(Float64)/10 )
@@ -324,9 +324,9 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
     S2 = C2*S2
 
     # Use relation for derivative:
-    ders = (n*(a-b-(2*n+a+b)*cos(t)).*vals + 2*(n+a)*(n+b)*S2)/(2*n+a+b)./sin(t)
-    t = abs( t )
-    denom = 1./real(sin(t/2).^(a+.5).*cos(t/2).^(b+.5))
+    ders = (n.*(a.-b.-(2*n+a+b).*cos.(t)).*vals .+ 2.*(n+a).*(n+b).*S2)./(2*n+a+b)./sin.(t)
+    t .= abs.( t )
+    denom = 1./real.(sin.(t/2).^(a+0.5).*cos.(t./2).^(b+0.5))
     vals = vals.*denom
     ders = ders.*denom
 
@@ -342,7 +342,7 @@ function boundary(n::Int, a::Float64, b::Float64, npts)
 
     # Approximate roots via asymptotic formula: (see Olver 1974)
     phik = jk/(n + .5*(a + b + 1))
-    x = cos( phik + ((a^2-.25)*(1-phik.*cot(phik))./(8*phik) - .25*(a^2-b^2)*tan(.5*phik))/(n + .5*(a + b + 1))^2 )
+    x = cos.( phik .+ ((a^2-0.25).*(1.-phik.*cot.(phik))./(8*phik) .- 0.25.*(a^2-b^2).*tan.(0.5.*phik))./(n + 0.5*(a + b + 1))^2 )
 
     dx = 1.0; counter = 0;
     # Newton iteration:
@@ -375,11 +375,11 @@ function JacobiGW( n::Int64, a::Float64, b::Float64 )
           (b^2 - a^2)./((abi - 2).*abi)
           (b^2 - a^2)./((2*n - 2+ab).*(2*n+ab))]
     bb = [2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
-          2*sqrt(ii.*(ii + a).*(ii + b).*(ii + ab)./(abi.^2 - 1))./abi]
+          2.*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi]
     TT = diagm(bb,1) + diagm(aa) + diagm(bb,-1) # Jacobi matrix.
     x, V = eig( TT )                       # Eigenvalue decomposition.
     # Quadrature weights:
-    w = V[1,:].^2*( 2^(ab+1)*gamma(a+1)*gamma(b+1)/gamma(2+ab) );
-    w = w/sum(w);
+    w = V[1,:].^2.*( 2^(ab+1)*gamma(a+1)*gamma(b+1)/gamma(2+ab) );
+    w .= w./sum(w);
     x, vec(w)
 end

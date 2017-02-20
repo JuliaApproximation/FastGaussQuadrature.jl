@@ -37,7 +37,7 @@ function laguerreGW( n::Int64, alpha::Float64 )
 # Calculate Gauss-Laguerre nodes and weights based on Golub-Welsch
 
     alph = 2*(1:n)-1+alpha           # 3-term recurrence coeffs
-    beta = sqrt( (1:n-1).*(alpha + (1:n-1) ) )
+    beta = sqrt.( (1:n-1).*(alpha .+ (1:n-1) ) )
     T = diagm(beta,1) + diagm(alph) + diagm(beta,-1)  # Jacobi matrix
     x, V = eig( T )                  # eigenvalue decomposition
     w = gamma(alpha+1)*V[1,:].^2     # Quadrature weights
@@ -766,7 +766,7 @@ function asyAiry(np, y, alpha, T)
     fn = (np*3im*( sqrt(z)*sqrt(1 - z) - acos(sqrt(z) ) ) )^(2/3)
     d = z - 1
     if T == 1
-        return real( 4*sqrt(pi)/z^(1/4)/(d + 0im)^(1/4)*z^(-alpha/2)*(cos( (alpha + 1)/2*acos(2*z - 1) )*fn^(1/4)*airy(0,fn) + -1im*sin( (alpha + 1)/2*acos(2*z - 1) )*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airy(1,fn) ) )
+        return real( 4*sqrt(pi)/z^(1/4)/(d + 0im)^(1/4)*z^(-alpha/2)*(cos( (alpha + 1)/2*acos(2*z - 1) )*fn^(1/4)*airyai(fn) + -1im*sin( (alpha + 1)/2*acos(2*z - 1) )*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airyaiprime(fn) ) )
     end
     R1 = 0.0
     R2 = 0.0
@@ -1092,7 +1092,7 @@ function asyAiry(np, y, alpha, T)
         R1 = R1 + (1/48*alpha^4 + 7/240*alpha^2 - 1/105)/np^1 + 1
         R2 = R2 + (1/48*alpha^4 + 1/12*alpha^3 + 7/240*alpha^2 + 1/60*alpha + 1/140)/np^1
     end
-    p = real( 4*sqrt(pi)/z^(1/4)/(d + 0im)^(1/4)*z^(-alpha/2)*( (R1*cos( (alpha + 1)/2*acos(2*z - 1) ) -cos( (alpha - 1)/2*acos(2*z - 1) )*R2)*fn^(1/4)*airy(0,fn) + 1im*(-sin( (alpha + 1)/2*acos(2*z - 1) )*R1 +sin( (alpha - 1)/2*acos(2*z - 1) )*R2)*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airy(1,fn) ) )
+    p = real( 4*sqrt(pi)/z^(1/4)/(d + 0im)^(1/4)*z^(-alpha/2)*( (R1*cos( (alpha + 1)/2*acos(2*z - 1) ) -cos( (alpha - 1)/2*acos(2*z - 1) )*R2)*fn^(1/4)*airyai(fn) + 1im*(-sin( (alpha + 1)/2*acos(2*z - 1) )*R1 +sin( (alpha - 1)/2*acos(2*z - 1) )*R2)*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airyaiprime(fn) ) )
 end
 
 
@@ -1274,7 +1274,7 @@ end
 function asyAirygen(np, z, alpha, T::Int64, qm, m::Int64, UQ, fn, useQ::Bool, xin=NaN+NaN*1im)
     d = z - 1.0 +0im
     if T == 1
-        return real( 4*sqrt(pi)/(z+0im)^(1/4+alpha/2)/d^(1/4)*(cos( (alpha + 1)/2*acos(2*z - 1+0im) )*fn^(1/4)*airy(0,fn) -1im*sin( (alpha + 1)/2*acos(2*z - 1+0im) )*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airy(1,fn) ) )
+        return real( 4*sqrt(pi)/(z+0im)^(1/4+alpha/2)/d^(1/4)*(cos( (alpha + 1)/2*acos(2*z - 1+0im) )*fn^(1/4)*airyai(fn) -1im*sin( (alpha + 1)/2*acos(2*z - 1+0im) )*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airyaiprime(fn) ) )
     end
     R = (1+0im)*[1 0]
     if useQ
@@ -1300,7 +1300,7 @@ function asyAirygen(np, z, alpha, T::Int64, qm, m::Int64, UQ, fn, useQ::Bool, xi
             end
         end
     end
-    p = real( 4*sqrt(pi)/(z+0im)^(1/4+alpha/2)/d^(1/4)*( (R[1]*cos( (alpha + 1)/2*acos(2*z - 1+0im) ) -cos( (alpha - 1)/2*acos(2*z - 1+0im) )*R[2]*1im*4^alpha)*fn^(1/4)*airy(0,fn) + 1im*(-sin( (alpha + 1)/2*acos(2*z - 1+0im) )*R[1] +sin( (alpha - 1)/2*acos(2*z - 1+0im) )*R[2]*1im*4^alpha)*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airy(1,fn) ) )
+    p = real( 4*sqrt(pi)/(z+0im)^(1/4+alpha/2)/d^(1/4)*( (R[1]*cos( (alpha + 1)/2*acos(2*z - 1+0im) ) -cos( (alpha - 1)/2*acos(2*z - 1+0im) )*R[2]*1im*4^alpha)*fn^(1/4)*airyai(fn) + 1im*(-sin( (alpha + 1)/2*acos(2*z - 1+0im) )*R[1] +sin( (alpha - 1)/2*acos(2*z - 1+0im) )*R[2]*1im*4^alpha)*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airyaiprime(fn) ) )
 end
 
 # Additional short functions

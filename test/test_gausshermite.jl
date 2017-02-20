@@ -2,14 +2,18 @@
 
 tol = 1e-14
 
-n = 18; 
+n = 18;
 x,w = gausshermite( n )
+@test isa(x,Vector{Float64})
+@test isa(w,Vector{Float64})
 @test (length(x) == n && length(w) == n)
 @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < tol)
 
 # Test a small n:
 n = 42
 x,w = gausshermite( n )
+@test isa(x,Vector{Float64})
+@test isa(w,Vector{Float64})
 @test (length(x) == n && length(w) == n)
 @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < tol)
 @test abs(x[37] - 5.660357581283058) < tol
@@ -18,6 +22,8 @@ x,w = gausshermite( n )
 # Test a larger n:
 n = 251
 x,w = gausshermite( n )
+@test isa(x,Vector{Float64})
+@test isa(w,Vector{Float64})
 @test (length(x) == n && length(w) == n)
 @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < 300*tol)
 @test abs(x[37] - -13.292221459334638) < tol
