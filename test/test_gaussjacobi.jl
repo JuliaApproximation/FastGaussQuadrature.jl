@@ -56,7 +56,7 @@ x, w = gaussjacobi(10013, .9, -.1)
 # test last alpha and beta parameters:
 x, w = gaussjacobi(100, 19., 21.)
 @test abs(x[87] - 0.832211446176040) < tol
-@test abs(w[50] - 0.064530500882703) < tol
+@test abs(w[50] - 0.026363584978877) < tol
 
 # test for small alpha and beta:
 x, w = gaussjacobi(10000, .1, .2)

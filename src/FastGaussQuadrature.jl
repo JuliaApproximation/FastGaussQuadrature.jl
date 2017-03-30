@@ -3,6 +3,7 @@ __precompile__()
 module FastGaussQuadrature
 
 using Compat, SpecialFunctions
+import GSL: sf_hyperg_2F1
 
 export gausslegendre
 export gausschebyshev
