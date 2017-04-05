@@ -371,11 +371,11 @@ function JacobiGW( n::Int64, a::Float64, b::Float64 )
     ab = a + b;
     ii = 2:n-1;
     abi = 2*ii + ab;
-    aa = [(b - a)/(2 + ab)
-          (b^2 - a^2)./((abi - 2).*abi)
-          (b^2 - a^2)./((2*n - 2+ab).*(2*n+ab))]
-    bb = [2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
-          2.*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi]
+    aa = Float64[(b - a)/(2 + ab);
+          (b^2 - a^2)./((abi - 2).*abi);
+          (b^2 - a^2)./((2*n - 2+ab).*(2*n+ab))] ::Vector{Float64}
+    bb = Float64[2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
+          2.*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi] ::Vector{Float64}
     TT = SymTridiagonal(aa, bb)  # Jacobi matrix.
     x, V = eig( TT )                       # Eigenvalue decomposition.
     # Quadrature weights:
