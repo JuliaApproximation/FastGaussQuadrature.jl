@@ -376,7 +376,7 @@ function JacobiGW( n::Int64, a::Float64, b::Float64 )
           (b^2 - a^2)./((2*n - 2+ab).*(2*n+ab))]
     bb = [2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
           2.*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi]
-    TT = diagm(bb,1) + diagm(aa) + diagm(bb,-1) # Jacobi matrix.
+    TT = SymTridiagonal(aa, bb)  # Jacobi matrix.
     x, V = eig( TT )                       # Eigenvalue decomposition.
     # Quadrature weights:
     w = V[1,:].^2.*( 2^(ab+1)*gamma(a+1)*gamma(b+1)/gamma(2+ab) );

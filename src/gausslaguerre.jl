@@ -38,7 +38,7 @@ function laguerreGW( n::Int64, alpha::Float64 )
 
     alph = 2*(1:n)-1+alpha           # 3-term recurrence coeffs
     beta = sqrt.( (1:n-1).*(alpha .+ (1:n-1) ) )
-    T = diagm(beta,1) + diagm(alph) + diagm(beta,-1)  # Jacobi matrix
+    T = SymTridiagonal(alph, beta)  # Jacobi matrix
     x, V = eig( T )                  # eigenvalue decomposition
     w = gamma(alpha+1)*V[1,:].^2     # Quadrature weights
     x, vec(w)

@@ -252,7 +252,7 @@ function hermpts_gw( n::Int )
 # Golub--Welsch algorithm. Used here for n<=20.
 
     beta = sqrt.(0.5.*(1:n-1))              # 3-term recurrence coeffs
-    T = diagm(beta, 1) + diagm(beta, -1)   # Jacobi matrix
+    T = SymTridiagonal(zeros(n), beta)  # Jacobi matrix
     (D, V) = eig(T)                      # Eigenvalue decomposition
     indx = sortperm(D)                  # Hermite points
     x = D[indx]
