@@ -1564,99 +1564,132 @@ function laguerreExp( n::Int64, compRepr::Bool, alpha::Float64, T::Int64, scZer:
     # Heuristics to switch between Bessel, extrapolation and Airy initial guesses.
     igatt = ceil(Int64, mn + 1.31*n^0.4 - n)
 
-    nu = 4*n+2*alpha+2    
+    d = 1/(4*n+2*alpha+2);
     jak = besselroots(alpha, itric) # [Tricomi 1947 pg. 296]
     bes = jak*0;
     if (T >= 7)
-	bes = bes + (657*jak.^6 +36*jak.^4*(73*alpha^2-181) +2*jak.^2*(2459*alpha^4 -10750*alpha^2 +14051) + 4*(1493*alpha^6 -9303*alpha^4 +19887*alpha^2 - 12077) )/nu^6/2835;
+	bes = bes + (657*jak.^6 +36*jak.^4*(73*alpha^2-181) +2*jak.^2*(2459*alpha^4 -10750*alpha^2 +14051) + 4*(1493*alpha^6 -9303*alpha^4 +19887*alpha^2 - 12077) )*d^6/2835;
     end
     if (T >= 5)
-	bes = bes + (11*jak.^4 +3*jak.^2.*(11*alpha^2-19) +46*alpha^4 -140*alpha^2 +94)/nu^4/45;
+	bes = bes + (11*jak.^4 +3*jak.^2.*(11*alpha^2-19) +46*alpha^4 -140*alpha^2 +94)*d^4/45;
     end
     if (T >= 3)
-	bes = bes + (jak.^2 + 2*alpha^2 - 2)/nu^2/3;
+	bes = bes + (jak.^2 + 2*alpha^2 - 2)*d^2/3;
     end
-    bes = jak.^2/nu.*(1 + bes )
+    bes = jak.^2*d.*(1 + bes )
 
     ak = [-13.69148903521072; -12.828776752865757; -11.93601556323626;    -11.00852430373326; -10.04017434155809; -9.02265085340981; -7.944133587120853;    -6.786708090071759; -5.520559828095551; -4.08794944413097; -2.338107410459767]
     t = 3*pi/2*( (igatt:-1:12)-0.25) # [DLMF (9.9.6)]
     ak = [-t.^(2/3).*(1 + 5/48./t.^2 - 5/36./t.^4 + 77125/82944./t.^6     -10856875/6967296./t.^8); ak[max(1,12-igatt):11] ]
     air = 0*ak;# [Gatteshi 2002 (4.9)]
     if (T >= 5)
-	air = air -(15152/3031875*ak.^5+1088/121275*ak.^2)*2^(1/3)*nu^(-7/3) # Gives an O(n^{-4}) relative error
+	air = air -(15152/3031875*ak.^5+1088/121275*ak.^2)*2^(1/3)*d^(7/3) # Gives an O(n^{-4}) relative error
     end
     if (T >= 4)
-	air = air +  (16/1575*ak+92/7875*ak.^4)*2^(2/3)*nu^(-5/3)
+	air = air +  (16/1575*ak+92/7875*ak.^4)*2^(2/3)*d^(5/3)
     end
     if (T >= 3)
-	air = air +  ak.^2*(nu/16)^(-1/3)/5 + (11/35-alpha^2-12/175*ak.^3)/nu
+	air = air +  ak.^2*(d*16)^(1/3)/5 + (11/35-alpha^2-12/175*ak.^3)*d;
     end
-    air = nu+ak*(4*nu)^(1/3) + air; #air = nu+ak*(4*nu)^(1/3)+ ak.^2*(nu/16)^(-1/3)/5 + air;
-    #air = nu+ak*(4*nu)^(1/3)+ ak.^2*(nu/16)^(-1/3)/5 + (11/35-alpha^2-12/175*ak.^3)/nu + (16/1575*ak+92/7875*ak.^4)*2^(2/3)*nu^(-5/3) -(15152/3031875*ak.^5+1088/121275*ak.^2)*2^(1/3)*nu^(-7/3)
+    air = 1/d +ak*(d/4)^(-1/3) + air; 
     if scZer
-	print("Scalzer");
-	w = [ bes; zeros(mn - itric -max(igatt,0) ) ; 2^(2*alpha+7/3)*n^(alpha+1/3)*exp.(-air)./(airyaiprime.(ak)).^2/(alpha+3)];#2^(2*alpha+7/3)*n^(alpha+1/3)*exp(-air)*(airyaiprime(ak))^(-2)/(alpha+3)
+	#print("Scalzer");
+	w = [ bes; zeros(mn - itric -max(igatt,0) ) ; 2^(2*alpha+7/3)*n^(alpha+1/3)*exp.(-air)./(airyaiprime.(ak)).^2/(alpha+3)];
     else
-	print("Noscalzer");
+	#print("Noscalzer");
 	w = [ bes; zeros(mn - itric -max(igatt,0) ) ; 2^(2*alpha+7/3)*n^(alpha+1/3)./(airyaiprime.(ak)).^2/(alpha+3)];
     end
     x = [ bes; zeros(mn - itric -max(igatt,0) ) ; air]
-    print(itric, " =itric, mn= ", mn, ", end bulk = ", mn-max(igatt,0))
+    #print(itric, " =itric, mn= ", mn, ", end bulk = ", mn-max(igatt,0), ".\n")
     noUnderflow = true
-    d = 1/nu; #1/(4*n+2*alpha+2)
+
+    #Cheb: cfs = [2.942170367510636e-01;    -4.139269029484901e-01;     1.429681143465566e-01;    -3.338669755941041e-02;     1.509803915973382e-02;    -7.609250482355278e-03;     4.291101502426941e-03;    -2.573977218842810e-03;     1.615376195731114e-03;    -1.046120856217936e-03;     6.920452943776070e-04;    -4.628994502296370e-04;     3.088699503926352e-04;    -2.008313846681737e-04;     1.207633546315102e-04;    -5.672494564612236e-05]; # Chebyshev coefficients
+    #Cheb: apx = sum(repmat(cfs',lt,1).*cos(repmat(0:(mx-1), lt,1).*acos(repmat( (2*xt -a-b)/(b-a),1,mx))), 2);
+
+    # N = @(t) 2*acos(sqrt(t)) -2*sqrt(t -t.^2) -p*pi; so only (4n-4k+3)/(4n+2alph+2) without pi
+
+    ixbulk = (itric+1):(mn -max(igatt,0));
+    pt = (4*n -4*((itric+1):(mn -max(igatt,0))) +3)*d; #/(4*n +2*alpha +2);
+if false
+    #chebk = cos((2*(1:mx) -1)/2/mx*pi)';a = 0.01; b = 0.99;	xk = (a+b)/2 +(b-a)/2*chebk;
+    xk = 0.5+ 0.49*cos((2*(1:16) -1)/2/16*pi)';
+    baryc = [8.392374553903038e+02, -1.573904756067641e+04,  1.217801459223059e+05,  -5.241187241822941e+05,   1.561671400871400e+06, -3.632334022840342e+06,   7.056947602530619e+06,  -1.192343707574069e+07,   1.795854669340786e+07,  -2.446733743951402e+07,   3.036493740995492e+07,  -3.430589960928102e+07,   3.489836980231517e+07,  -3.097800484853177e+07,   2.192179297293409e+07,  -8.079248247153265e+06];
+    ibulk = mn -max(igatt,0) -itric;
+
+    ichebSer = Int64(round(n/10-0.45*alpha+0.3));
+    t = ones(ibulk,1);
+    asum = zeros(ibulk-ichebSer,1);
+    #print(pt[1], " apsoijfd ", itric, " aodi ", ibulk, " apsoijdf ", xk[1], "\n")
+    for mix = 1:16
+	t[ichebSer+1:ibulk] = t[ichebSer+1:ibulk].*(pt[ichebSer+1:ibulk] -xk[mix]);
+	asum = asum + baryc[mix]./(pt[ichebSer+1:ibulk] -xk[mix]);
+	#print(t[1], " paosijfd ", mix, " apsdf ", asum[1], "\n");
+    end
+    t[ichebSer+1:ibulk] = t[ichebSer+1:ibulk].*asum;
+    #ixch = find(t<0); # Near pt = 1 = Bessel region
+    #t(ixch) = pi^2/16*(pt-1).^2;
+    #ixch = find(t>1); # Near pt = 0 = Airy region
+    #t(ixch) = 1 - (3*pi*pt/4).^(2/3);
+    t[1:ichebSer] = pi^2/16*(pt[1:ichebSer] -1).^2;
+    #print(minimum(pt), " =min p, max p = ", maximum(pt), ", ", minimum(t), " =min t, max t = ", maximum(t), "\n");
+    #print(norm(pt*pi +2*sqrt(t-t.^2) -acos(2*t-1) ), "=err init \n");
+    for it = 1:3 #9
+	t = t - (pt*pi +2*sqrt(t-t.^2) -acos(2*t-1) ).*sqrt(t./(1-t))/2;
+	#print(it, " = it, errF = ", norm(pt*pi +2*sqrt(t-t.^2) -acos(2*t-1) ), "\n" );
+    end
+elseif true
+    t = pi^2/16*(pt -1).^2;
+    #print(norm(pt*pi +2*sqrt(t-t.^2) -acos(2*t-1) ), "=err init \n");
+    for it = 1:6
+	t = t - (pt*pi +2*sqrt(t-t.^2) -acos(2*t-1) ).*sqrt(t./(1-t))/2;
+	#print(it, " = it, errF = ", norm(pt*pi +2*sqrt(t-t.^2) -acos(2*t-1) ), "\n" );
+    end
+else
+    t = pt;
+end
     #using Roots: Do in command line or file FastGaussQuadrature.jl
-    for k = (itric+1):(mn -max(igatt,0))
-	f(y) = (4*n -4*k +3)*d*pi +2*sqrt(y)*sqrt(1-y) -acos(2*y-1);
-	t = fzero(f, 0, 1);
+    #for k = (itric+1):(mn -max(igatt,0))
+	#f(y) = (4*n -4*k +3)*d*pi +2*sqrt(y)*sqrt(1-y) -acos(2*y-1);
+	#t = fzero(f, 0, 1);
+
+
 	#t = k/n # Test influence fzero on time
-	if (T>= 7) 
-	    x[k] = x[k] -1/181440*(9216*(21*alpha^6 - 105*alpha^4 + 147*alpha^2 - 31)*t^10 -69120*(21*alpha^6 - 105*alpha^4 + 147*alpha^2 - 31)*t^9 + 384*(12285*alpha^6 -61320*alpha^4 + 85785*alpha^2 - 18086)*t^8 - 64*(136080*alpha^6 - 675675*alpha^4 +943110*alpha^2 - 198743)*t^7 + 144*(70560*alpha^6 - 345765*alpha^4 +479850*alpha^2 - 101293)*t^6 + 72576*alpha^6 - (8128512*alpha^6 - 38656800*alpha^4+ 52928064*alpha^2 - 13067711)*t^5 + 5*(1016064*alpha^6 - 4581360*alpha^4 +6114528*alpha^2 + 113401)*t^4 - 317520*alpha^4 - 10*(290304*alpha^6 -1245888*alpha^4 + 1620864*alpha^2 - 528065)*t^3 + 5*(290304*alpha^6 -1234800*alpha^4 + 1598688*alpha^2 - 327031)*t^2 + 417312*alpha^2 -5*(96768*alpha^6 - 417312*alpha^4 + 544320*alpha^2 - 111509)*t -85616)*d^5/(t^10 - 8*t^9 + 28*t^8 - 56*t^7 + 70*t^6 - 56*t^5 +28*t^4 - 8*t^3 + t^2);
-	end
-	if (T >= 5)
-	    x[k] = x[k]  - 1/720*(32*(15*alpha^4 - 30*alpha^2 + 7)*t^6 -144*(15*alpha^4 - 30*alpha^2 + 7)*t^5 + 16*(225*alpha^4 - 450*alpha^2 +104)*t^4 - 240*alpha^4 - 480*(5*alpha^4 - 10*alpha^2 + 1)*t^3 + 480*alpha^2 +45*(16*alpha^4 - 32*alpha^2 + 7)*t + 990*t^2 - 105)*d^3/(t^6 - 5*t^5 +10*t^4 - 10*t^3 + 5*t^2 - t);
-	end
-	if (T >=3)
-	    x[k] = x[k] - 1/12*(4*(3*alpha^2 - 1)*t^2 +12*alpha^2 - 12*(2*alpha^2 - 1)*t - 3)*d/(t^2 - 2*t + 1)
-	end
-	x[k] = x[k] + t/d;
-	if ( x[k] < 0 ) || ( x[k] > 4*n + 2*alpha + 2 ) ||  ( ( k != 1 ) && ( x[k - 1] >= x[k] ) )
-	    error("Wrong node.")
-	end
-	#s = sin(2*sqrt(t)*sqrt(-t + 1));
-	#Sage: ..*d^alpha*4^alpha/W[1] = ... - 1/12*(4*(3*alpha^3 -alpha)*z1_1^3 - 12*alpha^3 - 4*(9*alpha^3 - 4*alpha + 1)*z1_1^2 + 3*(12*alpha^3 -5*alpha - 2)*z1_1 + 3*alpha)*d^2/(z1_1^4 - 3*z1_1^3 + 3*z1_1^2 - z1_1) + 1
-	if noUnderflow
-	    if (T >= 7)
-		w[k] = w[k] + 1/362880*(9216*(21*alpha^6 - 105*alpha^4 + 147*alpha^2 - 31)*t^10 -1536*(945*alpha^6 - 4830*alpha^4 + 6825*alpha^2 - 1444)*t^9 + 384*(11340*alpha^6 -60165*alpha^4 + 86310*alpha^2 - 18289)*t^8 - 2*(2903040*alpha^6 - 17055360*alpha^4+ 25401600*alpha^2 - 5*alpha - 5252997)*t^7 - (11753280*alpha^4 - 23506560*alpha^2+ 67*alpha - 13987519)*t^6 - 290304*alpha^6 + 12*(1016064*alpha^6 -3578400*alpha^4 + 4108608*alpha^2 + 16*alpha + 7100871)*t^5 - 5*(4064256*alpha^6 -16559424*alpha^4 + 20926080*alpha^2 + 61*alpha - 15239393)*t^4 + 1270080*alpha^4 +10*(1741824*alpha^6 - 7386624*alpha^4 + 9547776*alpha^2 + 29*alpha - 1560107)*t^3- 15*(580608*alpha^6 - 2503872*alpha^4 + 3265920*alpha^2 + 11*alpha - 669051)*t^2- 1669248*alpha^2 + 4*(604800*alpha^6 - 2630880*alpha^4 + 3447360*alpha^2 + 13*alpha- 706850)*t - 7*alpha + 342463)*d^6/(t-1)^9/t^3;
-		#w[k] = w[k]  -1/362880*(18432*(21*alpha^7 - 105*alpha^5 + 147*alpha^3 - 31*alpha)*t^11 -768*(315*alpha^8 + 3969*alpha^7 - 483*alpha^6 - 20685*alpha^5 - 903*alpha^4 +29631*alpha^3 + 1715*alpha^2 - 6275*alpha - 372)*t^10 + 64*(945*alpha^9 +29295*alpha^8 + 163485*alpha^7 - 50715*alpha^6 - 891135*alpha^5 - 77931*alpha^4 +1308223*alpha^3 + 158319*alpha^2 - 278182*alpha - 34656)*t^9 - 60480*alpha^9 -64*(8505*alpha^9 + 93555*alpha^8 + 325080*alpha^7 - 188370*alpha^6 - 1853145*alpha^5- 221445*alpha^4 + 2782920*alpha^3 + 497070*alpha^2 - 593980*alpha - 109734)*t^8 +302400*alpha^8 + 2*(1088640*alpha^9 + 4717440*alpha^8 + 13948200*alpha^7 -12350520*alpha^6 - 81043200*alpha^5 - 8542800*alpha^4 + 123302760*alpha^3 +24142440*alpha^2 - 26481205*alpha - 5252997)*t^7 - 462672*alpha^7 -(5080320*alpha^9 + 5080320*alpha^8 + 30333744*alpha^7 - 29942640*alpha^6 -163074240*alpha^5 + 5670000*alpha^4 + 237911968*alpha^3 + 21107520*alpha^2 -55212561*alpha + 13987519)*t^6 - 117936*alpha^6 + 36*(211680*alpha^9 -211680*alpha^8 + 895524*alpha^7 - 571228*alpha^6 - 3869845*alpha^5 + 1403801*alpha^4+ 4784297*alpha^3 - 1402863*alpha^2 - 674959*alpha - 2366957)*t^5 +1258740*alpha^5 - (7620480*alpha^9 - 17781120*alpha^8 + 32160240*alpha^7 -5387760*alpha^6 - 110097540*alpha^5 + 79844436*alpha^4 + 107492112*alpha^3 -104903064*alpha^2 - 9302603*alpha + 76196965)*t^4 - 1122660*alpha^4 +5*(1016064*alpha^9 - 3338496*alpha^8 + 4932144*alpha^7 + 557424*alpha^6 -14726376*alpha^5 + 13496616*alpha^4 + 12681459*alpha^3 - 19026693*alpha^2 -3164540*alpha + 3120214)*t^3 - 1083159*alpha^3 - 45*(48384*alpha^9 -193536*alpha^8 + 277200*alpha^7 + 63728*alpha^6 - 779240*alpha^5 + 741944*alpha^4 +661801*alpha^3 - 1078525*alpha^2 - 121271*alpha + 223017)*t^2 + 1653183*alpha^2 +(544320*alpha^9 - 2479680*alpha^8 + 3637872*alpha^7 + 952560*alpha^6 -9982980*alpha^5 + 9211860*alpha^4 + 8448489*alpha^3 - 13633515*alpha^2 -1547194*alpha + 2827400)*t + 199589*alpha - 342463)/(4*n +2*alpha +2)^6/(t-1)^9/t^3
-	    end
-	    if (T >= 5)
-		w[k] = w[k] + 1/720*(16*(15*alpha^4 - 30*alpha^2 + 7)*t^6 - 32*(45*alpha^4 - 90*alpha^2 +22)*t^5 + 48*(75*alpha^4 - 150*alpha^2 + 74)*t^4 + 240*alpha^4 - 600*(8*alpha^4- 16*alpha^2 - 5)*t^3 + 45*(80*alpha^4 - 160*alpha^2 + 57)*t^2 - 480*alpha^2 -90*(16*alpha^4 - 32*alpha^2 + 7)*t + 105)*d^4/t^2/(t-1)^6;
-		#w[k] = w[k] - 1/1440*(64*(15*alpha^5 - 30*alpha^3 + 7*alpha)*t^7 - 16*(45*alpha^6 +285*alpha^5 - 630*alpha^3 - 55*alpha^2 + 149*alpha + 14)*t^6 - 720*alpha^6 +32*(135*alpha^6 + 225*alpha^5 - 15*alpha^4 - 600*alpha^3 - 160*alpha^2 + 142*alpha +44)*t^5 + 1200*alpha^5 - 8*(1350*alpha^6 + 150*alpha^5 - 225*alpha^4 -1785*alpha^3 - 1565*alpha^2 + 251*alpha + 888)*t^4 - 120*alpha^4 + 60*(240*alpha^6- 160*alpha^5 - 40*alpha^4 + 28*alpha^3 - 278*alpha^2 + 13*alpha - 100)*t^3 -1320*alpha^3 - 15*(720*alpha^6 - 816*alpha^5 - 80*alpha^4 + 640*alpha^3 - 853*alpha^2+ 35*alpha + 342)*t^2 + 915*alpha^2 + 30*(144*alpha^6 - 208*alpha^5 + 200*alpha^3- 177*alpha^2 - 37*alpha + 42)*t + 255*alpha - 210)/(4*n +2*alpha +2)^4/t^2/(t-1)^6;
-	    end
-	    if (T >= 3)
-		w[k] = w[k] + 1/6*d^2*(2*t + 3)/(t-1)^3;
-		#w[k] = w[k] - 1/12/(4*n +2*alpha +2)^2*(4*(3*alpha^3 -alpha)*t^3 - 12*alpha^3 - 4*(9*alpha^3 - 4*alpha + 1)*t^2 + 3*(12*alpha^3 -5*alpha - 2)*t + 3*alpha)/t/(t-1)^3;
-	    end
-	    if (T >= 2)
-		#w[k] = 1/192*(16*(9*alpha^2 + 9*alpha + 7)*t^3*sin(2*sqrt(t)*sqrt(-t + 1)) -8*(36*alpha^2 + 33*alpha + 19)*t^2*sin(2*sqrt(t)*sqrt(-t + 1)) +6*(26*alpha^2 + 20*alpha + 7)*t*sin(2*sqrt(t)*sqrt(-t + 1)) - 2*(96*(alpha +3)*t^3*cos(2*sqrt(t)*sqrt(-t + 1)) - 8*(3*alpha^2 + 27*alpha +67)*t^2*cos(2*sqrt(t)*sqrt(-t + 1)) + 12*(3*alpha^2 + 10*alpha +20)*t*cos(2*sqrt(t)*sqrt(-t + 1)) - 3*(4*alpha^2 -1)*cos(2*sqrt(t)*sqrt(-t + 1)))*sqrt(t)*sqrt(-t + 1) - 3*(4*alpha^2 -1)*sin(2*sqrt(t)*sqrt(-t + 1)) - (8*(3*alpha^2 + 3*alpha + 1)*t^2 +12*alpha^2 - 12*(3*alpha^2 + 2*alpha)*t - 3)*sin(2*sqrt(t)*sqrt(-t + 1) +acos(2*t - 1)))/(t^3*sin(2*sqrt(t)*sqrt(-t + 1)) -2*t^2*sin(2*sqrt(t)*sqrt(-t + 1)) + t*sin(2*sqrt(t)*sqrt(-t + 1)))
-	    end
-	    if scZer
-		#w[k] = exp(-x[k])*n^alpha*pi*4^(alpha - 2)*t^(alpha + 1)*e^(-1)/s*(1+w[k]);
-		w[k] = x[k]^alpha*exp(-x[k])*2*pi*sqrt(t/(1-t))*(1 +w[k]);
-	    else
-		#w[k] = n^alpha*pi*4^(alpha - 2)*t^(alpha + 1)*e^(-1)/s*(1+w[k]);
-		w[k] = x[k]^alpha*2*pi*sqrt(t/(1-t))*(1 +w[k]);
-	    end
-	end
-	if noUnderflow && ( w[k] == 0 ) && ( k > 1 ) && ( w[k-1] > 0 ) # We could stop now as the weights underflow.
-	    if compRepr
-		x = x[1:k-1]
-		w = w[1:k-1]
-		return (x,w)
-	    else
-                noUnderflow = false
-	    end
-        end
+
+    if (T>= 7) 
+	x[ixbulk] = x[ixbulk] -d^5/181440*(9216*(21*alpha^6 - 105*alpha^4 + 147*alpha^2 - 31)*t.^10 -69120*(21*alpha^6 - 105*alpha^4 + 147*alpha^2 - 31)*t.^9 + 384*(12285*alpha^6 -61320*alpha^4 + 85785*alpha^2 - 18086)*t.^8 - 64*(136080*alpha^6 - 675675*alpha^4 +943110*alpha^2 - 198743)*t.^7 + 144*(70560*alpha^6 - 345765*alpha^4 +479850*alpha^2 - 101293)*t.^6 + 72576*alpha^6 - (8128512*alpha^6 - 38656800*alpha^4+ 52928064*alpha^2 - 13067711)*t.^5 + 5*(1016064*alpha^6 - 4581360*alpha^4 +6114528*alpha^2 + 113401)*t.^4 - 317520*alpha^4 - 10*(290304*alpha^6 -1245888*alpha^4 + 1620864*alpha^2 - 528065)*t.^3 + 5*(290304*alpha^6 -1234800*alpha^4 + 1598688*alpha^2 - 327031)*t.^2 + 417312*alpha^2 -5*(96768*alpha^6 - 417312*alpha^4 + 544320*alpha^2 - 111509)*t -85616)./(t-1).^8./t.^2;
+    end
+    if (T >= 5)
+	x[ixbulk] = x[ixbulk]  - d^3/720*(32*(15*alpha^4 - 30*alpha^2 + 7)*t.^6 -144*(15*alpha^4 - 30*alpha^2 + 7)*t.^5 + 16*(225*alpha^4 - 450*alpha^2 +104)*t.^4 - 240*alpha^4 - 480*(5*alpha^4 - 10*alpha^2 + 1)*t.^3 + 480*alpha^2 +45*(16*alpha^4 - 32*alpha^2 + 7)*t + 990*t.^2 - 105)./(t-1).^5./t;
+    end
+    if (T >=3)
+	x[ixbulk] = x[ixbulk] - d/12*(4*(3*alpha^2 - 1)*t.^2 +12*alpha^2 - 12*(2*alpha^2 - 1)*t - 3)./(t-1).^2;
+    end
+    x[ixbulk] = x[ixbulk] + t/d;
+
+
+    if (T >= 7)
+	w[ixbulk] = w[ixbulk] + d^6/362880*(9216*(21*alpha^6 - 105*alpha^4 + 147*alpha^2 - 31)*t.^10 -1536*(945*alpha^6 - 4830*alpha^4 + 6825*alpha^2 - 1444)*t.^9 + 384*(11340*alpha^6 -60165*alpha^4 + 86310*alpha^2 - 18289)*t.^8 - 2*(2903040*alpha^6 - 17055360*alpha^4+ 25401600*alpha^2 - 5*alpha - 5252997)*t.^7 - (11753280*alpha^4 - 23506560*alpha^2+ 67*alpha - 13987519)*t.^6 - 290304*alpha^6 + 12*(1016064*alpha^6 -3578400*alpha^4 + 4108608*alpha^2 + 16*alpha + 7100871)*t.^5 - 5*(4064256*alpha^6 -16559424*alpha^4 + 20926080*alpha^2 + 61*alpha - 15239393)*t.^4 + 1270080*alpha^4 +10*(1741824*alpha^6 - 7386624*alpha^4 + 9547776*alpha^2 + 29*alpha - 1560107)*t.^3- 15*(580608*alpha^6 - 2503872*alpha^4 + 3265920*alpha^2 + 11*alpha - 669051)*t.^2- 1669248*alpha^2 + 4*(604800*alpha^6 - 2630880*alpha^4 + 3447360*alpha^2 + 13*alpha- 706850)*t - 7*alpha + 342463)./(t-1).^9./t.^3;
+    end
+    if (T >= 5)
+	w[ixbulk] = w[ixbulk] + d^4/720*(16*(15*alpha^4 - 30*alpha^2 + 7)*t.^6 - 32*(45*alpha^4 - 90*alpha^2 +22)*t.^5 + 48*(75*alpha^4 - 150*alpha^2 + 74)*t.^4 + 240*alpha^4 - 600*(8*alpha^4- 16*alpha^2 - 5)*t.^3 + 45*(80*alpha^4 - 160*alpha^2 + 57)*t.^2 - 480*alpha^2 -90*(16*alpha^4 - 32*alpha^2 + 7)*t + 105)./(t-1).^6./t.^2;
+    end
+    if (T >= 3)
+	w[ixbulk] = w[ixbulk] + d^2/6*(2*t + 3)./(t-1).^3;
+    end
+    if scZer
+	w[ixbulk] = x[ixbulk].^alpha.*exp(-x[ixbulk])*2*pi.*sqrt(t./(1-t)).*(1 +w[ixbulk]);
+    else
+	w[ixbulk] = x[ixbulk].^alpha*2*pi.*sqrt(t./(1-t)).*(1 +w[ixbulk]);
+    end
+
+    if ( minimum(x) < 0.0 ) || ( maximum(x) > 4*n + 2*alpha + 2 ) ||  ( minimum(diff(x)) < 0.0 ) || (minimum(w) < 0.0)
+	# Temp. disable for testing: error("Wrong node.")
+    end
+
+    if compRepr
+	k = findlast(w);
+	x = x[1:k]
+	w = w[1:k]
     end
     x, w
 end
