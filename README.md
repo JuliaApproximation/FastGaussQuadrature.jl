@@ -38,7 +38,7 @@ Here we compute `100000` nodes and weights of the Gauss rules. Try a million or 
 0.249756 seconds (201.22 k allocations: 131.643 MB, 4.92% gc time)
 ```
 
-The paper <a href="http://epubs.siam.org/doi/abs/10.1137/140954969">[1]</a> computed a billion Gauss-Legendre nodes. So here we will do a billion + 1. This is (probably) a world record:
+The paper <a href="http://epubs.siam.org/doi/abs/10.1137/140954969">[1]</a> computed a billion Gauss-Legendre nodes. So here we will do a billion + 1.
 ```
 @time gausslegendre( 1000000001 );
 131.392154 seconds (17 allocations: 26.077 GB, 1.17% gc time)
