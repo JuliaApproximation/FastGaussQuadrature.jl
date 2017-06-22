@@ -7,7 +7,7 @@
 # METHOD = "default" uses "gen" when m or qm are not one, "GW" when 2 < n < 128 and else "RH".
 # METHOD = "exp" will use explicit expansions and METHOD = "expW" will only compute the weights below realmin
 # qm and m denote the weight x^alpha*exp(-qm*x^m) where qm and m should be one when method = GW, RH(W) or exp(W)
-# When scZer is false, the weights are multiplied with exp(x[k]) to avoid underflow and myT indicates the number of terms used for testing
+# When scZer is false, the weights are multiplied with exp(-x[k]) to avoid underflow and myT indicates the number of terms used for testing
 function gausslaguerre( n::Int64, alpha::Float64=0.0, method::AbstractString="default",  qm::Float64=1.0, m::Int64=1, scZer::Bool=true, myT::Int64=ceil(Int64, 34/log(n) ) )
     if ( imag(alpha) != 0 ) || ( alpha < -1 )
         error(string("alpha = ", alpha, " is not allowed.") )
