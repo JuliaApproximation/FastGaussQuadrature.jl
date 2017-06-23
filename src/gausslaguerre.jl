@@ -85,7 +85,6 @@ function laguerreRec( n::Int64, compRepr::Bool, alpha::Float64)
                 x[k] = ox # Set to the previous value and quit.
                 break
             end
-            # poly' = (p*exp(-Q/2) )' = exp(-Q/2)*(p' -p/2) with orthonormal p.
             step = pe/lagpnRecDer(n, alpha, x[k])
             ox = x[k]
             x[k] = x[k] -step
@@ -666,7 +665,7 @@ function laguerreExp( n::Int64, compRepr::Bool, alpha::Float64)
 
 
     if ( minimum(x) < 0.0 ) || ( maximum(x) > 4*n + 2*alpha + 2 ) ||  ( minimum(diff(x)) <= 0.0 ) || (minimum(w) < 0.0)
-	# Temp. disable for testing: error("Wrong node.")
+	error("Wrong node or weight.")
     end
 
     if compRepr
