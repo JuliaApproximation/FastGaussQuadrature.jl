@@ -82,8 +82,8 @@ function hermpoly_rec( n::Int, x0)
 # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
 
 # evaluate:
-Hold = exp.(x0.^2./(-4))
-H = x0.*exp.(x0.^2./(-4))
+Hold = exp.(x0.^2 ./ (-4))
+H = x0.*exp.(x0.^2 ./ (-4))
 for k = 1:n-1
     Hold, H = H, (x0.*H./sqrt(k+1) - Hold./sqrt(1+1/k))
 end
@@ -99,8 +99,8 @@ function hermpoly_asy_airy(n::Int, theta)
 musq = 2n+1;
 cosT = cos.(theta)
 sinT = sin.(theta)
-sin2T = 2.*cosT.*sinT
-eta = 0.5.*theta .- 0.25.*sin2T
+sin2T = 2 .* cosT.*sinT
+eta = 0.5 .* theta .- 0.25 .* sin2T
 chi = -(3*eta/2).^(2/3)
 phi = (-chi./sinT.^2).^(1/4)
 C = 2*sqrt(pi)*musq^(1/6)*phi
@@ -124,15 +124,15 @@ A0 = 1
 val = A0*Airy0
 
 #second term
-B0 = -(a0*phi.^6.*u1+a1*u0)./chi.^2
+B0 = -(a0*phi.^6 .* u1+a1*u0)./chi.^2
 val = val + B0.*Airy1./musq.^(4/3)
 
 # third term
-A1 = (b0*phi.^12.*u2 + b1*phi.^6.*u1 + b2*u0)./chi.^3
+A1 = (b0*phi.^12 .* u2 + b1*phi.^6 .* u1 + b2*u0)./chi.^3
 val = val + A1.*Airy0/musq.^2
 
 # fourth term
-B1 = -(phi.^18.*u3 + a1*phi.^12.*u2 + a2*phi.^6.*u1 + a3*u0)./chi.^5
+B1 = -(phi.^18 .* u3 + a1*phi.^12 .* u2 + a2*phi.^6 .* u1 + a3*u0)./chi.^5
 val = val + B1.*Airy1./musq.^(4/3+2)
 
 val = C.*val
@@ -150,7 +150,7 @@ v2 = (15*cosT.^4-327*cosT.^2-143)/1152
 v3 = (259290*cosT + 238425*cosT.^3 - 36387*cosT.^5 + 18189*cosT.^7 - 4042*cosT.^9)/414720
 
 # first term
-C0 = -(b0*phi.^6.*v1 + b1.*v0)./chi
+C0 = -(b0*phi.^6 .* v1 + b1.*v0)./chi
 dval = C0.*Airy0/musq.^(2/3)
 
 # second term
@@ -158,11 +158,11 @@ D0 =  a0*v0
 dval = dval + D0*Airy1
 
 # third term
-C1 = -(phi.^18.*v3 + b1*phi.^12.*v2 + b2*phi.^6.*v1 + b3*v0)./chi.^4
+C1 = -(phi.^18 .* v3 + b1*phi.^12 .* v2 + b2*phi.^6 .* v1 + b3*v0)./chi.^4
 dval = dval + C1.*Airy0/musq.^(2/3+2)
 
 #fourth term
-D1 = (a0*phi.^12.*v2 + a1*phi.^6.*v1 + a2*v0)./chi.^3
+D1 = (a0*phi.^12 .* v2 + a1*phi.^6 .* v1 + a2*v0)./chi.^3
 dval = dval + D1.*Airy1/musq.^2
 
 dval = C.*dval
@@ -209,9 +209,9 @@ airyrts_exact = [-2.338107410459762           # Exact Airy roots.
     -12.828776752865757]
 airyrts[1:10] = airyrts_exact  # correct first 10.
 
-x_init = sqrt.(abs.(nu .+ (2^(2/3)).*airyrts.*nu^(1/3) .+ (1/5*2^(4/3)).*airyrts.^2.*nu^(-1/3) .+
-    (11/35-a^2-12/175).*airyrts.^3./nu .+ ((16/1575).*airyrts.+(92/7875).*airyrts.^4).*2^(2/3).*nu^(-5/3) .-
-    ((15152/3031875).*airyrts.^5.+(1088/121275).*airyrts.^2).*2^(1/3).*nu^(-7/3)))
+x_init = sqrt.(abs.(nu .+ (2^(2/3)).*airyrts.*nu^(1/3) .+ (1/5*2^(4/3)).*airyrts.^2 .* nu^(-1/3) .+
+    (11/35-a^2-12/175).*airyrts.^3 ./ nu .+ ((16/1575).*airyrts.+(92/7875).*airyrts.^4).*2^(2/3).*nu^(-5/3) .-
+    ((15152/3031875).*airyrts.^5 .+ (1088/121275).*airyrts.^2).*2^(1/3).*nu^(-7/3)))
 x_init_airy = real( flipdim(x_init,1) )
 
 # Tricomi initial guesses. Equation (2.1) in [1]. Originally in [2].
@@ -230,7 +230,7 @@ for k = 1:7
 end
 
 tnk = cos.(Tnk0./2).^2
-x_init_sin = sqrt.(nu*tnk .- (5./(4.*(1-tnk).^2) .- 1./(1.-tnk).-1.+3*a^2)./3./nu)
+x_init_sin = sqrt.(nu*tnk .- (5 ./ (4 .* (1-tnk).^2) .- 1 ./ (1 .- tnk).-1 .+ 3*a^2)./3 ./ nu)
 
 # Patch together
 p = 0.4985+eps(Float64)
@@ -251,7 +251,7 @@ end
 function hermpts_gw( n::Int )
 # Golub--Welsch algorithm. Used here for n<=20.
 
-    beta = sqrt.(0.5.*(1:n-1))              # 3-term recurrence coeffs
+    beta = sqrt.(0.5 .* (1:n-1))              # 3-term recurrence coeffs
     T = SymTridiagonal(zeros(n), beta)  # Jacobi matrix
     (D, V) = eig(T)                      # Eigenvalue decomposition
     indx = sortperm(D)                  # Hermite points

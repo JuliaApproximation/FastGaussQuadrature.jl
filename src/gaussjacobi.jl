@@ -183,7 +183,7 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
 
     # Approximate roots via asymptotic formula: (Gatteschi and Pittaluga, 1985)
     K = (2*(n:-1:1).+a.-0.5).*pi./(2*n+a+b+1)
-    tt = K .+ (1/(2*n+a+b+1)^2).*((0.25-a^2).*cot.(0.5.*K).-(0.25-b^2).*tan.(0.5*K))
+    tt = K .+ (1/(2*n+a+b+1)^2).*((0.25-a^2).*cot.(0.5 .* K).-(0.25-b^2).*tan.(0.5*K))
 
     # First half (x > 0):
     t = tt[tt .<= pi/2]'
@@ -205,7 +205,7 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
 
     # Store:
     x = cos.(t)
-    w = 1./vals[2].^2
+    w = 1 ./ vals[2].^2
 
     # Second half (x < 0):
     tmp = a; a = b; b = tmp
@@ -226,7 +226,7 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
     t += vals[1]./vals[2]                                 # Newton update.
 
     # Store:
-    [(-).(cos.(vec(t)));vec(x)],[1./vec(vals[2]).^2;vec(w)]
+    [(-).(cos.(vec(t)));vec(x)],[1 ./vec(vals[2]).^2;vec(w)]
 end
 
 function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
@@ -324,9 +324,9 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
     S2 = C2*S2
 
     # Use relation for derivative:
-    ders = (n.*(a.-b.-(2*n+a+b).*cos.(t)).*vals .+ 2.*(n+a).*(n+b).*S2)./(2*n+a+b)./sin.(t)
+    ders = (n.*(a.-b.-(2*n+a+b).*cos.(t)).*vals .+ 2 .*(n+a).*(n+b).*S2)./(2*n+a+b)./sin.(t)
     t .= abs.( t )
-    denom = 1./real.(sin.(t/2).^(a+0.5).*cos.(t./2).^(b+0.5))
+    denom = 1 ./ real.(sin.(t/2).^(a+0.5).*cos.(t ./ 2).^(b+0.5))
     vals = vals.*denom
     ders = ders.*denom
 
@@ -342,7 +342,7 @@ function boundary(n::Int, a::Float64, b::Float64, npts)
 
     # Approximate roots via asymptotic formula: (see Olver 1974)
     phik = jk/(n + .5*(a + b + 1))
-    x = cos.( phik .+ ((a^2-0.25).*(1.-phik.*cot.(phik))./(8*phik) .- 0.25.*(a^2-b^2).*tan.(0.5.*phik))./(n + 0.5*(a + b + 1))^2 )
+    x = cos.( phik .+ ((a^2-0.25).*(1 .-phik.*cot.(phik))./(8*phik) .- 0.25.*(a^2-b^2).*tan.(0.5.*phik))./(n + 0.5*(a + b + 1))^2 )
 
     dx = 1.0; counter = 0;
     # Newton iteration:
@@ -362,7 +362,7 @@ function boundary(n::Int, a::Float64, b::Float64, npts)
     ders = ders[npts:-1:1]
 
     # Revert to x-space:
-    w = 1./((1-x.^2).*ders.^2)
+    w = 1 ./((1-x.^2).*ders.^2)
     return x, w
 end
 
@@ -375,11 +375,11 @@ function JacobiGW( n::Int64, a::Float64, b::Float64 )
           (b^2 - a^2)./((abi - 2).*abi);
           (b^2 - a^2)./((2*n - 2+ab).*(2*n+ab))] ::Vector{Float64}
     bb = Float64[2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
-          2.*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi] ::Vector{Float64}
+          2 .*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi] ::Vector{Float64}
     TT = SymTridiagonal(aa, bb)  # Jacobi matrix.
     x, V = eig( TT )                       # Eigenvalue decomposition.
     # Quadrature weights:
-    w = V[1,:].^2.*( 2^(ab+1)*gamma(a+1)*gamma(b+1)/gamma(2+ab) );
+    w = V[1,:].^2 .*( 2^(ab+1)*gamma(a+1)*gamma(b+1)/gamma(2+ab) );
     w .= w./sum(w);
     x, vec(w)
 end

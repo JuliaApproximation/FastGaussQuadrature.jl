@@ -21,7 +21,7 @@ function gausslaguerre( n::Int64, alpha::Float64=0.0, method::AbstractString="de
     elseif (method == "default") && (n == 1)
         [1.0+alpha], [1.0]
     elseif (method == "default") && (n == 2)
-        [alpha+2.-sqrt(alpha+2.),alpha+2.+sqrt(alpha+2.)], [((alpha-sqrt(alpha+2)+2)*gamma(alpha+2))/(2*(alpha+2)*(sqrt(alpha+2)-1)^2),((alpha+sqrt(alpha+2)+2)*gamma(alpha+2))/(2*(alpha+2)*(sqrt(alpha+2)+1)^2)]
+        [alpha+2-sqrt(alpha+2),alpha+2+sqrt(alpha+2)], [((alpha-sqrt(alpha+2)+2)*gamma(alpha+2))/(2*(alpha+2)*(sqrt(alpha+2)-1)^2),((alpha+sqrt(alpha+2)+2)*gamma(alpha+2))/(2*(alpha+2)*(sqrt(alpha+2)+1)^2)]
     elseif method == "RHW"
         laguerreRH( n, true, alpha )   # Use RH and only compute the representable weights
     elseif ( (method == "default") && (n < 128 ) ) || (method == "GW")
@@ -64,7 +64,7 @@ function laguerreRH( n::Int64, compRepr::Bool, alpha::Float64 )
 
     ak = [-13.69148903521072; -12.828776752865757; -11.93601556323626;    -11.00852430373326; -10.04017434155809; -9.02265085340981; -7.944133587120853;    -6.786708090071759; -5.520559828095551; -4.08794944413097; -2.338107410459767]
     t = 3*pi/2*( (igatt:-1:12)-0.25) # [DLMF (9.9.6)]
-    ak = [-t.^(2/3).*(1 + 5/48./t.^2 - 5/36./t.^4 + 77125/82944./t.^6     -10856875/6967296./t.^8); ak[max(1,12-igatt):11] ]
+    ak = [-t.^(2/3).*(1 + 5/48 ./ t.^2 - 5/36 ./ t.^4 + 77125/82944 ./ t.^6     -10856875/6967296 ./ t.^8); ak[max(1,12-igatt):11] ]
     nu = 4*n+2*alpha+2 # [Gatteshi 2002 (4.9)]
     air = (nu+ak*(4*nu)^(1/3)+ ak.^2*(nu/16)^(-1/3)/5 + (11/35-alpha^2-12/175*ak.^3)/nu + (16/1575*ak+92/7875*ak.^4)*2^(2/3)*nu^(-5/3) -(15152/3031875*ak.^5+1088/121275*ak.^2)*2^(1/3)*nu^(-7/3))
 
@@ -1113,7 +1113,7 @@ function asyRHgen(n, compRepr, alpha, m, qm)
 
     A = zeros(m+1)
     for k =0:m
-        A[k+1] = prod((2*(1:k)-1)/2./(1:k))
+        A[k+1] = prod((2*(1:k)-1)/2 ./ (1:k))
     end
     softEdge = (n*2/m/qm/A[m+1] )^(1/m)
     # Use finite differences for derivative of polynomial when not x^alpha*exp(-x) and use other initial approximations
@@ -1125,7 +1125,7 @@ function asyRHgen(n, compRepr, alpha, m, qm)
     else
         ak = [-13.69148903521072; -12.828776752865757; -11.93601556323626;    -11.00852430373326; -10.04017434155809; -9.02265085340981; -7.944133587120853;    -6.786708090071759; -5.520559828095551; -4.08794944413097; -2.338107410459767]
         t = 3*pi/2*( (igatt:-1:12)-0.25) # [DLMF (9.9.6)]
-        ak = [-t.^(2/3).*(1 + 5/48./t.^2 - 5/36./t.^4 + 77125/82944./t.^6     -10856875/6967296./t.^8); ak[max(1,12-igatt):11] ]
+        ak = [-t.^(2/3).*(1 + 5/48 ./ t.^2 - 5/36 ./ t.^4 + 77125/82944 ./ t.^6     -10856875/6967296 ./ t.^8); ak[max(1,12-igatt):11] ]
         nu = 4*n+2*alpha+2 # [Gatteshi 2002 (4.9)]
         air = (nu+ak*(4*nu)^(1/3)+ ak.^2*(nu/16)^(-1/3)/5 + (11/35-alpha^2-12/175*ak.^3)/nu + (16/1575*ak+92/7875*ak.^4)*2^(2/3)*nu^(-5/3) -(15152/3031875*ak.^5+1088/121275*ak.^2)*2^(1/3)*nu^(-7/3))
         x = [ bes/(4*n + 2*alpha+2).*(1 + (bes + 2*(alpha^2 - 1) )/(4*n + 2*alpha+2)^2/3 ) ; zeros(mn - itric -max(igatt,0) ) ; air]
@@ -1133,8 +1133,8 @@ function asyRHgen(n, compRepr, alpha, m, qm)
 
     if !useFinDiff
         UQ1 = getUQ(alpha+1, qm, m, T)
-        factor0 = 1-4im*4^alpha*sum((UQ0[1,2,1:(T-1),1, 2] + UQ0[1,2,1:(T-1),1])./n.^reshape(1:(T-1), (1,1,T-1)) )
-        factor1 = 1-4im*4^(alpha+1)*sum((UQ1[1,2,1:(T-1),1, 2] + UQ1[1,2,1:(T-1),1])./n.^reshape(1:(T-1), (1,1,T-1)) )
+        factor0 = 1-4im*4^alpha*sum((UQ0[1,2,1:(T-1),1, 2] + UQ0[1,2,1:(T-1),1]) ./ n.^reshape(1:(T-1), (1,1,T-1)) )
+        factor1 = 1-4im*4^(alpha+1)*sum((UQ1[1,2,1:(T-1),1, 2] + UQ1[1,2,1:(T-1),1]) ./ n.^reshape(1:(T-1), (1,1,T-1)) )
         factorx = real(sqrt(factor0/factor1 )/2/(1 - 1/n)^(1+alpha/2))
         factorw = real( -(1 - 1/(n + 1) )^(n + 1+ alpha/2)*(1 - 1/n)^(1 + alpha/2)*exp(1 + 2*log(2) )*4^(1+alpha)*pi*n^alpha*sqrt(factor0*factor1)*(1 + 1/n)^(alpha/2) )
     end
@@ -1206,7 +1206,7 @@ function polyAsyRHgen(np, y, alpha, T::Int64, qm, m::Int64, UQ)
     else
         A = zeros(m+1)
         for k =0:m
-            A[k+1] = prod((2*(1:k)-1)/2./(1:k))
+            A[k+1] = prod((2*(1:k)-1)/2 ./ (1:k))
         end
         z = y/(np*2/m/qm/A[m+1] )^(1/m)
         # Also correct but much slower: Hn = 4*m/(2*m-1)*double(hypergeom([1, 1-m], 3/2-m, z))/m
@@ -1337,7 +1337,7 @@ function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
 
     A = zeros(m+1)
     for k =0:m
-        A[k+1] = prod((2*(1:k)-1.0)/2./(1:k))
+        A[k+1] = prod((2*(1:k)-1.0)/2 ./ (1:k))
     end
     if (r == 1) # Right disk: near z=1
         f = NaN*zeros(mo+2)
