@@ -11,9 +11,9 @@ x,w = gausslobatto(n)
 @test x[1] ≈ -1.
 @test abs(x[2])<1e-15
 @test x[3] ≈ 1.
-@test w[1] ≈ 1./3
-@test w[2] ≈ 4./3
-@test w[3] ≈ 1./3
+@test w[1] ≈ 1/3
+@test w[2] ≈ 4/3
+@test w[3] ≈ 1/3
 
 tol = 1e-14
 n = 42

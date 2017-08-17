@@ -1,3 +1,6 @@
+import SpecialFunctions
+import SpecialFunctions: besselj
+
 tol = 1e-11
 
 # Check if besselj(nu, besselroots(nu, n) ) is small:

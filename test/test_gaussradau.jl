@@ -8,7 +8,7 @@ x, w = gaussradau(n)
 n = 2
 x, w = gaussradau(n)
 @test x[1] ≈ -1.
-@test x[2] ≈ 1./3.
+@test x[2] ≈ 1/3
 @test w[1] ≈ .5
 @test w[2] ≈ 1.5
 
