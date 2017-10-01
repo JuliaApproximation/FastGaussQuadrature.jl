@@ -1,4 +1,4 @@
-function gausshermite( n::Int )
+function gausshermite( n::Integer )
 # GAUSSHERMITE(n) COMPUTE THE GAUSS-HERMITE NODES AND WEIGHTS IN O(n) time.
 
 
@@ -34,7 +34,7 @@ end
 
 end
 
-function hermpts_asy( n::Int )
+function hermpts_asy( n::Integer )
 # Compute Hermite nodes and weights using asymptotic formula
 
 x0 = HermiteInitialGuesses( n ) # get initial guesses
@@ -57,7 +57,7 @@ w = exp.(-x.^2)./ders.^2;            # quadrature weights
 x = (x, w)
 end
 
-function hermpts_rec( n::Int )
+function hermpts_rec( n::Integer )
 # Compute Hermite nodes and weights using recurrence relation.
 
 x0 = HermiteInitialGuesses( n )
@@ -78,7 +78,7 @@ w = exp.((-).(x.^2))./val[2].^2           # quadrature weights
 x = (x, w)
 end
 
-function hermpoly_rec( n::Int, x0)
+function hermpoly_rec( n::Integer, x0)
 # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
 
 # evaluate:
@@ -92,7 +92,7 @@ val = (H, (-x0.*H + sqrt(n)*Hold))
 end
 
 
-function hermpoly_asy_airy(n::Int, theta)
+function hermpoly_asy_airy(n::Integer, theta)
 # HERMPOLY_ASY evaluation hermite poly using Airy asymptotic formula in
 # theta-space.
 
@@ -170,7 +170,7 @@ dval = C.*dval
 val = (val, dval)
 end
 
-function HermiteInitialGuesses( n::Int )
+function HermiteInitialGuesses( n::Integer )
 #HERMITEINTITIALGUESSES(N), Initial guesses for Hermite zeros.
 #
 # [1] L. Gatteschi, Asymptotics and bounds for the zeros of Laguerre
@@ -248,7 +248,7 @@ return x_init
 end
 
 
-function hermpts_gw( n::Int )
+function hermpts_gw( n::Integer )
 # Golub--Welsch algorithm. Used here for n<=20.
 
     beta = sqrt.(0.5 .* (1:n-1))              # 3-term recurrence coeffs

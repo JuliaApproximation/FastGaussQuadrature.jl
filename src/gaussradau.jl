@@ -1,4 +1,4 @@
-function gaussradau(n::Int)
+function gaussradau(n::Integer)
     # RADAUPTS   Gauss-Legendre-Radau Quadrature Nodes and Weights
     if n == 1
         [-1.0], [2.0]

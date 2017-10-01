@@ -1,4 +1,4 @@
-function gausslegendre(n::Int)
+function gausslegendre(n::Integer)
     # GAUSSLEGENDRE(n) COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
   if n <= 0

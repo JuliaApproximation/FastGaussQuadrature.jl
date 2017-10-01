@@ -5,7 +5,7 @@
 # METHOD = "RH" will use asymptotics of Laguerre polynomials, and METHOD = "RHW" is O(sqrt(n)) as it stops when the weights are below realmin. gausslaguerre(round(Int64, (n/17)^2), "RHW") returns about n nodes and weights above realmin(Float64) for large n.
 # METHOD = "gen" can generate an arbitrary number of terms of the asymptotic expansion of Laguerre-type polynomials, orthogonal with respect to x^alpha*exp(-qm*x^m). "genW" does the same, but stops as the weights underflow.
 # METHOD = "default" uses "gen" when m or qm are not one, "GW" when 2 < n < 128 and else "RH".
-function gausslaguerre( n::Int64, alpha::Float64=0.0, method::AbstractString="default",  qm::Float64=1.0, m::Int64=1 )
+function gausslaguerre( n::Integer, alpha::Float64=0.0, method::AbstractString="default",  qm::Float64=1.0, m::Integer=1 )
     if ( imag(alpha) != 0 ) || ( alpha < -1 )
         error(string("alpha = ", alpha, " is not allowed.") )
     elseif ( (m != 1) || (qm != 1) ) && ( (method != "gen") && (method != "genW") && (method != "default") )
@@ -33,7 +33,7 @@ function gausslaguerre( n::Int64, alpha::Float64=0.0, method::AbstractString="de
     end
 end
 
-function laguerreGW( n::Int64, alpha::Float64 )
+function laguerreGW( n::Integer, alpha::Float64 )
 # Calculate Gauss-Laguerre nodes and weights based on Golub-Welsch
 
     alph = 2*(1:n)-1+alpha           # 3-term recurrence coeffs
@@ -47,7 +47,7 @@ end
 
 ########################## Routines for the RH algorithm ##########################
 
-function laguerreRH( n::Int64, compRepr::Bool, alpha::Float64 )
+function laguerreRH( n::Integer, compRepr::Bool, alpha::Float64 )
 
     if compRepr
         # Get a heuristic for the indices where the weights are about above realmin.
@@ -1199,7 +1199,7 @@ function asyRHgen(n, compRepr, alpha, m, qm)
 end
 
 # Compute the expansion of the orthonormal polynomial without e^(qm*x^m/2) nor a constant factor.
-function polyAsyRHgen(np, y, alpha, T::Int64, qm, m::Int64, UQ)
+function polyAsyRHgen(np, y, alpha, T::Integer, qm, m::Integer, UQ)
     if (qm == 1) && (m == 1)
         z = y/4/np
         mnxi = 2*np*( sqrt(z).*sqrt(1 - z) - acos(sqrt(z) ) ) # = -n*xin/i
@@ -1226,7 +1226,7 @@ function polyAsyRHgen(np, y, alpha, T::Int64, qm, m::Int64, UQ)
     asyBulkgen(np, z, alpha, T, qm, m, UQ, mnxi)
 end
 
-function asyBulkgen(np, z, alpha, T::Int64, qm, m::Int64, UQ, mnxi)
+function asyBulkgen(np, z, alpha, T::Integer, qm, m::Integer, UQ, mnxi)
     if T == 1
         return real( 2/(z+0im)^(1/4 + alpha/2)/(1 - z+0im)^(1/4)*cos(acos(2*z - 1+0im)*(1/2 + alpha/2) - mnxi - pi/4) )
     end
@@ -1239,7 +1239,7 @@ function asyBulkgen(np, z, alpha, T::Int64, qm, m::Int64, UQ, mnxi)
     p = real( 2/(z+0im)^(1/4 + alpha/2)*(cos(acos(2*z-1+0im)*(1/2+alpha/2) - mnxi-pi/4)*R[1]-cos(acos(2*z-1+0im)*(-1/2+alpha/2)-mnxi-pi/4)*R[2]*1im*4^alpha)/(1 - z+0im)^(1/4) )
 end
 
-function asyBesselgen(np, z, alpha, T::Int64, qm, m::Int64, UQ, npb, useQ::Bool)
+function asyBesselgen(np, z, alpha, T::Integer, qm, m::Integer, UQ, npb, useQ::Bool)
     if T == 1
         return real( sqrt(2*pi)*(-1)^np*sqrt(npb)/(z+0im)^(1/4+alpha/2)/(1 - z+0im)^(1/4)*(sin( (alpha + 1)/2*acos(2*z - 1+0im) - pi*alpha/2)*besselj(alpha,npb) + cos( (alpha + 1)/2*acos(2*z - 1+0im) - pi*alpha/2)*(besselj(alpha-1,npb) - alpha/(npb)*besselj(alpha, npb) ) ) )
     end
@@ -1271,7 +1271,7 @@ function asyBesselgen(np, z, alpha, T::Int64, qm, m::Int64, UQ, npb, useQ::Bool)
     p = real( sqrt(2*pi)*(-1)^np*sqrt(npb)/(z+0im)^(1/4+alpha/2)/(1 - z+0im)^(1/4)*( (sin( (alpha + 1)/2*acos(2*z - 1+0im) - pi*alpha/2)*R[1] -sin( (alpha - 1)/2*acos(2*z - 1+0im) - pi*alpha/2)*R[2]*1im*4^alpha)*besselj(alpha, npb) + (cos( (alpha + 1)/2*acos(2*z - 1+0im)- pi*alpha/2)*R[1] - cos( (alpha - 1)/2*acos(2*z - 1+0im) - pi*alpha/2)*R[2]*1im*4^alpha)*(besselj(alpha-1, npb) - alpha/npb*besselj(alpha, npb) ) ) )
 end
 
-function asyAirygen(np, z, alpha, T::Int64, qm, m::Int64, UQ, fn, useQ::Bool, xin=NaN+NaN*1im)
+function asyAirygen(np, z, alpha, T::Integer, qm, m::Integer, UQ, fn, useQ::Bool, xin=NaN+NaN*1im)
     d = z - 1.0 +0im
     if T == 1
         return real( 4*sqrt(pi)/(z+0im)^(1/4+alpha/2)/d^(1/4)*(cos( (alpha + 1)/2*acos(2*z - 1+0im) )*fn^(1/4)*airyai(fn) -1im*sin( (alpha + 1)/2*acos(2*z - 1+0im) )*ifelse(angle(z-1) <= 0, -one(z), one(z) )*fn^(-1/4)*airyaiprime(fn) ) )
@@ -1329,7 +1329,7 @@ end
 #   isW          - Whether we compute W(iso V)-matrices
 # Output
 #   WV           - Coefficient matrices for (z + 1/2 \pm 1/2)^m of Delta_k(z) or s_k(z)
-function getV(alpha,qm,m::Int64,maxOrder::Int64,r)
+function getV(alpha,qm,m::Integer,maxOrder::Integer,r)
     mo = ceil(Int64, 3*maxOrder/2) + 4
     ns = 0:mo
     f = NaN*zeros(mo+1) # Coefficients in the expansion of \bar{phi}_n(z) or \xi_n(z)
@@ -1489,7 +1489,7 @@ end
 #   maxOrder     - The maximal order of the error
 # Output
 #   UQ           - Coefficient matrices of R_k(z) for (z-1)^(-m) [Uright], or z^(-m) [Uleft] of R_k^{right}(z) for (z-1)^n [Qright] and of R_k^{left}(z) for z^n [Qleft]
-function getUQ(alpha, qm, m::Int64, maxOrder::Int64)
+function getUQ(alpha, qm, m::Integer, maxOrder::Integer)
     Vr = getV(alpha, qm, m, maxOrder, 1)
     Vl = getV(alpha, qm, m, maxOrder, -1)
     UQ = (1+1im)*zeros(2,2,maxOrder-1,ceil(Int64,3*maxOrder/2)+2, 4)

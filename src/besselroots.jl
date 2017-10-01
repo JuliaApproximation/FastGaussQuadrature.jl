@@ -1,4 +1,4 @@
-function besselroots(nu::Float64, n::Int64)
+function besselroots(nu::Float64, n::Integer)
 #BESSELROOTS    The first N roots of the function J_v(x)
 
 # DEVELOPERS NOTES:
@@ -32,7 +32,7 @@ end
 end
 
 
-function McMahon( nu::Float64, n::Int64 )
+function McMahon( nu::Float64, n::Integer )
     # McMahon's expansion. This expansion gives very accurate approximation
     # for the sth zero (s >= 7) in the whole region V >=- 1, and moderate
     # approximation in other cases.

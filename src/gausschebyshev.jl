@@ -1,4 +1,4 @@
-function gausschebyshev(n::Int, kind::Int=1)
+function gausschebyshev(n::Integer, kind::Integer=1)
     # GAUSS-CHEBYSHEV NODES AND WEIGHTS.
 
     # Use known explicit formulas. Complexity O(n).

@@ -2,7 +2,7 @@ gaussjacobi(n::Number, a::Number, b::Number) =
     gaussjacobi(Int(n),Float64(a),Float64(b))
 
 
-function gaussjacobi(n::Int, a::Float64, b::Float64)
+function gaussjacobi(n::Integer, a::Float64, b::Float64)
     #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
     if n < 0
         error("gaussjacobi($n,$a,$b) not defined: n must be positive.")
@@ -33,7 +33,7 @@ function gaussjacobi(n::Int, a::Float64, b::Float64)
     end
 end
 
-function JacobiRec(n::Int, a::Float64, b::Float64)
+function JacobiRec(n::Integer, a::Float64, b::Float64)
     #Compute nodes and weights using recurrrence relation.
     x11, x12 = HalfRec(n, a, b, 1)
     x21, x22 = HalfRec(n, b, a, 0)
@@ -67,7 +67,7 @@ function JacobiRec(n::Int, a::Float64, b::Float64)
     x, w
 end
 
-function HalfRec(n::Int, a::Float64, b::Float64, flag)
+function HalfRec(n::Integer, a::Float64, b::Float64, flag)
     # HALFREC  Jacobi polynomial recurrence relation.
     # Asymptotic formula - only valid for positive x.
     r = (flag == 1) ? (ceil(n / 2):-1:1) : (floor(n / 2):-1:1)
@@ -178,7 +178,7 @@ function JacobiAsy(n, a, b)
     x, w
 end
 
-function asy1(n::Int, a::Float64, b::Float64, nbdy)
+function asy1(n::Integer, a::Float64, b::Float64, nbdy)
     # Algorithm for computing nodes and weights in the interior.
 
     # Approximate roots via asymptotic formula: (Gatteschi and Pittaluga, 1985)
@@ -229,7 +229,7 @@ function asy1(n::Int, a::Float64, b::Float64, nbdy)
     [(-).(cos.(vec(t)));vec(x)],[1 ./vec(vals[2]).^2;vec(w)]
 end
 
-function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
+function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
     # Evaluate the interior asymptotic formula at x = cos(t).
 
     # Number of terms in the expansion:
@@ -333,7 +333,7 @@ function feval_asy1(n::Int, a::Float64, b::Float64, t, idx)
     return (vals, ders)
 end
 
-function boundary(n::Int, a::Float64, b::Float64, npts)
+function boundary(n::Integer, a::Float64, b::Float64, npts)
 # Algorithm for computing nodes and weights near the boundary.
 
     # Use Newton iterations to find the first few Bessel roots:
@@ -366,7 +366,7 @@ function boundary(n::Int, a::Float64, b::Float64, npts)
     return x, w
 end
 
-function JacobiGW( n::Int64, a::Float64, b::Float64 )
+function JacobiGW( n::Integer, a::Float64, b::Float64 )
     # Golub-Welsh for Gauss--Jacobi quadrature. This is used when max(a,b)>5.
     ab = a + b;
     ii = 2:n-1;
