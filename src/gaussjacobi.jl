@@ -209,7 +209,7 @@ function asy1(n::Integer, a::Float64, b::Float64, nbdy)
 
     # Second half (x < 0):
     tmp = a; a = b; b = tmp
-    t = pi - tt[1:(n-length(x))]'
+    t = pi .- tt[1:(n-length(x))]'
     mint = t[nbdy]
     idx = max(findfirst(t .> mint), 1):length(t)
 
@@ -239,7 +239,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
     onesT = ones(length(t))'; onesM = ones(M); MM = collect(0:M-1);
 
     # The sine and cosine terms:
-    alpha = (0.5*(2*n+a+b+1+MM))*onesT .* (onesM*t) - 0.5*(a+0.5)*pi
+    alpha = @. (0.5*(2*n+a+b+1+MM))*onesT * (onesM*t) - 0.5*(a+0.5)*pi
     cosA = cos.(alpha); sinA = sin.(alpha)
 
     sinT = onesM*sin.(t)
@@ -259,21 +259,21 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
     P2 = eye(M)
     for l = 0:M-1
         j = transpose(0:(M-l-2))
-        vec = (.5+b+j).*(.5-b+j)./(j+1)./(2*n+a+b+j+l+2)
-        P2[l+1+(1:length(j)),l+1] = cumprod(vec,2)
+        vec = @. (0.5+b+j)*(0.5-b+j)/(j+1)/(2*n+a+b+j+l+2)
+        P2[(l+1).+(1:length(j)),l+1] = cumprod(vec,2)
     end
     PHI = repmat(P1,M,1).*P2
 
     j = transpose(0:M-2)
-    vec = (.5+a+j).*(.5-a+j)./(j+1)./(2*(n-1)+a+b+j+2)
+    vec = @. (0.5+a+j)*(0.5-a+j)/(j+1)/(2*(n-1)+a+b+j+2)
     P1 = [1 cumprod(vec,2)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = eye(M)
     for l = 0:M-1
         j = transpose(0:(M-l-2))
-        vec = (.5+b+j).*(.5-b+j)./(j+1)./(2*(n-1)+a+b+j+l+2)
-        P2[l+1+(1:length(j)),l+1] = cumprod(vec,2)
+        vec = @. (0.5+b+j)*(0.5-b+j)/(j+1)/(2*(n-1)+a+b+j+l+2)
+        P2[(l+1).+(1:length(j)),l+1] = cumprod(vec,2)
     end
     PHI2 = repmat(P1,M,1).*P2
 
@@ -293,8 +293,8 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
         if m - 1 > 10 && norm(dS1[idx] + dS2[idx], Inf) < eps(Float64) / 100
             break
         end
-        S = S + dS1 + dS2
-        S2 = S2 + dS12 + dS22
+        S = S .+ dS1 .+ dS2
+        S2 = S2 .+ dS12 .+ dS22
         SC[1:m,:] = SC[1:m,:].*cosT
     end
 
@@ -362,7 +362,7 @@ function boundary(n::Integer, a::Float64, b::Float64, npts)
     ders = ders[npts:-1:1]
 
     # Revert to x-space:
-    w = 1 ./((1-x.^2).*ders.^2)
+    w = @. 1 /((1-x^2)*ders^2)
     return x, w
 end
 
@@ -370,9 +370,9 @@ function JacobiGW( n::Integer, a::Float64, b::Float64 )
     # Golub-Welsh for Gauss--Jacobi quadrature. This is used when max(a,b)>5.
     ab = a + b;
     ii = 2:n-1;
-    abi = 2*ii + ab;
+    abi = 2*ii .+ ab;
     aa = Float64[(b - a)/(2 + ab);
-          (b^2 - a^2)./((abi - 2).*abi);
+          (b^2 - a^2)./((abi .- 2).*abi);
           (b^2 - a^2)./((2*n - 2+ab).*(2*n+ab))] ::Vector{Float64}
     bb = Float64[2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
           2 .*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi] ::Vector{Float64}

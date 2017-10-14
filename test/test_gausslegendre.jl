@@ -3,8 +3,8 @@
 # Test for gausslegendre().
 
 
-for n=2:10  # check all special cases
-    x, w = gausslegendre(n)
+for ν=2:10  # check all special cases
+    x, w = gausslegendre(ν)
     @test dot( w,(x.^2)) ≈ 2/3
 end
 

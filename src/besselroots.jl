@@ -49,7 +49,7 @@ function McMahon( nu::Float64, n::Integer )
         mu*(-426353946885548 .+mu*(13172003634537 .+mu*(-291245357370. + mu*4148944183.)))))) / 13059009124761600.
     for k=1:n b[k] = .25*(2*nu+4*k-1)*pi end # beta
     # Evaluate using Horner's scheme:
-    x = b - (mu-1)*( ((((((a13./b.^2 + a11)./b.^2 + a9)./b.^2 + a7)./b.^2 + a5)./b.^2 + a3)./b.^2 + a1)./b)
+    x = @. b - (mu-1)*( ((((((a13/b^2 + a11)/b^2 + a9)/b^2 + a7)/b^2 + a5)/b^2 + a3)/b^2 + a1)/b)
 end
 
 

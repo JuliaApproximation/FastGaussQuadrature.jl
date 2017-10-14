@@ -36,7 +36,7 @@ end
 function laguerreGW( n::Integer, alpha::Float64 )
 # Calculate Gauss-Laguerre nodes and weights based on Golub-Welsch
 
-    alph = 2*(1:n)-1+alpha           # 3-term recurrence coeffs
+    alph = 2*(1:n) .+ (alpha-1)           # 3-term recurrence coeffs
     beta = sqrt.( (1:n-1).*(alpha .+ (1:n-1) ) )
     T = SymTridiagonal(Vector(alph), beta)  # Jacobi matrix
     x, V = eig( T )                  # eigenvalue decomposition
@@ -60,13 +60,13 @@ function laguerreRH( n::Integer, compRepr::Bool, alpha::Float64 )
     igatt = ceil(Int64, mn + 1.31*n^0.4 - n)
 
     bes = besselroots(alpha, itric).^2 # [Tricomi 1947 pg. 296]
-    bes = bes/(4*n + 2*alpha+2).*(1 + (bes + 2*(alpha^2 - 1) )/(4*n + 2*alpha+2)^2/3 )
+    bes = @. bes/(4*n + 2*alpha+2)*(1 + (bes + 2*(alpha^2 - 1) )/(4*n + 2*alpha+2)^2/3 )
 
     ak = [-13.69148903521072; -12.828776752865757; -11.93601556323626;    -11.00852430373326; -10.04017434155809; -9.02265085340981; -7.944133587120853;    -6.786708090071759; -5.520559828095551; -4.08794944413097; -2.338107410459767]
-    t = 3*pi/2*( (igatt:-1:12)-0.25) # [DLMF (9.9.6)]
-    ak = [-t.^(2/3).*(1 + 5/48 ./ t.^2 - 5/36 ./ t.^4 + 77125/82944 ./ t.^6     -10856875/6967296 ./ t.^8); ak[max(1,12-igatt):11] ]
+    t = 3*pi/2*( (igatt:-1:12).-0.25) # [DLMF (9.9.6)]
+    ak = [-t.^(2/3).*(1 .+ 5/48 ./ t.^2 .- 5/36 ./ t.^4 .+ 77125/82944 ./ t.^6     -10856875/6967296 ./ t.^8); ak[max(1,12-igatt):11] ]
     nu = 4*n+2*alpha+2 # [Gatteshi 2002 (4.9)]
-    air = (nu+ak*(4*nu)^(1/3)+ ak.^2*(nu/16)^(-1/3)/5 + (11/35-alpha^2-12/175*ak.^3)/nu + (16/1575*ak+92/7875*ak.^4)*2^(2/3)*nu^(-5/3) -(15152/3031875*ak.^5+1088/121275*ak.^2)*2^(1/3)*nu^(-7/3))
+    air = @. (nu+ak*(4*nu)^(1/3)+ ak^2*(nu/16)^(-1/3)/5 + (11/35-alpha^2-12/175*ak^3)/nu + (16/1575*ak+92/7875*ak^4)*2^(2/3)*nu^(-5/3) -(15152/3031875*ak^5+1088/121275*ak^2)*2^(1/3)*nu^(-7/3))
 
     w = zeros(mn)
     x = [ bes; zeros(mn - itric -max(igatt,0) ) ; air]
@@ -1113,7 +1113,7 @@ function asyRHgen(n, compRepr, alpha, m, qm)
 
     A = zeros(m+1)
     for k =0:m
-        A[k+1] = prod((2*(1:k)-1)/2 ./ (1:k))
+        A[k+1] = prod((2*(1:k) .- 1)/2 ./ (1:k))
     end
     softEdge = (n*2/m/qm/A[m+1] )^(1/m)
     # Use finite differences for derivative of polynomial when not x^alpha*exp(-x) and use other initial approximations
@@ -1124,17 +1124,17 @@ function asyRHgen(n, compRepr, alpha, m, qm)
         x = [bes*(2*m-1)^2/16/m^2/n^2*softEdge ; zeros(mn-itric) ]
     else
         ak = [-13.69148903521072; -12.828776752865757; -11.93601556323626;    -11.00852430373326; -10.04017434155809; -9.02265085340981; -7.944133587120853;    -6.786708090071759; -5.520559828095551; -4.08794944413097; -2.338107410459767]
-        t = 3*pi/2*( (igatt:-1:12)-0.25) # [DLMF (9.9.6)]
-        ak = [-t.^(2/3).*(1 + 5/48 ./ t.^2 - 5/36 ./ t.^4 + 77125/82944 ./ t.^6     -10856875/6967296 ./ t.^8); ak[max(1,12-igatt):11] ]
+        t = 3*pi/2*( (igatt:-1:12).-0.25) # [DLMF (9.9.6)]
+        ak = [-t.^(2/3).*(1 .+ 5/48 ./ t.^2 .- 5/36 ./ t.^4 .+ 77125/82944 ./ t.^6     -10856875/6967296 ./ t.^8); ak[max(1,12-igatt):11] ]
         nu = 4*n+2*alpha+2 # [Gatteshi 2002 (4.9)]
-        air = (nu+ak*(4*nu)^(1/3)+ ak.^2*(nu/16)^(-1/3)/5 + (11/35-alpha^2-12/175*ak.^3)/nu + (16/1575*ak+92/7875*ak.^4)*2^(2/3)*nu^(-5/3) -(15152/3031875*ak.^5+1088/121275*ak.^2)*2^(1/3)*nu^(-7/3))
-        x = [ bes/(4*n + 2*alpha+2).*(1 + (bes + 2*(alpha^2 - 1) )/(4*n + 2*alpha+2)^2/3 ) ; zeros(mn - itric -max(igatt,0) ) ; air]
+        air = @. (nu+ak*(4*nu)^(1/3)+ ak^2*(nu/16)^(-1/3)/5 + (11/35-alpha^2-12/175*ak^3)/nu + (16/1575*ak+92/7875*ak^4)*2^(2/3)*nu^(-5/3) -(15152/3031875*ak^5+1088/121275*ak^2)*2^(1/3)*nu^(-7/3))
+        x = [ bes/(4*n + 2*alpha+2).*(1 .+ (bes .+ 2*(alpha^2 - 1) )/(4*n + 2*alpha+2)^2/3 ) ; zeros(mn - itric -max(igatt,0) ) ; air]
     end
 
     if !useFinDiff
         UQ1 = getUQ(alpha+1, qm, m, T)
-        factor0 = 1-4im*4^alpha*sum((UQ0[1,2,1:(T-1),1, 2] + UQ0[1,2,1:(T-1),1]) ./ n.^reshape(1:(T-1), (1,1,T-1)) )
-        factor1 = 1-4im*4^(alpha+1)*sum((UQ1[1,2,1:(T-1),1, 2] + UQ1[1,2,1:(T-1),1]) ./ n.^reshape(1:(T-1), (1,1,T-1)) )
+        factor0 = 1-4im*4^alpha*sum((UQ0[1,2,1:(T-1),1,2] + UQ0[1,2,1:(T-1),1,1]) ./ n.^reshape(1:(T-1), (1,1,T-1)) )
+        factor1 = 1-4im*4^(alpha+1)*sum((UQ1[1,2,1:(T-1),1,2] + UQ1[1,2,1:(T-1),1,1]) ./ n.^reshape(1:(T-1), (1,1,T-1)) )
         factorx = real(sqrt(factor0/factor1 )/2/(1 - 1/n)^(1+alpha/2))
         factorw = real( -(1 - 1/(n + 1) )^(n + 1+ alpha/2)*(1 - 1/n)^(1 + alpha/2)*exp(1 + 2*log(2) )*4^(1+alpha)*pi*n^alpha*sqrt(factor0*factor1)*(1 + 1/n)^(alpha/2) )
     end
@@ -1206,11 +1206,11 @@ function polyAsyRHgen(np, y, alpha, T::Integer, qm, m::Integer, UQ)
     else
         A = zeros(m+1)
         for k =0:m
-            A[k+1] = prod((2*(1:k)-1)/2 ./ (1:k))
+            A[k+1] = prod((2*(1:k) .- 1)/2 ./ (1:k))
         end
         z = y/(np*2/m/qm/A[m+1] )^(1/m)
         # Also correct but much slower: Hn = 4*m/(2*m-1)*double(hypergeom([1, 1-m], 3/2-m, z))/m
-        Hn = 2/A[m+1]*sum(z.^(0:m-1).*A[m-(0:m-1)])/m
+        Hn = 2/A[m+1]*sum(z.^(0:m-1).*A[m.-(0:m-1)])/m
         mnxi = np*(sqrt(z+0im).*sqrt(1-z+0im).*Hn/2 -2*acos(sqrt(z+0im)))
     end
     if y < sqrt(np)
@@ -1263,8 +1263,8 @@ function asyBesselgen(np, z, alpha, T::Integer, qm, m::Integer, UQ, npb, useQ::B
         end
         for k = 1:T-1
             R += reshape((Rko[k,:] - sL[1,:,k])/np^k,(1,2))
-            for m = 1:k-1
-                R -= reshape(reshape(Rko[k-m,:],(1,2))*sL[:,:,m]/np^k,(1,2))
+            for μ = 1:k-1
+                R -= reshape(reshape(Rko[k-μ,:],(1,2))*sL[:,:,μ]/np^k,(1,2))
             end
         end
     end
@@ -1295,8 +1295,8 @@ function asyAirygen(np, z, alpha, T::Integer, qm, m::Integer, UQ, fn, useQ::Bool
         end
         for k = 1:T-1
             R += reshape((Rko[k,:] -sR[1,:,k])/np^k,(1,2))
-            for m = 1:k-1
-                R -= reshape(reshape(Rko[k-m,:],(1,2))*sR[:,:,m]/np^k,(1,2))
+            for μ = 1:k-1
+                R -= reshape(reshape(Rko[k-μ,:],(1,2))*sR[:,:,μ]/np^k,(1,2))
             end
         end
     end
@@ -1305,7 +1305,7 @@ end
 
 # Additional short functions
 function poch(x,n) # pochhammer does not seem to exist yet in Julia
-    p = prod(x+(0:(n-1)) )
+    p = prod(x .+ (0:(n-1)) )
 end
 function binom(x,n) # binomial only works for integer x
     b = 1.0
@@ -1318,7 +1318,7 @@ function nuk(n)
     nu = -gamma(3*n-1/2)*2^n/27^n/2/n/sqrt(pi)/gamma(n*2)
 end
 function brac(n,alpha)
-    b = prod(4*alpha^2-(2*(1:n)-1).^2 )/(2^(2*n)*gamma(1.0+n))
+    b = prod(4*alpha^2 .- (2*(1:n).-1).^2 )/(2^(2*n)*gamma(1.0+n))
 end
 
 # Compute the W or V-matrices to construct the asymptotic expansion of R.
@@ -1337,7 +1337,7 @@ function getV(alpha,qm,m::Integer,maxOrder::Integer,r)
 
     A = zeros(m+1)
     for k =0:m
-        A[k+1] = prod((2*(1:k)-1.0)/2 ./ (1:k))
+        A[k+1] = prod((2*(1:k).-1.0)/2 ./ (1:k))
     end
     if (r == 1) # Right disk: near z=1
         f = NaN*zeros(mo+2)
@@ -1352,8 +1352,8 @@ function getV(alpha,qm,m::Integer,maxOrder::Integer,r)
         end
         for kt = 2:ns[mo+2]
             for n = ns
-                u[kt+1,n+1] = sum(u[kt,(0:n)+1].*u[2,n-(0:n)+1])
-                v[kt+1,n+1] = sum(v[kt,(0:n)+1].*v[2,n-(0:n)+1])
+                u[kt+1,n+1] = sum(u[kt,(0:n).+1].*u[2,n.-(0:n).+1])
+                v[kt+1,n+1] = sum(v[kt,(0:n).+1].*v[2,n.-(0:n).+1])
             end
         end
         q = zeros(ns[mo+2]+1)

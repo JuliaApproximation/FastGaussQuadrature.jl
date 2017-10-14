@@ -147,10 +147,10 @@ for alpha = [0.0; 4.15]
         @test abs(-2395.51952258921326919097391744358588135/exp(0.01*4*np/2)/factorp -aRHe)/abs(aRHe) < tolEx
     end
 
-    for n = ceil.([Int64], linspace(111, 5000, 5) )
+    for ν = ceil.([Int64], linspace(111, 5000, 5) )
         for z = linspace(1e-4, 0.99, 10)
-            aRH = polyAsyRH(n, 4*n*z, alpha, T)
-            @test abs(polyAsyRHgen(n, 4*n*z, alpha, T, 1.0, 1, UQ) -aRH)/abs(aRH) < 2*tolEx
+            aRH = polyAsyRH(ν, 4*ν*z, alpha, T)
+            @test abs(polyAsyRHgen(ν, 4*ν*z, alpha, T, 1.0, 1, UQ) -aRH)/abs(aRH) < 2*tolEx
         end
     end
 end
