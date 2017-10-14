@@ -1,4 +1,4 @@
-if VERSION < v"0.7-"
+if VERSION ≤ v"0.7.0-DEV.1775"
     using Base.Test
 else
     using Test
