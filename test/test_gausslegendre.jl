@@ -4,8 +4,9 @@
 
 
 for ν=2:10  # check all special cases
-    x, w = gausslegendre(ν)
-    @test dot( w,(x.^2)) ≈ 2/3
+    let (x, w) = gausslegendre(ν)
+        @test dot( w,(x.^2)) ≈ 2/3
+    end
 end
 
 tol = 1e-14
