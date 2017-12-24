@@ -102,8 +102,7 @@ function laguerreRec( n::Int64, compRepr::Bool, alpha::Float64)
         error("Newton method may not have converged.")
     end
     if noUnderflow
-	(pnsh, ~) = lagpnRecDer(n -1, alpha, x[k] )
-        w[k] = factorw/pnsh/pder
+        w[k] = factorw/lagpnRecDer(n -1, alpha, x[k] )/pder
     end
     if noUnderflow && ( w[k] == 0 ) && ( k > 1 ) && ( w[k-1] > 0 ) # We could stop now as the weights underflow.
         if compRepr
