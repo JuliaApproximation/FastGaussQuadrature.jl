@@ -36,7 +36,7 @@ function McMahon( nu::Float64, n::Integer )
     # McMahon's expansion. This expansion gives very accurate approximation
     # for the sth zero (s >= 7) in the whole region V >=- 1, and moderate
     # approximation in other cases.
-    b = Array{Float64}(n)
+    b = Array{Float64}(uninitialized, n)
     mu = 4*nu^2
     a1 = 1. / 8.
     a3 = (7 .*mu-31.) / 384.

@@ -38,8 +38,8 @@ function JacobiRec(n::Integer, a::Float64, b::Float64)
     x11, x12 = HalfRec(n, a, b, 1)
     x21, x22 = HalfRec(n, b, a, 0)
 
-    x = Array{Float64}(n)
-    w = Array{Float64}(n)
+    x = Array{Float64}(uninitialized, n)
+    w = Array{Float64}(uninitialized, n)
     m1 = length(x11)
     m2 = length(x21)
     sum_w = 0.0
@@ -76,15 +76,15 @@ function HalfRec(n::Integer, a::Float64, b::Float64, flag)
     a1 = .25 - a^2
     b1 = .25 - b^2
     c1² = c1^2
-    x = Array{Float64}(m)
+    x = Array{Float64}(uninitialized, m)
     @inbounds for i in 1:m
         C = muladd(2.0, r[i], a - .5) * (π * c1)
         C_2 = 0.5 * C
         x[i] = cos(muladd(c1², muladd(-b1, tan(C_2), a1 * cot(C_2)), C))
     end
 
-    P1 = Array{Float64}(m)
-    P2 = Array{Float64}(m)
+    P1 = Array{Float64}(uninitialized, m)
+    P2 = Array{Float64}(uninitialized, m)
     # Loop until convergence:
     for _ in 1:10
         innerJacobiRec!(n, x, a, b, P1, P2)
@@ -188,7 +188,7 @@ function asy1(n::Integer, a::Float64, b::Float64, nbdy)
     # First half (x > 0):
     t = tt[tt .<= pi/2]'
     mint = t[end-nbdy+1]
-    idx = 1:max(findfirst(t .< mint)-1, 1)
+    idx = 1:max(findfirst(vec(t) .< mint)-1, 1)
 
     dt = 1.0
     counter = 0
@@ -211,7 +211,7 @@ function asy1(n::Integer, a::Float64, b::Float64, nbdy)
     tmp = a; a = b; b = tmp
     t = pi .- tt[1:(n-length(x))]'
     mint = t[nbdy]
-    idx = max(findfirst(t .> mint), 1):length(t)
+    idx = max(findfirst(vec(t) .> mint), 1):length(t)
 
     dt = 1.0; counter = 0;
     # Newton iteration
@@ -256,7 +256,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
     P1 = [1 cumprod(vec,2)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
-    P2 = eye(M)
+    P2 = Matrix(1.0I, M, M)
     for l = 0:M-1
         j = transpose(0:(M-l-2))
         vec = @. (0.5+b+j)*(0.5-b+j)/(j+1)/(2*n+a+b+j+l+2)
@@ -269,7 +269,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
     P1 = [1 cumprod(vec,2)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
-    P2 = eye(M)
+    P2 = Matrix(1.0I, M, M)
     for l = 0:M-1
         j = transpose(0:(M-l-2))
         vec = @. (0.5+b+j)*(0.5-b+j)/(j+1)/(2*(n-1)+a+b+j+l+2)

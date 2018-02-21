@@ -109,7 +109,7 @@ function legpts_weights(n, m, a)
     # ASYMPTOTIC EXPANSION FOR THE GAUSS-LEGENDRE WEIGHTS.
     vn = 1 / (n + 0.5)
     vn² = vn^2
-    weights = Array{Float64}(m)
+    weights = Array{Float64}(uninitialized, m)
     if n <= 850000
         @inbounds for i in 1:m
             weights[i] = cot(a[i])
@@ -209,8 +209,8 @@ end
 function innerRec(n, x)
     # EVALUATE LEGENDRE AND ITS DERIVATIVE USING THREE-TERM RECURRENCE RELATION.
     N = size(x, 1)
-    myPm1 = Array{Float64}(N)
-    myPPm1 = Array{Float64}(N)
+    myPm1 = Array{Float64}(uninitialized, N)
+    myPPm1 = Array{Float64}(uninitialized, N)
     @inbounds for j = 1:N
         xj = x[j]
         Pm2 = 1.0
@@ -281,7 +281,7 @@ function besselJ1(m)
     # BESSELJ1 EVALUATE BESSELJ(1,x)^2 AT ROOTS OF BESSELJ(0,x).
     # USE ASYMPTOTICS. Use Taylor series of (NIST, 10.17.3) and McMahon's
     # expansion (NIST, 10.21.19):
-    Jk2 = Array{Float64}(m)
+    Jk2 = Array{Float64}(uninitialized, m)
     c = (-171497088497 / 15206400, 461797 / 1152, -172913 / 8064,
          151 / 80, -7 / 24, 0.0, 2.0)
     # First 10 are precomputed:
