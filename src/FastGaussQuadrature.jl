@@ -4,6 +4,10 @@ module FastGaussQuadrature
 
 using Compat, SpecialFunctions
 
+if VERSION ≥ v"0.7-"
+    using LinearAlgebra
+end
+
 export gausslegendre
 export gausschebyshev
 export gausslaguerre

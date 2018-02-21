@@ -242,7 +242,7 @@ const besselZeros_20 = [2.4048255576957728, 5.5200781102863106,
 function besselZeroRoots(m)
     # BESSEL0ROOTS ROOTS OF BESSELJ(0,x). USE ASYMPTOTICS.
     # Use McMahon's expansion for the remainder (NIST, 10.21.19):
-    jk = Array{Float64}(m)
+    jk = Array{Float64}(uninitialized, m)
     p = (1071187749376 / 315, 0.0, -401743168 / 105, 0.0, 120928 / 15,
          0.0, -124 / 3, 0.0, 1.0, 0.0)
     # First 20 are precomputed:
