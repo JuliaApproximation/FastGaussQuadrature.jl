@@ -28,6 +28,7 @@ function gausslaguerre(n::Integer, alpha = 0.0; reduced = false)
         # Use the recurrence relation for moderate n
         laguerreRec(n, alpha)
     else
+        # Use explicit asymptotic expansions for larger n
         laguerreExp(n, alpha, reduced = reduced)
     end
 end
@@ -152,14 +153,14 @@ end
 
 ########################## Routines for the explicit expansions ##########################
 
-# We explicitly store the first 11 roots of the Airy function
+# We explicitly store the first 11 roots of the Airy function in double precision
 const airy_roots = [-2.338107410459767, -4.08794944413097, -5.520559828095551,
     -6.786708090071759, -7.944133587120853, -9.02265085340981, -10.04017434155809,
     -11.00852430373326, -11.93601556323626, -12.828776752865757, -13.69148903521072]
 
 function laguerreExp(n::Integer, alpha;
         reduced = false,
-        T = min(1,ceil(Int64, 50/log(n))),          # Heuristic for number of terms
+        T = max(1,ceil(Int64, 50/log(n))),          # Heuristic for number of terms
         k_bessel = max(ceil(Int64, sqrt(n) ), 7),   # Heuristical indices for Bessel and Airy regions
         k_airy = floor(Int64, 0.9*n) )
 
@@ -169,7 +170,6 @@ function laguerreExp(n::Integer, alpha;
 
     n_alloc = reduced ? estimate_reduced_n(n, alpha) : n
 
-    maxk = n
     ELT = typeof(float(alpha))
     x = zeros(ELT, n_alloc)
     w = zeros(ELT, n_alloc)
@@ -183,8 +183,8 @@ function laguerreExp(n::Integer, alpha;
     jak_vector = besselroots(alpha, k_bessel)
     # - Iterate over all elements
     for k in 1:k_bessel
-        xk = 0.0
-        wk = 0.0
+        xk = zero(ELT)
+        wk = zero(ELT)
         jak = jak_vector[k]
         if (T >= 9)
             xk += (10644*jak^8 + 60*(887*alpha^2 - 2879)*jak^6 + (125671*alpha^4 -729422*alpha^2 + 1456807)*jak^4 + 3*(63299*alpha^6 - 507801*alpha^4 + 1678761*alpha^2 - 2201939)*jak^2 + 2*(107959*alpha^8 - 1146220*alpha^6 + 5095482*alpha^4 -10087180*alpha^2 + 6029959) )*d^8/42525
@@ -205,12 +205,10 @@ function laguerreExp(n::Integer, alpha;
         end
         xk = jak^2*d*(1 + xk)
         wk = 4*d*xk^alpha*exp(-xk)/(besselj(alpha-1, jak))^2*(1+wk)
-        x[k] = xk
-        w[k] = wk
 
         # Are we producing a compressed representation?
         if reduced
-            # We check whether or not the weight underflows
+            # We check whether or not the current weight underflows
             if abs(wk) < 10realmin(ELT)
                 # It does, we can stop here
                 x = x[1:k-1]
@@ -218,8 +216,8 @@ function laguerreExp(n::Integer, alpha;
                 return x, w
             end
             # We check whether or not our allocated vector is still large enough
-            if k+1 > n_alloc
-                n_alloc *= 2
+            if k > n_alloc
+                n_alloc = min(n, 2*n_alloc)
                 x1 = x
                 w1 = w
                 x = zeros(ELT, n_alloc)
@@ -228,12 +226,15 @@ function laguerreExp(n::Integer, alpha;
                 w[1:k] = w1
             end
         end
+
+        x[k] = xk
+        w[k] = wk
     end
 
     # The bulk region
     for k in k_bessel+1:k_airy-1
-        xk = 0.0
-        wk = 0.0
+        xk = zero(ELT)
+        wk = zero(ELT)
         pt = (4n-4k+3)*d
         t = pi^2/16*(pt -1)^2
         for it = 1:6
@@ -258,8 +259,6 @@ function laguerreExp(n::Integer, alpha;
         end
         xk += + t/d
         wk = xk^alpha * exp(-xk) * 2pi * sqrt(t/(1-t)) * (1+wk)
-        x[k] = xk
-        w[k] = wk
 
         if reduced
             if abs(wk) < 10realmin(ELT)
@@ -267,8 +266,8 @@ function laguerreExp(n::Integer, alpha;
                 w = w[1:k-1]
                 return x, w
             end
-            if k+1 > n_alloc
-                n_alloc *= 2
+            if k > n_alloc
+                n_alloc = min(n, 2*n_alloc)
                 x1 = x
                 w1 = w
                 x = zeros(ELT, n_alloc)
@@ -277,12 +276,15 @@ function laguerreExp(n::Integer, alpha;
                 w[1:k] = w1
             end
         end
+
+        x[k] = xk
+        w[k] = wk
     end
 
     # The Airy region
     for k in k_airy:n
-        xk = 0.0
-        wk = 0.0
+        xk = zero(ELT)
+        wk = zero(ELT)
 
         # Compute the corresponding root of the Airy function
         index = n - k + 1
@@ -302,8 +304,6 @@ function laguerreExp(n::Integer, alpha;
         end
         xk += 1/d + ak*(d/4)^(-1/3)
         wk = 4^(1/3)*xk^(alpha+1/3)*exp(-xk)/(airyaiprime(ak))^2
-        x[k] = xk
-        w[k] = wk
 
         if reduced
             if abs(wk) < 10realmin(ELT)
@@ -311,8 +311,8 @@ function laguerreExp(n::Integer, alpha;
                 w = w[1:k-1]
                 return x, w
             end
-            if k+1 > n_alloc
-                n_alloc *= 2
+            if k > n_alloc
+                n_alloc = min(n, 2*n_alloc)
                 x1 = x
                 w1 = w
                 x = zeros(ELT, n_alloc)
@@ -321,6 +321,9 @@ function laguerreExp(n::Integer, alpha;
                 w[1:k] = w1
             end
         end
+
+        x[k] = xk
+        w[k] = wk
     end
 
     # Sanity check
