@@ -23,7 +23,7 @@ function gausslaguerre(n::Integer, alpha = 0.0; reduced = false)
     if n == 0
         T[],T[]
     elseif n == 1
-        [one(T)+alpha], [one(T)]
+        [1+alpha], [gamma(1+alpha)]
     elseif n == 2
         [alpha + 2-sqrt(alpha+2),alpha+2+sqrt(alpha+2)],
         [((alpha-sqrt(alpha+2)+2)*gamma(alpha+2))/(2*(alpha+2)*(sqrt(alpha+2)-1)^2),
@@ -85,6 +85,7 @@ function laguerreRec(n, alpha; reduced = false)
     x[1:n_pre] = bes
 
     local pn_deriv
+    noUnderflow = true      # this flag turns false once the weights start to underflow
     for k in 1:n
         if k > n_pre
             # Use sextic extrapolation for a new initial guess
@@ -115,11 +116,17 @@ function laguerreRec(n, alpha; reduced = false)
         end
 
         # Compute the weight
-        pn_prev, ~ = lagpnRecDer(n-1, alpha, x[k])
-        w[k] = (n^2 +alpha*n)^(-1/2)/pn_prev/pn_deriv
+        if noUnderflow
+            pn_prev, ~ = lagpnRecDer(n-1, alpha, x[k])
+            w[k] = (n^2 +alpha*n)^(-1/2)/pn_prev/pn_deriv
+        end
+        if noUnderflow && (w[k] < underflow_threshold(T))
+            # Frome here on after weights will no longer be computed
+            noUnderflow = false
+        end
 
         if reduced
-            if (k > 1) && (w[k] < underflow_threshold(T))
+            if (k > 1) && !noUnderflow
                 x = x[1:k-1]
                 w = w[1:k-1]
                 return x, w
