@@ -1,8 +1,14 @@
-# (x,w) = gausslaguerre(n) returns n Gauss-Laguerre nodes and weights.
-# (x,w) = gausslaguerre(n,alpha) allows generalized Gauss-Laguerre quadrature.
-# Optionally, a reduced quadrature rule can be computed. In that case, only those
-# points and weights are computed for which the weight does not underflow in the
-# floating point precision type.
+"""
+(x,w) = gausslaguerre(n) returns n Gauss-Laguerre nodes and weights.
+(x,w) = gausslaguerre(n,alpha) allows generalized Gauss-Laguerre quadrature.
+
+Optionally, a reduced quadrature rule can be computed. In that case, only those
+points and weights are computed for which the weight does not underflow in the
+floating point precision type. Supply the optional argument `reduced = true`.
+
+Though the code is generic, heuristical choices on the choice of the algorithm
+are based on achieving machine precision accuracy only for `Float64` type.
+"""
 function gausslaguerre(n::Integer, alpha = 0.0; reduced = false)
     if alpha <= -1
         error("The Laguerre parameter α <= -1 corresponds to a nonintegrable weight function")
@@ -12,6 +18,7 @@ function gausslaguerre(n::Integer, alpha = 0.0; reduced = false)
     end
 
     # Guess the numerical type from the supplied type of alpha
+    # Although the code is generic, the heuristics are derived for Float64 precision
     T = typeof(float(alpha))
     if n == 0
         T[],T[]
@@ -33,6 +40,9 @@ function gausslaguerre(n::Integer, alpha = 0.0; reduced = false)
     end
 end
 
+# Estimate for the number of weights that don't underflow
+# This is only an estimate, not an upper bound, so code has to be able to cope
+# with the estimate being off
 estimate_reduced_n(n, alpha) = round(typeof(n), min(17*sqrt(n), n))
 
 
@@ -57,6 +67,7 @@ end
 
 ########################## Routines for the forward recurrence ##########################
 
+"Compute Gauss-Laguerre rule based on the recurrence relation, using Newton iterations on an initial guess."
 function laguerreRec(n, alpha; reduced = false)
     T = typeof(float(alpha))
 
@@ -158,6 +169,13 @@ const airy_roots = [-2.338107410459767, -4.08794944413097, -5.520559828095551,
     -6.786708090071759, -7.944133587120853, -9.02265085340981, -10.04017434155809,
     -11.00852430373326, -11.93601556323626, -12.828776752865757, -13.69148903521072]
 
+"""
+Compute the Gauss-Laguerre rule using explicit asymptotic expansions for the nodes
+and weights.
+Optional parameters are the number of terms in the expansion ('T'), the index where
+one transitions from the Bessel region to the bulk (`k_besssel`) and from the bulk
+to the Airy region ('k_airy').
+"""
 function laguerreExp(n::Integer, alpha;
         reduced = false,
         T = max(1,ceil(Int64, 50/log(n))),          # Heuristic for number of terms
