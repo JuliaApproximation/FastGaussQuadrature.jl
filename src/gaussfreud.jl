@@ -14,8 +14,16 @@ The computations are based on asymptotic expansions for the corresponding orthog
 polynomials.
 """
 function gaussfreud(n::Integer, alpha = 0.0, m = 1, qm = 1.0; reduced = false)
-    @assert alpha > -1
-    @assert n >= 0
+    if alpha <= -1
+        error("The parameter α <= -1 corresponds to a nonintegrable weight function")
+    end
+    if n < 0
+        error("gaussfreud($n,$alpha,$m,$qm) not defined: n must be positive.")
+    end
+    if alpha^2/n > 1
+        warn("A large alpha may lead to inaccurate results because the weight is low and R(z) is not close to identity.")
+    end
+
     ELT = promote_type(typeof(float(alpha)), typeof(qm))
 
     T = ceil(Int, 34/log(n) ) # Heuristic for number of terms, should be scaled by the logarithm of eps(ELT) over the machine precision.
@@ -35,6 +43,8 @@ function gaussfreud(n::Integer, alpha = 0.0, m = 1, qm = 1.0; reduced = false)
     useFinDiff = (m != 1) || (qm != 1.0)
     bes = besselroots(alpha, n_pre).^2 # [Tricomi 1947 pg. 296]
     w = zeros(ELT, n_alloc)
+
+    # Find initial values for x
     if useFinDiff
         x = [bes*(2*m-1)^2/16/m^2/n^2*softEdge ; zeros(ELT, n_alloc-n_pre) ]
     else
@@ -54,11 +64,8 @@ function gaussfreud(n::Integer, alpha = 0.0, m = 1, qm = 1.0; reduced = false)
         factorw = real( -(1 - 1/(n + 1) )^(n + 1+ alpha/2)*(1 - 1/n)^(1 + alpha/2)*exp(1 + 2*log(2) )*4^(1+alpha)*pi*n^alpha*sqrt(factor0*factor1)*(1 + 1/n)^(alpha/2) )
     end
 
-    if ( alpha^2/n > 1 )
-        warn("A large alpha may lead to inaccurate results because the weight is low and R(z) is not close to identity.")
-    end
     noUnderflow = true
-    for k = 1:n_alloc
+    for k = 1:n
         if useFinDiff && (k > n_pre)
             # Use linear extrapolation for the initial guesses for robustness in generalised weights.
             x[k] = 2*x[k-1] -x[k-2]
@@ -75,7 +82,7 @@ function gaussfreud(n::Integer, alpha = 0.0, m = 1, qm = 1.0; reduced = false)
         while ( abs(step) > eps(ELT)*40*x[k] ) && ( l < max_iter)
             l = l + 1
             pe = polyAsyRHgen(n, x[k], alpha, T, qm, m, UQ0)
-            if (abs(pe) >= abs(ov)*(1-35*eps(ELT)) )
+            if abs(pe) >= abs(ov)*(1-35*eps(ELT))
                 # The function values do not decrease enough any more due to roundoff errors.
                 x[k] = ox # Set to the previous value and quit.
                 break
@@ -91,25 +98,40 @@ function gaussfreud(n::Integer, alpha = 0.0, m = 1, qm = 1.0; reduced = false)
             x[k] = x[k] -step
             ov = pe
         end
-        if ( x[k] < 0 ) || ( l == max_iter ) || ( ( k != 1 ) && ( x[k - 1] >= x[k] ) ) || isnan(x[k])
-            print(x[k], "=x[k], k=", k, ", l=", l, ", x[k-1]=", x[k-1], ", x[k-2]=", x[k-1], ", step=", step, ", ox=", ox, ", ov=", ov, ".\n") # Print some debugging information and throw an error.
+        if (x[k] < 0) || (l == max_iter) || ( (k != 1) && (x[k-1] >= x[k]) ) || isnan(x[k])
+            # Print some debugging information and throw an error.
+            print(x[k], " = x[k], k = ", k, ", l = ", l, ", x[k-1] = ", x[k-1], ", x[k-2] = ", x[k-1], ", step = ", step, ", ox=", ox, ", ov = ", ov, ".\n")
             error("Newton method may not have converged.")
-        elseif ( x[k] > softEdge)
+        elseif x[k] > softEdge
             warn("Node is outside the support of the measure: inaccuracy is expected.")
         end
-        if noUnderflow && useFinDiff
-            hh = max(sqrt(eps(ELT))*x[k], sqrt(eps(ELT)) )
-            w[k] = hh/(polyAsyRHgen(n,x[k]+hh,alpha,T,qm,m,UQ0) -polyAsyRHgen(n,x[k],alpha,T,qm,m,UQ0))/polyAsyRHgen(n-1,x[k],alpha,T,qm,m,UQ0)/exp(qm*x[k]^m) # This leaves out a constant factor, given by a ratio of leading order coefficients and normalising constants
-        elseif noUnderflow
-            w[k] = factorw/polyAsyRHgen(n-1, x[k], alpha+1, T, qm, m, UQ1)/polyAsyRHgen(n+1, x[k], alpha, T,qm,m,UQ0)/exp( x[k] )
+        if noUnderflow
+            if useFinDiff
+                hh = max(sqrt(eps(ELT))*x[k], sqrt(eps(ELT)) )
+                w[k] = hh/(polyAsyRHgen(n,x[k]+hh,alpha,T,qm,m,UQ0) -polyAsyRHgen(n,x[k],alpha,T,qm,m,UQ0))/polyAsyRHgen(n-1,x[k],alpha,T,qm,m,UQ0)/exp(qm*x[k]^m) # This leaves out a constant factor, given by a ratio of leading order coefficients and normalising constants
+            else noUnderflow
+                w[k] = factorw/polyAsyRHgen(n-1, x[k], alpha+1, T, qm, m, UQ1)/polyAsyRHgen(n+1, x[k], alpha, T,qm,m,UQ0)/exp( x[k] )
+            end
         end
-        if noUnderflow && ( w[k] == 0 ) && ( k > 1 ) && ( w[k-1] > 0 ) # We could stop now as the weights underflow.
-            if reduced
+        if noUnderflow && (w[k] < underflow_threshold(ELT))
+            # Frome here on after weights will no longer be computed
+            noUnderflow = false
+        end
+        if reduced
+            if (k > 1) && !noUnderflow
                 x = x[1:k-1]
                 w = w[1:k-1]
-                return (x,w)
-            else
-                noUnderflow = false
+                return x, w
+            end
+            if k == n_alloc
+                # We have to allocate a bigger array
+                n_alloc *= 2
+                x1 = x
+                w1 = w
+                x = zeros(T, n_alloc)
+                w = zeros(T, n_alloc)
+                x[1:k] = x1
+                w[1:k] = w1
             end
         end
     end
