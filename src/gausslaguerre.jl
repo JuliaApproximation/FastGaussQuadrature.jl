@@ -45,7 +45,9 @@ end
 # with the estimate being off
 estimate_reduced_n(n, alpha) = round(typeof(n), min(17*sqrt(n), n))
 
-
+# Our threshold for deciding on underflow
+underflow_threshold(x) = underflow_threshold(typeof(x))
+underflow_threshold(::Type{T}) where {T <: AbstractFloat} = 10realmin(T)
 
 ########################## Routines for the eigenvalue method ##########################
 
@@ -117,7 +119,7 @@ function laguerreRec(n, alpha; reduced = false)
         w[k] = (n^2 +alpha*n)^(-1/2)/pn_prev/pn_deriv
 
         if reduced
-            if (k > 1) && (w[k] < 10realmin(T))
+            if (k > 1) && (w[k] < underflow_threshold(T))
                 x = x[1:k-1]
                 w = w[1:k-1]
                 return x, w
@@ -178,9 +180,9 @@ to the Airy region ('k_airy').
 """
 function laguerreExp(n::Integer, alpha;
         reduced = false,
-        T = max(1,ceil(Int64, 50/log(n))),          # Heuristic for number of terms
-        k_bessel = max(ceil(Int64, sqrt(n) ), 7),   # Heuristical indices for Bessel and Airy regions
-        k_airy = floor(Int64, 0.9*n) )
+        T = max(1,ceil(Int, 50/log(n))),          # Heuristic for number of terms
+        k_bessel = max(ceil(Int, sqrt(n) ), 7),   # Heuristical indices for Bessel and Airy regions
+        k_airy = floor(Int, 0.9*n) )
 
     if alpha^2/n > 1
         warn("A large value of alpha may lead to inaccurate results.")
@@ -227,7 +229,7 @@ function laguerreExp(n::Integer, alpha;
         # Are we producing a compressed representation?
         if reduced
             # We check whether or not the current weight underflows
-            if abs(wk) < 10realmin(ELT)
+            if abs(wk) < underflow_threshold(ELT)
                 # It does, we can stop here
                 x = x[1:k-1]
                 w = w[1:k-1]
@@ -279,7 +281,7 @@ function laguerreExp(n::Integer, alpha;
         wk = xk^alpha * exp(-xk) * 2pi * sqrt(t/(1-t)) * (1+wk)
 
         if reduced
-            if abs(wk) < 10realmin(ELT)
+            if abs(wk) < underflow_threshold(ELT)
                 x = x[1:k-1]
                 w = w[1:k-1]
                 return x, w
@@ -324,7 +326,7 @@ function laguerreExp(n::Integer, alpha;
         wk = 4^(1/3)*xk^(alpha+1/3)*exp(-xk)/(airyaiprime(ak))^2
 
         if reduced
-            if abs(wk) < 10realmin(ELT)
+            if abs(wk) < underflow_threshold(ELT)
                 x = x[1:k-1]
                 w = w[1:k-1]
                 return x, w
