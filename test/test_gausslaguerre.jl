@@ -57,6 +57,8 @@ coef = rand(17)
 Z = exact_integral_poly(alpha, coef)
 
 x, w = gausslaguerre(n, alpha)
+@test isa(x, Vector{Float64})
+@test isa(w, Vector{Float64})
 @test abs(sum(w) - 1) < tol
 @test abs(dot(w, x) - 1) < tol
 @test abs(x[37] - 98.388267163326702) < tol
@@ -89,6 +91,8 @@ alpha = 0.0
 x, w = gausslaguerre(n, alpha)
 a = 4
 Z = exact_integral_cos1(a)
+@test isa(x, Vector{Float64})
+@test isa(w, Vector{Float64})
 @test abs(x[37] - 13.309000189442097) < tol
 @test abs(w[3] - 0.050091759039996) < tol
 @test abs(dot(w, cos.(a*x)) - Z) < tol
@@ -109,11 +113,10 @@ alpha = 0.0
 a = 50
 Z = exact_integral_cos1(a)
 x, w = gausslaguerre(n, alpha)
+@test isa(x, Vector{Float64})
+@test isa(w, Vector{Float64})
 @test abs(dot(w, cos.(a*x)) - Z) < tol
 
-
-
-## Test type is correct
-x,w = gausslaguerre(2,0.0)
-@test isa(x,Vector{Float64})
-@test isa(w,Vector{Float64})
+alpha = 0.44
+x, w = gausslaguerre(n, alpha; reduced = true)
+@test w[end] < 100*realmin(Float64)
