@@ -13,77 +13,74 @@ function besselroots(nu::Float64, n::Integer)
 # This code was originally written by L. L. Peixoto in MATLAB.
 # Later modified by A. Townsend to work in Julia
 
-if ( n == 0 )
-    x = []
-elseif( n > 0 && nu == 0 )
-    x = McMahon( nu, n )
-    correctFirstFew = Tabulate( )
-    x[1:min(n,20)] = correctFirstFew[1:min(n,20)]
+    if n < 0
+        error("Input N must be a positive integer")
+    end
+
+    x = zeros(n)
+    if n > 0 && nu == 0
+        for k in 1:min(n,20)
+            x[k] = J0_roots[k]
+        end
+        for k in min(n,20)+1:n
+            x[k] = McMahon(nu, k)
+        end
+    elseif n>0 && nu >= -1 && nu <= 5
+        correctFirstFew = Piessens( nu )
+        for k in 1:min(n,6)
+            x[k] = correctFirstFew[k]
+        end
+        for k in min(n,6)+1:n
+            x[k] = McMahon(nu, k)
+        end
+    end
     x
-elseif ( n>0 && nu >= -1 && nu <= 5 )
-    x = McMahon( nu, n )
-    correctFirstFew = Piessens( nu )
-    x[1:min(n,6)] = correctFirstFew[1:min(n,6)]
-    x
-else
-    error("Input N must be a positive integer")
 end
 
-end
 
-
-function McMahon( nu::Float64, n::Integer )
+function McMahon(nu::Float64, k::Integer)
     # McMahon's expansion. This expansion gives very accurate approximation
     # for the sth zero (s >= 7) in the whole region V >=- 1, and moderate
     # approximation in other cases.
-    b = Array{Float64}(uninitialized, n)
-    mu = 4*nu^2
-    a1 = 1. / 8.
-    a3 = (7 .*mu-31.) / 384.
-    a5 = 4 .*(3779 .+mu*(-982 .+83 .*mu)) / 61440. # Evaluate via Horner's method.
-    a7 = 6 .*(-6277237 .+mu*(1585743 .+mu*(-153855 .+6949 .*mu))) / 20643840.;
-    a9 = 144 .*(2092163573 .+mu*(-512062548 .+mu*(48010494 .+mu*(-2479316 .+70197 .*mu)))) / 11890851840.
-    a11 = 720 .*(-8249725736393 .+mu*(1982611456181 .+mu*(-179289628602 .+mu*(8903961290. +
-          mu*(-287149133 .+5592657 .*mu))))) / 10463949619200.
-    a13 = 576 .*(423748443625564327. + mu*(-100847472093088506 .+mu*(8929489333108377. +
-        mu*(-426353946885548 .+mu*(13172003634537 .+mu*(-291245357370. + mu*4148944183.)))))) / 13059009124761600.
-    for k=1:n b[k] = .25*(2*nu+4*k-1)*pi end # beta
+    mu = 4nu^2
+    a1 = 1 / 8
+    a3 = (7mu-31) / 384
+    a5 = 4*(3779+mu*(-982+83mu)) / 61440 # Evaluate via Horner's method.
+    a7 = 6*(-6277237+mu*(1585743+mu*(-153855+6949mu))) / 20643840
+    a9 = 144*(2092163573+mu*(-512062548.+mu*(48010494+mu*(-2479316+70197mu)))) / 11890851840
+    a11 = 720 *(-8249725736393+mu*(1982611456181+mu*(-179289628602+mu*(8903961290 +
+          mu*(-287149133 + 5592657mu))))) / 10463949619200
+    a13 = 576 *(423748443625564327 + mu*(-100847472093088506 + mu*(8929489333108377 +
+        mu*(-426353946885548+mu*(13172003634537+mu*(-291245357370 + 4148944183mu)))))) / 13059009124761600
+    b = 0.25 * (2nu+4k-1)*pi
     # Evaluate using Horner's scheme:
-    x = @. b - (mu-1)*( ((((((a13/b^2 + a11)/b^2 + a9)/b^2 + a7)/b^2 + a5)/b^2 + a3)/b^2 + a1)/b)
+    x = b - (mu-1)*( ((((((a13/b^2 + a11)/b^2 + a9)/b^2 + a7)/b^2 + a5)/b^2 + a3)/b^2 + a1)/b)
 end
 
+const J0_roots =
+    [   2.4048255576957728
+        5.5200781102863106
+        8.6537279129110122
+        11.791534439014281
+        14.930917708487785
+        18.071063967910922
+        21.211636629879258
+        24.352471530749302
+        27.493479132040254
+        30.634606468431975
+        33.775820213573568
+        36.917098353664044
+        40.058425764628239
+        43.199791713176730
+        46.341188371661814
+        49.482609897397817
+        52.624051841114996
+        55.765510755019979
+        58.906983926080942
+        62.048469190227170  ]
 
-function Tabulate( )
-    # First 20 roots of J0(x) are precomputed (using Wolfram Alpha):
-    y = Array{Float64}(20)
-    y = [   2.4048255576957728
-            5.5200781102863106
-            8.6537279129110122
-            11.791534439014281
-            14.930917708487785
-            18.071063967910922
-            21.211636629879258
-            24.352471530749302
-            27.493479132040254
-            30.634606468431975
-            33.775820213573568
-            36.917098353664044
-            40.058425764628239
-            43.199791713176730
-            46.341188371661814
-            49.482609897397817
-            52.624051841114996
-            55.765510755019979
-            58.906983926080942
-            62.048469190227170  ]
-end
 
-function Piessens( nu::Float64 )
-    # Piessens's Chebyshev series approximations (1984). Calculates the 6 first
-    # zeros to at least 12 decimal figures in region -1 <= V <= 5:
-    y = Array{Float64}(6);
-
-    C = [
+const Piessens_C = [
        2.883975316228  8.263194332307 11.493871452173 14.689036505931 17.866882871378 21.034784308088
        0.767665211539  4.209200330779  4.317988625384  4.387437455306  4.435717974422  4.471319438161
       -0.086538804759 -0.164644722483 -0.130667664397 -0.109469595763 -0.094492317231 -0.083234240394
@@ -115,13 +112,18 @@ function Piessens( nu::Float64 )
       -0.000000000003 -0.000000000005               0.               0.               0.               0.
        0.000000000001  0.000000000002               0.               0.               0.               0.]
 
+
+function Piessens( nu::Float64 )
+    # Piessens's Chebyshev series approximations (1984). Calculates the 6 first
+    # zeros to at least 12 decimal figures in region -1 <= V <= 5:
+    C = Piessens_C
     T = Array{Float64}(size(C,1))
     pt = (nu-2)/3
     T[1], T[2] = 1., pt
     for k = 2:size(C,1)-1
         T[k+1] = 2*pt*T[k] - T[k-1]
     end
-    y[1:6] = T'*C;
-    y[1] *= sqrt(nu+1);                  # Scale the first root.
+    y = C'*T
+    y[1] *= sqrt(nu+1)                  # Scale the first root.
     y
 end
