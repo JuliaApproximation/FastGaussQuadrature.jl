@@ -33,16 +33,19 @@ function gaussjacobi(n::Integer, a::Float64, b::Float64)
     end
 end
 
-function JacobiRec(n::Integer, a::Float64, b::Float64)
+# Convenience function: convert any kind of numbers a and b to a joint floating point type
+JacobiRec(n::Integer, a::Number, b::Number) = JacobiRec(n, promote(float(a), float(b))...)
+
+function JacobiRec(n::Integer, a::T, b::T) where {T <: AbstractFloat}
     #Compute nodes and weights using recurrrence relation.
     x11, x12 = HalfRec(n, a, b, 1)
     x21, x22 = HalfRec(n, b, a, 0)
 
-    x = Array{Float64}(uninitialized, n)
-    w = Array{Float64}(uninitialized, n)
+    x = Array{T}(n)
+    w = Array{T}(n)
     m1 = length(x11)
     m2 = length(x21)
-    sum_w = 0.0
+    sum_w = zero(T)
     @inbounds for i in 1:m2
         idx = m2 + 1 - i
         xi = -x21[i]
@@ -67,24 +70,24 @@ function JacobiRec(n::Integer, a::Float64, b::Float64)
     x, w
 end
 
-function HalfRec(n::Integer, a::Float64, b::Float64, flag)
+function HalfRec(n::Integer, a::T, b::T, flag) where {T <: AbstractFloat}
     # HALFREC  Jacobi polynomial recurrence relation.
     # Asymptotic formula - only valid for positive x.
     r = (flag == 1) ? (ceil(n / 2):-1:1) : (floor(n / 2):-1:1)
     m = length(r)
     c1 = 1 / (2 * n + a + b + 1)
-    a1 = .25 - a^2
-    b1 = .25 - b^2
+    a1 = one(T)/4 - a^2
+    b1 = one(T)/4 - b^2
     c1² = c1^2
-    x = Array{Float64}(uninitialized, m)
+    x = Array{T}(m)
     @inbounds for i in 1:m
-        C = muladd(2.0, r[i], a - .5) * (π * c1)
-        C_2 = 0.5 * C
+        C = muladd(2*one(T), r[i], a - one(T)/2) * (T(π) * c1)
+        C_2 = C/2
         x[i] = cos(muladd(c1², muladd(-b1, tan(C_2), a1 * cot(C_2)), C))
     end
 
-    P1 = Array{Float64}(uninitialized, m)
-    P2 = Array{Float64}(uninitialized, m)
+    P1 = Array{T}(m)
+    P2 = Array{T}(m)
     # Loop until convergence:
     for _ in 1:10
         innerJacobiRec!(n, x, a, b, P1, P2)
@@ -95,25 +98,25 @@ function HalfRec(n::Integer, a::Float64, b::Float64, flag)
             dx2 = ifelse(_dx2 > dx2, _dx2, dx2)
             x[i] = x[i] - dx
         end
-        dx2 > eps(Float64) / 1e6 || break
+        dx2 > eps(T) / 1e6 || break
     end
     # Once more for derivatives:
     innerJacobiRec!(n, x, a, b, P1, P2)
     x, P2
 end
 
-function innerJacobiRec!(n, x, a, b, P, PP)
+function innerJacobiRec!(n, x, a::T, b::T, P, PP) where {T <: AbstractFloat}
     # EVALUATE JACOBI POLYNOMIALS AND ITS DERIVATIVE USING THREE-TERM RECURRENCE.
     N = length(x)
     @inbounds for j = 1:N
         xj = x[j]
 
-        Pj = .5 * (a - b + (a + b + 2) * xj)
-        Pm1 = 1.0
-        PPj = .5 * (a + b + 2)
-        PPm1 = 0.0
+        Pj = (a - b + (a + b + 2) * xj)/2
+        Pm1 = one(T)
+        PPj = (a + b + 2)/2
+        PPm1 = zero(T)
         for k = 1:n-1
-            k0 = muladd(2.0, k, a + b)
+            k0 = muladd(2*one(T), k, a + b)
             k1 = k0 + 1
             k2 = k0 + 2
             A = 2 * (k + 1) * (k + (a + b + 1)) * k0
@@ -130,11 +133,11 @@ function innerJacobiRec!(n, x, a, b, P, PP)
     nothing
 end
 
-function innerJacobiRec(n, x, a, b)
+function innerJacobiRec(n, x, a::T, b::T) where {T <: AbstractFloat}
     # EVALUATE JACOBI POLYNOMIALS AND ITS DERIVATIVE USING THREE-TERM RECURRENCE.
     N = length(x)
-    P = Array{Float64}(N)
-    PP = Array{Float64}(N)
+    P = Array{T}(N)
+    PP = Array{T}(N)
     innerJacobiRec!(n, x, a, b, P, PP)
     P, PP
 end
