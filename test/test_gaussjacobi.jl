@@ -29,7 +29,7 @@ x, w = gaussjacobi(1, a, b)
 @test abs(x[1] - (b - a) / (a + b + 2)) < tol
 @test abs(w[1] - 2^(a + b + 1) * beta(a + 1, b + 1)) < tol
 
-@test dot(w,ones(x)) ≈ 1.3333333333333333
+@test dot(w,fill(1,length(x))) ≈ 1.3333333333333333
 
 x, w = gaussjacobi(1013, .9, -.1)
 @test abs(x[2] + 0.999986012231899) < tol

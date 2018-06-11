@@ -12,9 +12,9 @@ function gausslobatto(n)
         @inbounds for i in 1:length(x)
             w[i] = w[i] / (1 - x[i]^2)
         end
-        unshift!(x, -1.0)
+        pushfirst!(x, -1.0)
         push!(x, 1.0)
-        unshift!(w, 2 / (n * (n - 1)))
+        pushfirst!(w, 2 / (n * (n - 1)))
         push!(w, 2 / (n * (n - 1)))
         x, w
     end

@@ -66,7 +66,7 @@ function hermpts_rec( n::Integer )
     for kk = 1:10
         val = hermpoly_rec(n, x0)
         dx = val[1]./val[2]
-        dx[ isnan.( dx ) ] = 0
+        dx[ isnan.( dx ) ] .= 0
         x0 = x0 - dx
         if norm(dx, Inf)<sqrt(eps(Float64))
             break
@@ -220,7 +220,7 @@ let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875
         # These initial guesses are good near x = 0 . Note: zeros of besselj(+/-.5,x)
         # are integer and half-integer multiples of pi.
         # x_init_bess =  bess/sqrt(nu).*sqrt((1+ (bess.^2+2*(a^2-1))/3/nu^2) );
-        Tnk0 = pi/2*ones(m)
+        Tnk0 = fill(pi/2,m)
         nu = (4*m+2*a+2)
         rhs = ((4*m+3) .- 4*(1:m))/nu*pi
 
@@ -256,7 +256,7 @@ function hermpts_gw( n::Integer )
 
     beta = sqrt.(0.5 .* (1:n-1))              # 3-term recurrence coeffs
     T = SymTridiagonal(zeros(n), beta)  # Jacobi matrix
-    (D, V) = eig(T)                      # Eigenvalue decomposition
+    (D, V) = eigen(T)                      # Eigenvalue decomposition
     indx = sortperm(D)                  # Hermite points
     x = D[indx]
     w = sqrt(pi)*V[1,indx].^2            # weights

@@ -10,8 +10,8 @@ function gaussradau(n::Integer)
         @inbounds for i in 1:length(w)
             w[i] = w[i] / (1.0 + x[i])
         end
-        unshift!(x, -1.0)
-        unshift!(w, 2.0 / n^2)
+        pushfirst!(x, -1.0)
+        pushfirst!(w, 2.0 / n^2)
         x, w
     end
 end

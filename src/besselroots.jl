@@ -47,7 +47,7 @@ function McMahon(nu::Float64, k::Integer)
     a3 = (7mu-31) / 384
     a5 = 4*(3779+mu*(-982+83mu)) / 61440 # Evaluate via Horner's method.
     a7 = 6*(-6277237+mu*(1585743+mu*(-153855+6949mu))) / 20643840
-    a9 = 144*(2092163573+mu*(-512062548.+mu*(48010494+mu*(-2479316+70197mu)))) / 11890851840
+    a9 = 144*(2092163573+mu*(-512062548+mu*(48010494+mu*(-2479316+70197mu)))) / 11890851840
     a11 = 720 *(-8249725736393+mu*(1982611456181+mu*(-179289628602+mu*(8903961290 +
           mu*(-287149133 + 5592657mu))))) / 10463949619200
     a13 = 576 *(423748443625564327 + mu*(-100847472093088506 + mu*(8929489333108377 +
@@ -117,7 +117,7 @@ function Piessens( nu::Float64 )
     # Piessens's Chebyshev series approximations (1984). Calculates the 6 first
     # zeros to at least 12 decimal figures in region -1 <= V <= 5:
     C = Piessens_C
-    T = Array{Float64}(size(C,1))
+    T = Array{Float64}(undef,size(C,1))
     pt = (nu-2)/3
     T[1], T[2] = 1., pt
     for k = 2:size(C,1)-1

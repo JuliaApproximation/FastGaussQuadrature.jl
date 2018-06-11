@@ -41,8 +41,8 @@ function JacobiRec(n::Integer, a::T, b::T) where {T <: AbstractFloat}
     x11, x12 = HalfRec(n, a, b, 1)
     x21, x22 = HalfRec(n, b, a, 0)
 
-    x = Array{T}(n)
-    w = Array{T}(n)
+    x = Array{T}(undef,n)
+    w = Array{T}(undef,n)
     m1 = length(x11)
     m2 = length(x21)
     sum_w = zero(T)
@@ -66,7 +66,7 @@ function JacobiRec(n::Integer, a::T, b::T) where {T <: AbstractFloat}
     end
     c = (2^(a + b + 1) * gamma(2 + a) *
          gamma(2 + b) / (gamma(2 + a + b) * (a + 1) * (b + 1)))
-    scale!(w, c / sum_w)
+    rmul!(w, c / sum_w)
     x, w
 end
 
@@ -79,15 +79,15 @@ function HalfRec(n::Integer, a::T, b::T, flag) where {T <: AbstractFloat}
     a1 = one(T)/4 - a^2
     b1 = one(T)/4 - b^2
     c1² = c1^2
-    x = Array{T}(m)
+    x = Array{T}(undef,m)
     @inbounds for i in 1:m
         C = muladd(2*one(T), r[i], a - one(T)/2) * (T(π) * c1)
         C_2 = C/2
         x[i] = cos(muladd(c1², muladd(-b1, tan(C_2), a1 * cot(C_2)), C))
     end
 
-    P1 = Array{T}(m)
-    P2 = Array{T}(m)
+    P1 = Array{T}(undef,m)
+    P2 = Array{T}(undef,m)
     # Loop until convergence:
     for _ in 1:10
         innerJacobiRec!(n, x, a, b, P1, P2)
@@ -136,8 +136,8 @@ end
 function innerJacobiRec(n, x, a::T, b::T) where {T <: AbstractFloat}
     # EVALUATE JACOBI POLYNOMIALS AND ITS DERIVATIVE USING THREE-TERM RECURRENCE.
     N = length(x)
-    P = Array{T}(N)
-    PP = Array{T}(N)
+    P = Array{T}(undef,N)
+    PP = Array{T}(undef,N)
     innerJacobiRec!(n, x, a, b, P, PP)
     P, PP
 end
@@ -177,7 +177,7 @@ function JacobiAsy(n, a, b)
     x[bdyidx2] = -xbdy[1]
     w[bdyidx2] = xbdy[2]
 
-    scale!(w, weightsConstant(n, a, b))
+    rmul!(w, weightsConstant(n, a, b))
     x, w
 end
 
@@ -239,7 +239,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
     M = 20
 
     # Some often used vectors/matrices:
-    onesT = ones(length(t))'; onesM = ones(M); MM = collect(0:M-1);
+    onesT = fill(1.0,length(t))'; onesM = fill(1.0,M); MM = collect(0:M-1);
 
     # The sine and cosine terms:
     alpha = @. (0.5*(2*n+a+b+1+MM))*onesT * (onesM*t) - 0.5*(a+0.5)*pi
@@ -250,7 +250,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
     cosA2 = cosA.*cosT .+ sinA.*sinT
     sinA2 = sinA.*cosT .- cosA.*sinT
 
-    one = ones(t)
+    one = fill!(similar(t),1.0)
     sinT = vcat( one , cumprod(onesM[2:end].*(0.5.*csc.(0.5.*t))))
     cosT = 0.5.*sec.(0.5.*t)
 
@@ -265,7 +265,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
         vec = @. (0.5+b+j)*(0.5-b+j)/(j+1)/(2*n+a+b+j+l+2)
         P2[(l+1).+(1:length(j)),l+1] = cumprod(vec,2)
     end
-    PHI = repmat(P1,M,1).*P2
+    PHI = repeat(P1,M,1).*P2
 
     j = transpose(0:M-2)
     vec = @. (0.5+a+j)*(0.5-a+j)/(j+1)/(2*(n-1)+a+b+j+2)
@@ -278,7 +278,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
         vec = @. (0.5+b+j)*(0.5-b+j)/(j+1)/(2*(n-1)+a+b+j+l+2)
         P2[(l+1).+(1:length(j)),l+1] = cumprod(vec,2)
     end
-    PHI2 = repmat(P1,M,1).*P2
+    PHI2 = repeat(P1,M,1).*P2
 
     S = 0; S2 = 0;
     SC = sinT
@@ -319,7 +319,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t, idx)
     g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,
          5246819/75246796800, -534703531/902961561600,
          -4483131259/86684309913600, 432261921612371/514904800886784000]
-    f(g,z) = sum(g.*[1;cumprod(ones(9)./z)])
+    f(g,z) = sum(g.*[1;cumprod(fill(1.0,9)./z)])
     C = p2*(f(g,n+a)*f(g,n+b)/f(g,2*n+a+b))*2/pi
     C2 = C*(a+b+2*n).*(a+b+1+2*n)./(4*(a+n).*(b+n))
 
@@ -380,7 +380,7 @@ function JacobiGW( n::Integer, a::Float64, b::Float64 )
     bb = Float64[2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
           2 .*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi] ::Vector{Float64}
     TT = SymTridiagonal(aa, bb)  # Jacobi matrix.
-    x, V = eig( TT )                       # Eigenvalue decomposition.
+    x, V = eigen( TT )                       # Eigenvalue decomposition.
     # Quadrature weights:
     w = V[1,:].^2 .*( 2^(ab+1)*gamma(a+1)*gamma(b+1)/gamma(2+ab) );
     w .= w./sum(w);

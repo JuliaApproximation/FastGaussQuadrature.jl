@@ -39,7 +39,7 @@ function laguerreGW( n::Integer, alpha::Float64 )
     alph = 2*(1:n) .+ (alpha-1)           # 3-term recurrence coeffs
     beta = sqrt.( (1:n-1).*(alpha .+ (1:n-1) ) )
     T = SymTridiagonal(Vector(alph), beta)  # Jacobi matrix
-    x, V = eig( T )                  # eigenvalue decomposition
+    x, V = eigen( T )                  # eigenvalue decomposition
     w = gamma(alpha+1)*V[1,:].^2     # Quadrature weights
     x, vec(w)
 
@@ -1259,7 +1259,7 @@ function asyBesselgen(np, z, alpha, T::Integer, qm, m::Integer, UQ, npb, useQ::B
             for i = 1:ceil(Int64,3*m/2)
                 Rko[m,:] += UQ[1, :, m, i, 1]/d^i+UQ[1, :, m, i, 2]/z^i
             end
-            sL[:,:,m] = brac(m-1,alpha)/2^(1+2*m)/(npb/2im/np)^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/2/z^(1/2)/d^(1/2)*[(-phi)^(alpha/2)  0 ; 0   (-phi)^(-alpha/2) ]*[((-1)^m)/m*(alpha^2+m/2-1/4)     (m-1/2)*1im  ;  -((-1)^m)*(m-1/2)*1im    (alpha^2+m/2-1/4)/m]*[(-phi)^(-alpha/2)  0 ; 0   (-phi)^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] -mod(m+1,2)*(4*alpha^2+2*m-1)/m*eye(2,2) )
+            sL[:,:,m] = brac(m-1,alpha)/2^(1+2*m)/(npb/2im/np)^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/2/z^(1/2)/d^(1/2)*[(-phi)^(alpha/2)  0 ; 0   (-phi)^(-alpha/2) ]*[((-1)^m)/m*(alpha^2+m/2-1/4)     (m-1/2)*1im  ;  -((-1)^m)*(m-1/2)*1im    (alpha^2+m/2-1/4)/m]*[(-phi)^(-alpha/2)  0 ; 0   (-phi)^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] -mod(m+1,2)*(4*alpha^2+2*m-1)/m*Matrix(I,2,2) )
         end
         for k = 1:T-1
             R += reshape((Rko[k,:] - sL[1,:,k])/np^k,(1,2))
@@ -1291,7 +1291,7 @@ function asyAirygen(np, z, alpha, T::Integer, qm, m::Integer, UQ, fn, useQ::Bool
             for i = 1:ceil(Int64,3*m/2)
                 Rko[m,:] += UQ[1, :, m, i, 1]/d^i+UQ[1, :, m, i, 2]/z^i
             end
-            sR[:,:,m] = nuk(m)/xin^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/8/z^(1/2)/d^(1/2)*[phi^(alpha/2)  0 ; 0   phi^(-alpha/2) ]*[(-1.0)^m  -m*6im ; 6im*m*(-1)^m    1.0]*[phi^(-alpha/2)  0 ; 0   phi^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] - mod(m+1,2)*eye(2,2) )
+            sR[:,:,m] = nuk(m)/xin^m*( [2^(-alpha)  0 ; 0   2^(alpha)]*[sqrt(phi)    1im/sqrt(phi)  ;  -1im/sqrt(phi)   sqrt(phi)]/8/z^(1/2)/d^(1/2)*[phi^(alpha/2)  0 ; 0   phi^(-alpha/2) ]*[(-1.0)^m  -m*6im ; 6im*m*(-1)^m    1.0]*[phi^(-alpha/2)  0 ; 0   phi^(alpha/2) ]*[sqrt(phi)     -1im/sqrt(phi) ;  1im/sqrt(phi)    sqrt(phi)]*[2^(alpha)   0 ; 0 2^(-alpha)] - mod(m+1,2)*Matrix(I,2,2) )
         end
         for k = 1:T-1
             R += reshape((Rko[k,:] -sR[1,:,k])/np^k,(1,2))
@@ -1453,7 +1453,7 @@ function getV(alpha,qm,m::Integer,maxOrder::Integer,r)
     Ts = (1+1im)*zeros(2,2,mo+1) # = G_{k,n}^{odd/even} depending on k, overwritten on each new k
     WV = (1+1im)*zeros(2,2,maxOrder-1,mo+1)
     for k = 1:(maxOrder-1)
-        Ts[:,:,:] = 0
+        Ts[:,:,:] .= 0
         if r == 1
             if mod(k,2) == 1
                 for n = 0:mo
@@ -1462,7 +1462,7 @@ function getV(alpha,qm,m::Integer,maxOrder::Integer,r)
                 end
             else
                 for n = 0:mo
-                     Ts[:,:,n+1] = nuk(k)*4*(n==0)*eye(2) +6*k*nuk(k)*[-2im*OmE[n+1]    -2*4^(-alpha)*XiE[n+1]  ;   -2*4^alpha*ThE[n+1]   2im*OmE[n+1]]
+                     Ts[:,:,n+1] .= nuk(k)*4*(n==0)*Matrix(I,2,2) +6*k*nuk(k)*[-2im*OmE[n+1]    -2*4^(-alpha)*XiE[n+1]  ;   -2*4^alpha*ThE[n+1]   2im*OmE[n+1]]
                      WV[:,:,k,n+1] = sum(repeat(reshape(g[k,1:(n+1) ], (1,1,n+1) ), outer=[2,2,1]).*Ts[:,:,(n+1):-1:1],3)/8
                 end
             end
@@ -1474,7 +1474,7 @@ function getV(alpha,qm,m::Integer,maxOrder::Integer,r)
                 end
             else
                 for n = 0:mo
-                    Ts[:,:,n+1] = (alpha^2+k/2-1/4)/k*4*(n==0)*eye(2)  -2*(k-1/2)*[ OmE[n+1]   4^(-alpha)*1im*XiE[n+1]  ;   4^alpha*1im*ThE[n+1]   -OmE[n+1] ]
+                    Ts[:,:,n+1] = (alpha^2+k/2-1/4)/k*4*(n==0)*Matrix(I,2,2)  -2*(k-1/2)*[ OmE[n+1]   4^(-alpha)*1im*XiE[n+1]  ;   4^alpha*1im*ThE[n+1]   -OmE[n+1] ]
                     WV[:,:,k,n+1] = -(-1)^(ceil(Int64, k/2)+1)*(1im*sqrt(2))^k*(-2)^(-k/2)/4^(k+1)*brac(k-1,alpha)*sum(repeat(reshape(g[k,1:(n+1) ], (1,1,n+1) ), outer=[2,2,1]).*Ts[:,:,(n+1):-1:1],3)
                 end
             end
