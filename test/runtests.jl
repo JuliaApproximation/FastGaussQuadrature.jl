@@ -1,5 +1,5 @@
 using FastGaussQuadrature, Compat
-using Compat.Test, Compat.LinearAlgebra, SpecialFunctions
+using Compat.Test, Compat.LinearAlgebra, Compat.Random, SpecialFunctions
 
 println("Chebyshev tests")
 include("test_gausschebyshev.jl")

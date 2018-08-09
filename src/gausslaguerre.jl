@@ -95,7 +95,7 @@ function laguerreRH( n::Integer, compRepr::Bool, alpha::Float64 )
         end
         step = x[k]
         l = 0 # Newton-Raphson iteration number
-        ov = realmax(Float64) # Previous/old value
+        ov = floatmax(Float64) # Previous/old value
         ox = x[k] # Old x
         # Accuracy of the expansions up to machine precision would lower this bound.
         while ( ( abs(step) > eps(Float64)*40*x[k] ) && ( l < 20) )
@@ -1151,7 +1151,7 @@ function asyRHgen(n, compRepr, alpha, m, qm)
         end
         step = x[k]
         l = 0 # Newton-Raphson iteration number
-        ov = realmax(Float64) # Previous/old value
+        ov = floatmax(Float64) # Previous/old value
         ox = x[k] # Old x
         # Accuracy of the expansions up to machine precision would lower this bound.
         while ( ( abs(step) > eps(Float64)*40*x[k] ) && ( l < 20) )

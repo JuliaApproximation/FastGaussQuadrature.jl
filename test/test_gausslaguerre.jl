@@ -1,3 +1,7 @@
+if VERSION < v"0.7"
+    const realmax = floatmax
+end
+
 # Test gausslaguerre.jl
 import FastGaussQuadrature.getUQ
 import FastGaussQuadrature.asyAiry
@@ -21,7 +25,11 @@ quadgk_exa = [3.2176248255905825e14  4.298744794628054e18   844.0328465154408
               1.120730668666291     29.98453680681862      1.0146978179749486]
 
 
-srand(0)
+if VERSION < v"0.7"
+  srand(0)
+else
+  Random.seed!(0)
+end
 for wei = 1:3
     let n, x, w
         if wei == 1; alpha = 0.0;qm = 1.0; m = 1;
@@ -32,7 +40,7 @@ for wei = 1:3
         for ni = 1:length(ns)
             n = ns[ni]
     	# Make sure the integrand does not overflow at x[n]
-            d = min(2*n-1, ceil(Int64, log(realmax(Float64)-4*n)/n ) )
+            d = min(2*n-1, ceil(Int64, log(floatmax(Float64)-4*n)/n ) )
             ra = rand(d+1)
             function fct(x)
                 if length(x) == 1

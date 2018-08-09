@@ -16,7 +16,9 @@ else
     repeat(A, n, m) = repmat(A, n, m)
     repeat(A...; kwds...) = Base.repeat(A...; kwds...)
     eigen(A) = eig(A)
+    const realmax = floatmax
 end
+
 
 export gausslegendre
 export gausschebyshev
