@@ -1,6 +1,11 @@
 using FastGaussQuadrature, Compat
 using Compat.Test, Compat.LinearAlgebra, Compat.Random, SpecialFunctions
 
+if VERSION < v"0.7-"
+    const floatmax = realmax
+end
+
+
 println("Chebyshev tests")
 include("test_gausschebyshev.jl")
 println("Legendre tests")

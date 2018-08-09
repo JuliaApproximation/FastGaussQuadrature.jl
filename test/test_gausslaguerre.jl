@@ -1,6 +1,3 @@
-if VERSION < v"0.7"
-    const realmax = floatmax
-end
 
 # Test gausslaguerre.jl
 import FastGaussQuadrature.getUQ
