@@ -383,6 +383,5 @@ function JacobiGW( n::Integer, a::Float64, b::Float64 )
     x, V = eigen( TT )                       # Eigenvalue decomposition.
     # Quadrature weights:
     w = V[1,:].^2 .*( 2^(ab+1)*gamma(a+1)*gamma(b+1)/gamma(2+ab) );
-    w .= w./sum(w);
     x, vec(w)
 end
