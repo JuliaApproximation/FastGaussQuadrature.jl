@@ -44,17 +44,12 @@ function gausslaguerre(n::Integer, alpha = 0.0; reduced = false)
         # Use explicit asymptotic expansions for larger n
         # The restriction to alpha comes from the restriction on nu in besselroots
         if alpha < 5
-            gausslaguerre_asy(n, alpha, reduced=reduced, T=11)
+            gausslaguerre_asy(n, alpha, reduced=reduced, T=-1, recompute=true)
         else
             gausslaguerre_rec(n, alpha)
         end
     end
 end
-
-# Estimate for the number of weights that don't underflow
-# This is only an estimate, not an upper bound, so code has to be able to cope
-# with the estimate being off
-estimate_reduced_n(n, alpha) = round(typeof(n), min(17*sqrt(n), n))
 
 # Our threshold for deciding on underflow
 underflow_threshold(x) = underflow_threshold(typeof(x))
@@ -74,11 +69,15 @@ Optional parameters are:
 - `reduced`: compute a reduced quadrature rule, discarding all points and weights
 as soon as the weights underflow
 - `T`: the order of the expansion. Set `T=-1` to determine the order adaptively
-depending on the size of the terms in the expansion.
+depending on the size of the terms in the expansion
+- `recompute`: if a crude measure of the error is larger than a tolerance,
+the point and weight are recomputed using the (slower) recursion+newton approach,
+yielding more reliable accurate results.
 """
 function gausslaguerre_asy(n::Integer, alpha;
     reduced = false,
-    T = max(1, ceil(Int, 50/log(n))))       # Heuristic for number of terms
+    T = max(1, ceil(Int, 50/log(n))),       # Heuristic for number of terms
+    recompute = false)
 
     if alpha^2/n > 1
         @warn "A large value of alpha may lead to inaccurate results."
@@ -103,16 +102,28 @@ function gausslaguerre_asy(n::Integer, alpha;
 
     bessel_wins = true
     k = 0
-    while bessel_wins && k < k_bessel
+    while bessel_wins && k < n
         k += 1
         # We iterate until the estimated error of the bulk expansion is smaller
         # than the one of the Bessel expansion
-        xk, wk, δ_bessel = gausslaguerre_asy_bessel(n, alpha, jak_vector[k], d, T)
+        jak = (k < k_bessel) ? jak_vector[k] : jak = FastGaussQuadrature.McMahon(alpha, k)
+
+        xk, wk, δ_bessel = gausslaguerre_asy_bessel(n, alpha, jak, d, T)
         xkb, wkb, δ_bulk = gausslaguerre_asy_bulk(n, alpha, k, d, T)
         if δ_bulk < δ_bessel
             bessel_wins = false
             xk = xkb
             wk = wkb
+        end
+        if recompute
+            δ = min(δ_bessel,δ_bulk)
+            if δ > 1e-13
+                xk_rec, wk_rec = gl_rec_newton(xk, n, alpha)
+                if abs(xk_rec-xk) < 100δ
+                    xk = xk_rec
+                    wk = wk_rec
+                end
+            end
         end
         if reduced
             if abs(wk) < underflow_threshold(ELT)
@@ -130,6 +141,15 @@ function gausslaguerre_asy(n::Integer, alpha;
     while k < k_airy-1
         k += 1
         xk, wk, δ_bulk = gausslaguerre_asy_bulk(n, alpha, k, d, T)
+        if recompute
+            if δ_bulk > 1e-13
+                xk_rec, wk_rec = gl_rec_newton(xk, n, alpha)
+                if abs(xk_rec-xk) < 100δ_bulk
+                    xk = xk_rec
+                    wk = wk_rec
+                end
+            end
+        end
         if reduced
             if abs(wk) < underflow_threshold(ELT)
                 return x, w
@@ -152,6 +172,16 @@ function gausslaguerre_asy(n::Integer, alpha;
             xk = xka
             wk = wka
         end
+        if recompute
+            δ = min(δ_airy,δ_bulk)
+            if δ > 1e-13
+                xk_rec, wk_rec = gl_rec_newton(xk, n, alpha)
+                if abs(xk_rec-xk) < 100δ
+                    xk = xk_rec
+                    wk = wk_rec
+                end
+            end
+        end
         if reduced
             if abs(wk) < underflow_threshold(ELT)
                 return x, w
@@ -167,6 +197,15 @@ function gausslaguerre_asy(n::Integer, alpha;
     while k < n
         k += 1
         xk, wk, δ_airy = gausslaguerre_asy_airy(n, alpha, k, d, T)
+        if recompute
+            if δ_airy > 1e-13
+                xk_rec, wk_rec = gl_rec_newton(xk, n, alpha)
+                if abs(xk_rec-xk) < 100δ_airy
+                    xk = xk_rec
+                    wk = wk_rec
+                end
+            end
+        end
         if reduced
             if abs(wk) < underflow_threshold(ELT)
                 return x, w
@@ -332,7 +371,7 @@ function gl_bulk_solve_t(n, k, d)
     diff = 100
     iter = 0
     maxiter = 20
-    while (abs(diff) > sqrt(eps(T))) && (iter < maxiter)
+    while (abs(diff) > 100eps(T)) && (iter < maxiter)
         iter += 1
         diff = (pt*pi +2*sqrt(t-t^2) -acos(2*t-1) )*sqrt(t/(1-t))/2
         t -= diff
@@ -527,6 +566,39 @@ end
 
 ########################## Routines for the forward recurrence ##########################
 
+function gl_rec_newton(x0, n, alpha; maxiter = 20, computeweight = true)
+    T = eltype(x0)
+    step = x0
+    iter = 0
+    xk = x0
+
+    xk_prev = xk
+    pn_prev = floatmax(T)
+    pn_deriv = zero(T)
+    while (abs(step) > 40eps(T)*xk) && (iter < maxiter)
+        iter += 1
+        pn, pn_deriv = evalLaguerreRec(n, alpha, xk)
+        if abs(pn) >= abs(pn_prev)*(1-50eps(T))
+            # The function values do not decrease enough any more due to roundoff errors.
+            xk = xk_prev # Set to the previous value and quit.
+            break
+        end
+        step = pn / pn_deriv
+        xk_prev = xk
+        xk -= step
+        pn_prev = pn
+    end
+    if ( xk < 0 ) || ( xk > 4n + 2alpha + 2 ) || ( iter == maxiter )
+        @warn "Newton method may not have converged in gausslaguerre_rec($n,$alpha)."
+    end
+    wk = oftype(xk, 0)
+    if computeweight
+        pn_min1, ~ = evalLaguerreRec(n-1, alpha, xk)
+        wk = (n^2 +alpha*n)^(-1/2)/pn_min1/pn_deriv
+    end
+    xk, wk
+end
+
 "Compute Gauss-Laguerre rule based on the recurrence relation, using Newton iterations on an initial guess."
 function gausslaguerre_rec(n, alpha; reduced = false)
     T = typeof(float(alpha))
@@ -547,42 +619,21 @@ function gausslaguerre_rec(n, alpha; reduced = false)
 
         # Use sextic extrapolation for a new initial guess
         xk = (k <= n_pre) ? x_pre[k] : 7*x[k-1] -21*x[k-2] +35*x[k-3] -35*x[k-4] +21*x[k-5] -7*x[k-6] +x[k-7]
-        wk = zero(xk)
 
-        step = xk
-        ov = floatmax(T) # Previous/old value
-        ox = xk # Old x
+        xk, wk = gl_rec_newton(xk, n, alpha, maxiter = 20, computeweight = noUnderflow)
+        if noUnderflow && abs(wk) < underflow_threshold(T)
+            noUnderflow = false
+        end
 
-        l = 0 # Newton-Raphson iteration number
-        max_iter = 20
-        while (abs(step) > 40eps(T)*xk) && (l < max_iter)
-            l += 1
-            pn, pn_deriv = evalLaguerreRec(n, alpha, xk)
-            if abs(pn) >= abs(ov)*(1-50eps(T))
-                # The function values do not decrease enough any more due to roundoff errors.
-                xk = ox # Set to the previous value and quit.
-                break
+        if reduced
+            if !noUnderflow
+                return x, w
+            else
+                push!(x, xk); push!(w, wk)
             end
-            step = pn / pn_deriv
-            ox = xk
-            xk -= step
-            ov = pn
+        else
+            x[k] = xk; w[k] = wk
         end
-        if ( xk < 0 ) || ( xk > 4*n + 2*alpha + 2 ) || ( l == max_iter ) || ( ( k != 1 ) && ( x[k - 1] >= xk ) )
-            @warn "Newton method may not have converged in gausslaguerre_rec($n,$alpha)."
-        end
-
-        # Compute the weight
-        if noUnderflow
-            pn_prev, ~ = evalLaguerreRec(n-1, alpha, xk)
-            wk = (n^2 +alpha*n)^(-1/2)/pn_prev/pn_deriv
-            if wk < underflow_threshold(T)
-                # Frome here on after weights will no longer be computed
-                noUnderflow = false
-            end
-        end
-
-        reduced ? (push!(x, xk); push!(w, wk)) : (x[k] = xk; w[k] = wk)
     end
     x, w
 end
