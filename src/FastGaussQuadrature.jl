@@ -16,6 +16,7 @@ else
     repeat(A, n, m) = repmat(A, n, m)
     repeat(A...; kwds...) = Base.repeat(A...; kwds...)
     eigen(A) = eig(A)
+    const floatmin = realmin
     const floatmax = realmax
 end
 

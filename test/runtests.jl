@@ -2,6 +2,7 @@ using FastGaussQuadrature, Compat
 using Compat.Test, Compat.LinearAlgebra, Compat.Random, SpecialFunctions
 
 if VERSION < v"0.7-"
+    const floatmin = realmin
     const floatmax = realmax
 end
 

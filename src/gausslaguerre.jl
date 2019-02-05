@@ -80,7 +80,7 @@ function gausslaguerre_asy(n::Integer, alpha;
     recompute = false)
 
     if alpha^2/n > 1
-        @warn "A large value of alpha may lead to inaccurate results."
+        Compat.@warn "A large value of alpha may lead to inaccurate results."
     end
 
     ELT = typeof(float(alpha))
@@ -219,7 +219,7 @@ function gausslaguerre_asy(n::Integer, alpha;
 
     # Sanity check
     if ( minimum(x) < 0.0 ) || ( maximum(x) > 4*n + 2*alpha + 2 ) ||  ( minimum(diff(x)) <= 0.0 ) || (minimum(w) < 0.0)
-        @warn "Unexpected inconsistency in the computation of nodes and weights"
+        Compat.@warn "Unexpected inconsistency in the computation of nodes and weights"
     end
 
     x, w
@@ -377,7 +377,7 @@ function gl_bulk_solve_t(n, k, d)
         t -= diff
     end
     if iter == maxiter
-        @warn "Maximal number of iterations reached in the computation of t for the bulk"
+        Compat.@warn "Maximal number of iterations reached in the computation of t for the bulk"
     end
     t
 end
@@ -589,7 +589,7 @@ function gl_rec_newton(x0, n, alpha; maxiter = 20, computeweight = true)
         pn_prev = pn
     end
     if ( xk < 0 ) || ( xk > 4n + 2alpha + 2 ) || ( iter == maxiter )
-        @warn "Newton method may not have converged in gausslaguerre_rec($n,$alpha)."
+        Compat.@warn "Newton method may not have converged in gausslaguerre_rec($n,$alpha)."
     end
     wk = oftype(xk, 0)
     if computeweight
