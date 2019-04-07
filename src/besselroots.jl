@@ -33,10 +33,13 @@ function besselroots(nu::Float64, n::Integer)
         for k in min(n,6)+1:n
             x[k] = McMahon(nu, k)
         end
+    elseif nu > 5
+        for k in 1:n
+            x[k] = McMahon(nu, k)
+        end
     end
     x
 end
-
 
 function McMahon(nu::Float64, k::Integer)
     # McMahon's expansion. This expansion gives very accurate approximation
