@@ -1,7 +1,10 @@
 function gausshermite( n::Integer )
+    x,w = unweightedgausshermite(n)
+    w .*= exp.(-x.^2)
+    x, w
+end
+function unweightedgausshermite( n::Integer )
     # GAUSSHERMITE(n) COMPUTE THE GAUSS-HERMITE NODES AND WEIGHTS IN O(n) time.
-
-
     if n < 0
         x = (Float64[],Float64[])
         return x
@@ -24,14 +27,13 @@ function gausshermite( n::Integer )
 
     if mod(n,2) == 1                              # fold out
         w = [flipdim(x[2][:],1); x[2][2:end]]
-        w = (sqrt(pi)/sum(w))*w
-        x = ([-flipdim(x[1],1) ; x[1][2:end]], w)
+        x = [-flipdim(x[1],1) ; x[1][2:end]]
     else
         w = [flipdim(x[2][:],1); x[2][:]]
-        w = (sqrt(pi)/sum(w))*w
-        x = ([-flipdim(x[1],1) ; x[1]], w)
+        x = [-flipdim(x[1],1) ; x[1]]
     end
-
+    w .*= sqrt(π)/sum(exp.(-x.^2).*w)
+    (x, w)
 end
 
 function hermpts_asy( n::Integer )
@@ -51,10 +53,10 @@ function hermpts_asy( n::Integer )
     end
     t0 = cos.(theta0)
     x = sqrt(2n+1)*t0                          #back to x-variable
-    ders = x.*val[1] .+ sqrt(2).*val[2]
-    w = exp.(-x.^2)./ders.^2;            # quadrature weights
+    w = x.*val[1] .+ sqrt(2).*val[2]
+    w .= 1 ./ w.^2;            # quadrature weights
 
-x = (x, w)
+    (x, w)
 end
 
 function hermpts_rec( n::Integer )
@@ -73,7 +75,7 @@ function hermpts_rec( n::Integer )
         end
     end
     x = x0/sqrt(2)
-    w = exp.((-).(x.^2))./val[2].^2           # quadrature weights
+    w = 1 ./ val[2].^2           # quadrature weights
 
     x = (x, w)
 end
@@ -265,5 +267,5 @@ function hermpts_gw( n::Integer )
     ii = floor(Int, n/2)+1:n
     x = x[ii]
     w = w[ii]
-    return (x,w)
+    return (x,exp.(x.^2).*w)
 end

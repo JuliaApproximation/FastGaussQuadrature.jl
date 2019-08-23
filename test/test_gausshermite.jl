@@ -1,3 +1,5 @@
+using FastGaussQuadrature
+
 # Test for gausshermite()
 
 tol = 1e-14
@@ -28,3 +30,19 @@ x,w = gausshermite( n )
 @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < 300*tol)
 @test abs(x[37] - -13.292221459334638) < tol
 @test abs(w[123] - 0.117419270715955) < 2*tol
+
+
+n = 500
+x,w = gausshermite( n )
+@test isa(x,Vector{Float64})
+@test isa(w,Vector{Float64})
+@test (length(x) == n && length(w) == n)
+@test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < 300*tol)
+
+
+# Test unweighted
+n = 500
+x,w = FastGaussQuadrature.unweightedgausshermite( n )
+@test w[1] ≠ 0
+
+
