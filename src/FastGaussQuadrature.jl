@@ -1,24 +1,12 @@
-__precompile__()
-
 module FastGaussQuadrature
 
-using Compat, SpecialFunctions
+using SpecialFunctions, LinearAlgebra
+cumprod(A::AbstractArray) = Base.cumprod(A, dims=1)
+cumprod(A::AbstractArray, d::Int) = Base.cumprod(A, dims=d)
+sum(A::AbstractArray, n::Int) = Base.sum(A, dims=n)
+sum(A) = Base.sum(A)
+flipdim(A, d) = reverse(A, dims=d)
 
-if VERSION ≥ v"0.7-"
-    using LinearAlgebra
-    cumprod(A::AbstractArray) = Base.cumprod(A, dims=1)
-    cumprod(A::AbstractArray, d::Int) = Base.cumprod(A, dims=d)
-    sum(A::AbstractArray, n::Int) = Base.sum(A, dims=n)
-    sum(A) = Base.sum(A)
-    flipdim(A, d) = reverse(A, dims=d)
-else
-    rmul!(A::AbstractArray, x::Number) = scale!(A, x)
-    repeat(A, n, m) = repmat(A, n, m)
-    repeat(A...; kwds...) = Base.repeat(A...; kwds...)
-    eigen(A) = eig(A)
-    const floatmin = realmin
-    const floatmax = realmax
-end
 
 
 export gausslegendre
