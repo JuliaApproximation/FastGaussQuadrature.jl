@@ -84,15 +84,60 @@ function hermpoly_rec( n::Integer, x0)
     # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
     n < 0 && throw(ArgumentError("n = $n must be positive"))
     # evaluate:
-    Hold = exp(x0^2 / (-4))
+    w = exp(-x0^2 / (4*n))
+    wc = 0 # 0 times we've applied wc
+    Hold = one(x0)
     # n == 0 && return (Hold, 0)
-    H = x0*exp(x0^2 / (-4))
+    H = x0
     for k = 1:n-1
         Hold, H = H, (x0*H/sqrt(k+1) - Hold/sqrt(1+1/k))
+        while abs(H) ≥ 100 && wc < n # regularise
+            H *= w
+            Hold *= w
+            wc += 1
+        end
+        k += 1
     end
+    for _ = wc+1:n
+        H *= w
+        Hold *= w
+    end
+
     # return (value, derivative):
     val = (H, -x0*H + sqrt(n)*Hold)
 end
+
+function hermpoly_rec( r::Base.OneTo, x0)
+    n = maximum(r)
+    # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
+    n < 0 && throw(ArgumentError("n = $n must be positive"))
+    n == 0 && return [exp(-x0^2 / 4)]
+    w = exp(-x0^2 / (4*n))
+    wc = 0 # 0 times we've applied wc
+    ret = Vector{Float64}()
+    Hold = one(x0)
+    push!(ret, Hold)
+    H = x0
+    push!(ret, H)
+    for k = 1:n-1
+        Hold, H = H, (x0*H/sqrt(k+1) - Hold/sqrt(1+1/k))
+        while abs(H) ≥ 100 && wc < n # regularise
+            ret .*= w
+            H *= w
+            Hold *= w
+            wc += 1
+        end
+        push!(ret, H)
+        k += 1
+    end
+    for _ = wc+1:n
+        ret .*= w
+    end
+
+    ret
+end
+
+hermpoly_rec( r::AbstractRange, x0) = hermpoly_rec(Base.OneTo(maximum(r)), x0)[r.+1]
 
 
 function hermpoly_asy_airy(n::Integer, theta)

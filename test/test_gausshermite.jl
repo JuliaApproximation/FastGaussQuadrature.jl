@@ -25,7 +25,7 @@ using FastGaussQuadrature
         f = x -> 1 + x + x^2 + x^3
         @test w'f.(x) ≈ 2.6586807763789717
     end
-    
+
     @testset "Asymptotics"  begin
         n = 251
         x,w = gausshermite( n )
@@ -45,14 +45,37 @@ using FastGaussQuadrature
     end
 
     @testset "Recurrence" begin
-        x = 0.1
-        @test FastGaussQuadrature.hermpoly_rec(1,x)[1] ≈ (2x*exp(-x^2/4))/2
-        FastGaussQuadrature.hermpoly_rec(2,x)
+        x = 0.1 
+        He0 = 1 # Probabilists He_n(x) = H_n(x/sqrt(2))/2^(n/2)
+        He1 = x; He2 = x^2-1; He3 = x*(x^2-3); He4 = 3 - 6x^2 + x^4
+        @test FastGaussQuadrature.hermpoly_rec(1,x)[1] ≈ He1*exp(-x^2/4)
+        @test FastGaussQuadrature.hermpoly_rec(2,x)[1] ≈ He2*exp(-x^2/4)/sqrt(2)
+        @test FastGaussQuadrature.hermpoly_rec(3,x)[1] ≈ He3*exp(-x^2/4)/sqrt(2*3)
+        @test FastGaussQuadrature.hermpoly_rec(4,x)[1] ≈ He4*exp(-x^2/4)/sqrt(2*3*4)
+        
+        @test FastGaussQuadrature.hermpoly_rec(1,60)[1] ≈ 0.0
+        @test FastGaussQuadrature.hermpoly_rec(20^2,20)[1] ≈ 0.20019391063012504
+        @test FastGaussQuadrature.hermpoly_rec(60^2,60)[1] ≈ 0.07918022667865038
+        @test FastGaussQuadrature.hermpoly_rec(60^2,100)[1] ≈ -0.14191347555044895
+        @test FastGaussQuadrature.hermpoly_rec(60^2,130)[1] ≈ 1.7334093012299562E-73
+        @test FastGaussQuadrature.hermpoly_rec(60^2,200)[1] ≈ 0.0
+
+        @test FastGaussQuadrature.hermpoly_rec(1:9,x) ≈ [FastGaussQuadrature.hermpoly_rec(n,x)[1] for n=1:9]
+        @test FastGaussQuadrature.hermpoly_rec(0:20^2,20)[end] ≈ FastGaussQuadrature.hermpoly_rec(20^2,20)[1]
     end
 
-    @testset "Unweighted" begin
+    @testset "Transform" begin
         n = 500
         x,w = FastGaussQuadrature.unweightedgausshermite( n )
         @test w[1] ≠ 0
+
+        V = Array{Float64}(undef,n,n)
+        for k=1:n
+            V[k,:] = FastGaussQuadrature.hermpoly_rec(0:n-1, sqrt(2)*x[k])
+        end
+
+        
+        f = x -> first(FastGaussQuadrature.hermpoly_rec(1, sqrt(2)*x))
+        @test V' * (w.* f.(x)) ≈ [0; 1.7724538509055552; zeros(n-2)]
     end
 end
