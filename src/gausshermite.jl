@@ -63,34 +63,35 @@ function hermpts_rec( n::Integer )
     # Compute Hermite nodes and weights using recurrence relation.
 
     x0 = HermiteInitialGuesses( n )
-    x0 = x0.*sqrt(2)
+    x0 .*= sqrt(2)
     val = x0
-    for kk = 1:10
-        val = hermpoly_rec(n, x0)
-        dx = val[1]./val[2]
+    for _ = 1:10
+        val = hermpoly_rec.(n, x0)
+        dx = first.(val)./last.(val)
         dx[ isnan.( dx ) ] .= 0
-        x0 = x0 - dx
+        x0 .= x0 .- dx
         if norm(dx, Inf)<sqrt(eps(Float64))
             break
         end
     end
-    x = x0/sqrt(2)
-    w = 1 ./ val[2].^2           # quadrature weights
+    x0 ./= sqrt(2)
+    w = 1 ./ last.(val).^2           # quadrature weights
 
-    x = (x, w)
+    x = (x0, w)
 end
 
 function hermpoly_rec( n::Integer, x0)
     # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
-
+    n < 0 && throw(ArgumentError("n = $n must be positive"))
     # evaluate:
-    Hold = exp.(x0.^2 ./ (-4))
-    H = x0.*exp.(x0.^2 ./ (-4))
+    Hold = exp(x0^2 / (-4))
+    # n == 0 && return (Hold, 0)
+    H = x0*exp(x0^2 / (-4))
     for k = 1:n-1
-        Hold, H = H, (x0.*H./sqrt(k+1) - Hold./sqrt(1+1/k))
+        Hold, H = H, (x0*H/sqrt(k+1) - Hold/sqrt(1+1/k))
     end
     # return (value, derivative):
-    val = (H, (-x0.*H + sqrt(n)*Hold))
+    val = (H, -x0*H + sqrt(n)*Hold)
 end
 
 

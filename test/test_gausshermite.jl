@@ -21,7 +21,11 @@ using FastGaussQuadrature
         @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < tol)
         @test abs(x[37] - 5.660357581283058) < tol
         @test abs(w[17] - 0.032202101288908) < tol
+
+        f = x -> 1 + x + x^2 + x^3
+        @test w'f.(x) ≈ 2.6586807763789717
     end
+    
     @testset "Asymptotics"  begin
         n = 251
         x,w = gausshermite( n )
@@ -38,6 +42,12 @@ using FastGaussQuadrature
         @test isa(w,Vector{Float64})
         @test (length(x) == n && length(w) == n)
         @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < 300*tol)
+    end
+
+    @testset "Recurrence" begin
+        x = 0.1
+        @test FastGaussQuadrature.hermpoly_rec(1,x)[1] ≈ (2x*exp(-x^2/4))/2
+        FastGaussQuadrature.hermpoly_rec(2,x)
     end
 
     @testset "Unweighted" begin
