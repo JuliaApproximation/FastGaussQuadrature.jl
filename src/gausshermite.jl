@@ -113,7 +113,8 @@ function hermpoly_rec( r::Base.OneTo, x0)
     # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
     n < 0 && throw(ArgumentError("n = $n must be positive"))
     n == 0 && return [exp(-x0^2 / 4)]
-    w = exp(-x0^2 / (4*n))
+    p = max(1,floor(Int,x0^2/100))
+    w = exp(-x0^2 / (4*p))
     wc = 0 # 0 times we've applied wc
     ret = Vector{Float64}()
     Hold = one(x0)
@@ -122,7 +123,7 @@ function hermpoly_rec( r::Base.OneTo, x0)
     push!(ret, H)
     for k = 1:n-1
         Hold, H = H, (x0*H/sqrt(k+1) - Hold/sqrt(1+1/k))
-        while abs(H) ≥ 100 && wc < n # regularise
+        while abs(H) ≥ 100 && wc < p # regularise
             ret .*= w
             H *= w
             Hold *= w
@@ -131,7 +132,7 @@ function hermpoly_rec( r::Base.OneTo, x0)
         push!(ret, H)
         k += 1
     end
-    ret .*= w^(n-wc)
+    ret .*= w^(p-wc)
 
     ret
 end
