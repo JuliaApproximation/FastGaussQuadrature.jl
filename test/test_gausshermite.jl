@@ -76,6 +76,10 @@ using FastGaussQuadrature
 
         
         f = x -> first(FastGaussQuadrature.hermpoly_rec(1, sqrt(2)*x))
-        @test V' * (w.* f.(x)) ≈ [0; 1.7724538509055552; zeros(n-2)]
+        @test V' * (w.* f.(x)) ≈ [0; sqrt(π); zeros(n-2)]
+        f = x -> first(FastGaussQuadrature.hermpoly_rec(2, sqrt(2)*x))
+        @test V' * (w.* f.(x)) ≈ [0; 0; sqrt(π); zeros(n-3)]
+        f = x -> first(FastGaussQuadrature.hermpoly_rec(3, sqrt(2)*x))
+        @test V' * (w.* f.(x)) ≈ [0; 0; 0; sqrt(π); zeros(n-4)]
     end
 end
