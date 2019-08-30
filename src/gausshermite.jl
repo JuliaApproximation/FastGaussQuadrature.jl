@@ -108,6 +108,7 @@ function hermpoly_rec( n::Integer, x0)
 end
 
 function hermpoly_rec( r::Base.OneTo, x0)
+    isempty(r) && return [1.0]
     n = maximum(r)
     # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
     n < 0 && throw(ArgumentError("n = $n must be positive"))
@@ -130,9 +131,7 @@ function hermpoly_rec( r::Base.OneTo, x0)
         push!(ret, H)
         k += 1
     end
-    for _ = wc+1:n
-        ret .*= w
-    end
+    ret .*= w^(n-wc)
 
     ret
 end
