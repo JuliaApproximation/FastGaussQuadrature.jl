@@ -1,7 +1,10 @@
 function gausshermite( n::Integer )
+    x,w = unweightedgausshermite(n)
+    w .*= exp.(-x.^2)
+    x, w
+end
+function unweightedgausshermite( n::Integer )
     # GAUSSHERMITE(n) COMPUTE THE GAUSS-HERMITE NODES AND WEIGHTS IN O(n) time.
-
-
     if n < 0
         x = (Float64[],Float64[])
         return x
@@ -24,14 +27,13 @@ function gausshermite( n::Integer )
 
     if mod(n,2) == 1                              # fold out
         w = [flipdim(x[2][:],1); x[2][2:end]]
-        w = (sqrt(pi)/sum(w))*w
-        x = ([-flipdim(x[1],1) ; x[1][2:end]], w)
+        x = [-flipdim(x[1],1) ; x[1][2:end]]
     else
         w = [flipdim(x[2][:],1); x[2][:]]
-        w = (sqrt(pi)/sum(w))*w
-        x = ([-flipdim(x[1],1) ; x[1]], w)
+        x = [-flipdim(x[1],1) ; x[1]]
     end
-
+    w .*= sqrt(π)/sum(exp.(-x.^2).*w)
+    (x, w)
 end
 
 function hermpts_asy( n::Integer )
@@ -51,45 +53,91 @@ function hermpts_asy( n::Integer )
     end
     t0 = cos.(theta0)
     x = sqrt(2n+1)*t0                          #back to x-variable
-    ders = x.*val[1] .+ sqrt(2).*val[2]
-    w = exp.(-x.^2)./ders.^2;            # quadrature weights
+    w = x.*val[1] .+ sqrt(2).*val[2]
+    w .= 1 ./ w.^2;            # quadrature weights
 
-x = (x, w)
+    (x, w)
 end
 
 function hermpts_rec( n::Integer )
     # Compute Hermite nodes and weights using recurrence relation.
 
     x0 = HermiteInitialGuesses( n )
-    x0 = x0.*sqrt(2)
+    x0 .*= sqrt(2)
     val = x0
-    for kk = 1:10
-        val = hermpoly_rec(n, x0)
-        dx = val[1]./val[2]
+    for _ = 1:10
+        val = hermpoly_rec.(n, x0)
+        dx = first.(val)./last.(val)
         dx[ isnan.( dx ) ] .= 0
-        x0 = x0 - dx
+        x0 .= x0 .- dx
         if norm(dx, Inf)<sqrt(eps(Float64))
             break
         end
     end
-    x = x0/sqrt(2)
-    w = exp.((-).(x.^2))./val[2].^2           # quadrature weights
+    x0 ./= sqrt(2)
+    w = 1 ./ last.(val).^2           # quadrature weights
 
-    x = (x, w)
+    x = (x0, w)
 end
 
 function hermpoly_rec( n::Integer, x0)
     # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
-
+    n < 0 && throw(ArgumentError("n = $n must be positive"))
     # evaluate:
-    Hold = exp.(x0.^2 ./ (-4))
-    H = x0.*exp.(x0.^2 ./ (-4))
+    w = exp(-x0^2 / (4*n))
+    wc = 0 # 0 times we've applied wc
+    Hold = one(x0)
+    # n == 0 && return (Hold, 0)
+    H = x0
     for k = 1:n-1
-        Hold, H = H, (x0.*H./sqrt(k+1) - Hold./sqrt(1+1/k))
+        Hold, H = H, (x0*H/sqrt(k+1) - Hold/sqrt(1+1/k))
+        while abs(H) ≥ 100 && wc < n # regularise
+            H *= w
+            Hold *= w
+            wc += 1
+        end
+        k += 1
     end
+    for _ = wc+1:n
+        H *= w
+        Hold *= w
+    end
+
     # return (value, derivative):
-    val = (H, (-x0.*H + sqrt(n)*Hold))
+    val = (H, -x0*H + sqrt(n)*Hold)
 end
+
+function hermpoly_rec( r::Base.OneTo, x0)
+    n = maximum(r)
+    # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
+    n < 0 && throw(ArgumentError("n = $n must be positive"))
+    n == 0 && return [exp(-x0^2 / 4)]
+    w = exp(-x0^2 / (4*n))
+    wc = 0 # 0 times we've applied wc
+    ret = Vector{Float64}()
+    Hold = one(x0)
+    push!(ret, Hold)
+    H = x0
+    push!(ret, H)
+    for k = 1:n-1
+        Hold, H = H, (x0*H/sqrt(k+1) - Hold/sqrt(1+1/k))
+        while abs(H) ≥ 100 && wc < n # regularise
+            ret .*= w
+            H *= w
+            Hold *= w
+            wc += 1
+        end
+        push!(ret, H)
+        k += 1
+    end
+    for _ = wc+1:n
+        ret .*= w
+    end
+
+    ret
+end
+
+hermpoly_rec( r::AbstractRange, x0) = hermpoly_rec(Base.OneTo(maximum(r)), x0)[r.+1]
 
 
 function hermpoly_asy_airy(n::Integer, theta)
@@ -265,5 +313,5 @@ function hermpts_gw( n::Integer )
     ii = floor(Int, n/2)+1:n
     x = x[ii]
     w = w[ii]
-    return (x,w)
+    return (x,exp.(x.^2).*w)
 end
