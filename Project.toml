@@ -1,13 +1,13 @@
 name = "FastGaussQuadrature"
 uuid = "442a2c76-b920-505d-bb47-c5924d526838"
-version = "0.4.0"
+version = "0.4.1"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
-SpecialFunctions = "≥ 0.1.0"
+SpecialFunctions = "0.7, 0.8, 0.9"
 julia = "1"
 
 [extras]
