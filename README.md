@@ -4,7 +4,7 @@ FastGaussQuadrature.jl
 
 A Julia package to compute `n`-point Gauss quadrature nodes and weights to 16-digit accuracy and in `O(n)` time. So far the package includes `gausschebyshev()`, `gausslegendre()`, `gaussjacobi()`, `gaussradau()`, `gausslobatto()`, `gausslaguerre()`, and `gausshermite()`. This package is heavily influenced by <a href="http://www.chebfun.org">Chebfun</a>.
 
-An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.org/wiki/Gaussian_quadrature">here</a>. For a quirky account on the history of computing Gauss-Legendre quadrature, see <a href="http://math.mit.edu/~ajt/papers/QuadratureEssay.pdf">[6]</a>.
+An introduction to Gauss quadrature can be found <a href="http://en.wikipedia.org/wiki/Gaussian_quadrature">here</a>. For a quirky account on the history of computing Gauss-Legendre quadrature, see <a href="http://pi.math.cornell.edu/~ajt/papers/QuadratureEssay.pdf">[6]</a>.
 
 ## Our Aims
 
@@ -128,7 +128,7 @@ The paper <a href="http://arxiv.org/abs/1410.5286">[7]</a> also derives an `O(n)
 
 [5] P. Opsomer, (in preparation).
 
-[6] A. Townsend, <a href="http://math.mit.edu/~ajt/papers/QuadratureEssay.pdf"> The race for high order Gauss-Legendre quadrature</a>, in SIAM News, March 2015.  
+[6] A. Townsend, <a href="http://pi.math.cornell.edu/~ajt/papers/QuadratureEssay.pdf"> The race for high order Gauss-Legendre quadrature</a>, in SIAM News, March 2015.  
 
 [7] A. Townsend, T. Trogdon, and S. Olver, <a href="http://arxiv.org/abs/1410.5286">"Fast computation of Gauss quadrature nodes and weights on the whole real line"</a>, to appear in IMA Numer. Anal., 2014.
 
