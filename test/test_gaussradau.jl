@@ -31,9 +31,17 @@ using FastGaussQuadrature, Test
         for n = 1:5
             x, w = gaussradau(n, a, b)
             x̃, w̃ = gaussjacobi(n, a, b)
+
+            @test length(x) == n
+
             @test sum(w) ≈ sum(w̃)
-            @test dot(w,x) ≈ dot(w̃,x̃)
-            @test dot(w,x.^2) ≈ dot(w̃,x̃.^2)
+            for j = 1:2n-2
+                @test dot(w,x.^j) ≈ dot(w̃,x̃.^j)
+            end
         end
+
+        # compare with Gauss-Radau-Legendre
+        @test all(gaussradau(2, 0, 0) .≈ gaussradau(2))
+        @test all(gaussradau(3, 0, 0) .≈ gaussradau(3))
     end
 end

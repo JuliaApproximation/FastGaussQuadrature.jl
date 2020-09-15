@@ -69,12 +69,12 @@
         @test isa(w,Vector{Float64})
     end
 
-    @testset "JacobiRec against a precomputed rule in BigFloat" begin
-        x,w = FastGaussQuadrature.JacobiRec(10, big(0), big(0))
+    @testset "jacobi_rec against a precomputed rule in BigFloat" begin
+        x,w = FastGaussQuadrature.jacobi_rec(10, big(0), big(0))
         @test abs(x[6] - big(1488743389816312108848260011297199846175648594206916957079892535159036173556674)/big(10)^79) < 1e-70
         @test abs(w[4] - big(2692667193099963550912269215694693528597599384608837958005632762421534323191819)/big(10)^79) < 1e-70
 
-        x,w = FastGaussQuadrature.JacobiRec(10, big(2//10), big(-1//30))
+        x,w = FastGaussQuadrature.jacobi_rec(10, big(2//10), big(-1//30))
         @test abs(x[7] - big(4146701176053244724446765533149623814305606864483746748725151214196203624388371)/big(10)^79) < 1e-70
         @test abs(w[3] - big(2482452398859023537636458227096017466104571146686194593251519240011574719667464)/big(10)^79) < 1e-70
     end

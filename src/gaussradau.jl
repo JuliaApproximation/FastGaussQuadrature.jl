@@ -1,5 +1,10 @@
-function gaussradau(n::Integer, a=0.0, b=0.0)
-    T = float(promote_type(eltype(a), eltype(b)))
+"""
+   gaussradau(n)
+
+Creates the n-point Gauss-Radau quadrature rule, with the first node fixed at -1.
+"""
+function gaussradau(n::Integer, T::Type=Float64)
+    a = b = zero(T)
     # RADAUPTS   Gauss-Legendre-Radau Quadrature Nodes and Weights
     if n == 1
         T[-1], T[2]
@@ -15,4 +20,20 @@ function gaussradau(n::Integer, a=0.0, b=0.0)
         pushfirst!(w, convert(T, 2) / n^2)
         x, w
     end
+end
+
+function gaussradau( n_in::Integer, a, b)
+    n = n_in - 1
+    ab = a + b
+    T = float(eltype(ab))
+    μ = jacobimoment(a, b)
+    n_in == 0 && return T[], T[]
+    n_in == 1 && return [-one(T)],[μ]
+    J = jacobi_jacobimatrix(n_in, a, b)
+    aᴿ = -1 + 2n*convert(T,n+a)/((2n+ab)*(2n+ab+1))
+    J.dv[end] = aᴿ
+    x, V = eigen( J ) 
+    w = V[1,:].^2 .* μ
+    x[1] = -1 # fix rounding from eigen computation
+    x, w
 end
