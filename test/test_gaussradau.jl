@@ -26,7 +26,7 @@ using FastGaussQuadrature, Test
         @test dot( w,exp.(x)) ≈ exp(1)-exp(-1)
     end
     @testset "Jacobi" begin
-        a,b = 0.1, 0.2
+        for (a,b) in ((0.1, 0.2), (0,-0.5))
         # compare with Gauss–Jacobi
         for n = 1:5
             x, w = gaussradau(n, a, b)
