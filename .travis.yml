@@ -5,14 +5,11 @@ os:
   - windows
 julia:
   - 1.0
-  - 1.1
-  - 1.2
-  - 1.3
+  - 1.5
   - nightly
 matrix:
   allow_failures:
     - julia: nightly  
 notifications:
   email: false
-after_success:
-  - julia -e 'cd(Pkg.dir("FastGaussQuadrature")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+codecov: true

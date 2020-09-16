@@ -23,20 +23,20 @@ function gaussjacobi(n::Integer, a::Float64, b::Float64)
     elseif min(a,b) <= -1.
         error("The Jacobi parameters correspond to a nonintegrable weight function")
     elseif n <= 100 && max(a,b) < 5.
-        JacobiRec(n, a, b)
+        jacobi_rec(n, a, b)
     elseif n > 100 && max(a,b) < 5.
-        JacobiAsy(n, a, b)
+        jacobi_asy(n, a, b)
     elseif n <= 4000 && max(a,b)>=5.
-        JacobiGW(n, a, b)
+        jacobi_gw(n, a, b)
     else
         error("gaussjacobi($n,$a,$b) is not implemented: n must be ≤ 4000 for max(a,b)≥5.")
     end
 end
 
 # Convenience function: convert any kind of numbers a and b to a joint floating point type
-JacobiRec(n::Integer, a::Number, b::Number) = JacobiRec(n, promote(float(a), float(b))...)
+jacobi_rec(n::Integer, a::Number, b::Number) = jacobi_rec(n, promote(float(a), float(b))...)
 
-function JacobiRec(n::Integer, a::T, b::T) where {T <: AbstractFloat}
+function jacobi_rec(n::Integer, a::T, b::T) where {T <: AbstractFloat}
     #Compute nodes and weights using recurrrence relation.
     x11, x12 = HalfRec(n, a, b, 1)
     x21, x22 = HalfRec(n, b, a, 0)
@@ -90,7 +90,7 @@ function HalfRec(n::Integer, a::T, b::T, flag) where {T <: AbstractFloat}
     P2 = Array{T}(undef,m)
     # Loop until convergence:
     for _ in 1:10
-        innerJacobiRec!(n, x, a, b, P1, P2)
+        innerjacobi_rec!(n, x, a, b, P1, P2)
         dx2 = 0.0
         @inbounds for i in 1:m
             dx = P1[i] / P2[i]
@@ -101,11 +101,11 @@ function HalfRec(n::Integer, a::T, b::T, flag) where {T <: AbstractFloat}
         dx2 > eps(T) / 1e6 || break
     end
     # Once more for derivatives:
-    innerJacobiRec!(n, x, a, b, P1, P2)
+    innerjacobi_rec!(n, x, a, b, P1, P2)
     x, P2
 end
 
-function innerJacobiRec!(n, x, a::T, b::T, P, PP) where {T <: AbstractFloat}
+function innerjacobi_rec!(n, x, a::T, b::T, P, PP) where {T <: AbstractFloat}
     # EVALUATE JACOBI POLYNOMIALS AND ITS DERIVATIVE USING THREE-TERM RECURRENCE.
     N = length(x)
     @inbounds for j = 1:N
@@ -133,12 +133,12 @@ function innerJacobiRec!(n, x, a::T, b::T, P, PP) where {T <: AbstractFloat}
     nothing
 end
 
-function innerJacobiRec(n, x, a::T, b::T) where {T <: AbstractFloat}
+function innerjacobi_rec(n, x, a::T, b::T) where {T <: AbstractFloat}
     # EVALUATE JACOBI POLYNOMIALS AND ITS DERIVATIVE USING THREE-TERM RECURRENCE.
     N = length(x)
     P = Array{T}(undef,N)
     PP = Array{T}(undef,N)
-    innerJacobiRec!(n, x, a, b, P, PP)
+    innerjacobi_rec!(n, x, a, b, P, PP)
     P, PP
 end
 
@@ -155,7 +155,7 @@ function weightsConstant(n, a, b)
     2^(a + b + 1) * C
 end
 
-function JacobiAsy(n, a, b)
+function jacobi_asy(n, a, b)
     # ASY  Compute nodes and weights using asymptotic formulae.
 
     # Determine switch between interior and boundary regions:
@@ -350,12 +350,12 @@ function boundary(n::Integer, a::Float64, b::Float64, npts)
     dx = 1.0; counter = 0;
     # Newton iteration:
     while ( norm(dx,Inf) > sqrt(eps(Float64))/200 && counter < 10)
-        vals = innerJacobiRec(n, x, a, b)   # Evaluate via asymptotic formula.
+        vals = innerjacobi_rec(n, x, a, b)   # Evaluate via asymptotic formula.
         dx = -vals[1]./vals[2]                   # Newton update.
         x += dx                             # Next iterate.
         counter += 1
     end
-    vals = innerJacobiRec(n, x, a, b);     # Evaluate via asymptotic formula.
+    vals = innerjacobi_rec(n, x, a, b);     # Evaluate via asymptotic formula.
     dx = -vals[1]./vals[2]                        # Newton update
     x += dx
 
@@ -369,19 +369,32 @@ function boundary(n::Integer, a::Float64, b::Float64, npts)
     return x, w
 end
 
-function JacobiGW( n::Integer, a::Float64, b::Float64 )
-    # Golub-Welsh for Gauss--Jacobi quadrature. This is used when max(a,b)>5.
-    ab = a + b;
-    ii = 2:n-1;
-    abi = 2*ii .+ ab;
-    aa = Float64[(b - a)/(2 + ab);
-          (b^2 - a^2)./((abi .- 2).*abi);
-          (b^2 - a^2)./((2*n - 2+ab).*(2*n+ab))] ::Vector{Float64}
-    bb = Float64[2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
-          2 .*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi] ::Vector{Float64}
-    TT = SymTridiagonal(aa, bb)  # Jacobi matrix.
-    x, V = eigen( TT )                       # Eigenvalue decomposition.
-    # Quadrature weights:
-    w = V[1,:].^2 .*( 2^(ab+1)*gamma(a+1)*gamma(b+1)/gamma(2+ab) );
-    x, vec(w)
+function jacobi_jacobimatrix(n, a, b)
+    ab = a + b
+    ii = 2:n-1
+    abi = 2*ii .+ ab
+    aa = [(b - a)/(2 + ab);
+          (b^2 - a^2) ./ ((abi .- 2).*abi);
+          (b^2 - a^2) ./ ((2*n - 2+ab).*(2*n+ab))]
+    bb = [2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
+          2 .*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi]
+    SymTridiagonal(aa, bb)
 end
+
+
+function jacobimoment(a,b)
+    ab = a + b
+    T = float(typeof(ab))
+    # Same as 2^(a+b+1) * beta(a+1,b+1)
+    exp((ab+1)*log(convert(T,2)) + loggamma(a+1)+loggamma(b+1)-loggamma(2+ab) )
+end
+
+function jacobi_gw(n::Integer, a, b)
+    # Golub-Welsh for Gauss--Jacobi quadrature. This is used when max(a,b)>5.
+    ab = a + b
+    x, V = eigen( jacobi_jacobimatrix(n,a,b) )                       # Eigenvalue decomposition.
+    # Quadrature weights:
+    w = V[1,:].^2 .* jacobimoment(a,b)
+    x, w
+end
+
