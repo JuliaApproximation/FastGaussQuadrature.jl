@@ -27,16 +27,17 @@ using FastGaussQuadrature, Test
     end
     @testset "Jacobi" begin
         for (a,b) in ((0.1, 0.2), (0,-0.5))
-        # compare with Gauss–Jacobi
-        for n = 1:5
-            x, w = gaussradau(n, a, b)
-            x̃, w̃ = gaussjacobi(n, a, b)
+            # compare with Gauss–Jacobi
+            for n = 1:5
+                x, w = gaussradau(n, a, b)
+                x̃, w̃ = gaussjacobi(n, a, b)
 
-            @test length(x) == n
+                @test length(x) == n
 
-            @test sum(w) ≈ sum(w̃)
-            for j = 1:2n-2
-                @test dot(w,x.^j) ≈ dot(w̃,x̃.^j)
+                @test sum(w) ≈ sum(w̃)
+                for j = 1:2n-2
+                    @test dot(w,x.^j) ≈ dot(w̃,x̃.^j)
+                end
             end
         end
 
