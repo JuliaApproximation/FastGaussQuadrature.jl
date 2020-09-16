@@ -381,9 +381,11 @@ function jacobi_jacobimatrix(n, a, b)
     SymTridiagonal(aa, bb)
 end
 
+
 function jacobimoment(a,b)
     ab = a + b
     T = float(typeof(ab))
+    # Same as 2^(a+b+1) * beta(a+1,b+1)
     exp((ab+1)*log(convert(T,2)) + loggamma(a+1)+loggamma(b+1)-loggamma(2+ab) )
 end
 
