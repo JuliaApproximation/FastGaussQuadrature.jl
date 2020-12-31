@@ -1,7 +1,7 @@
 function gausslobatto(n)
     # Gauss-Legendre-Lobatto Quadrature Nodes and Weights
-    if n == 1
-        error("Lobatto undefined for n = 1.")
+    if n ≤ 1
+        throw(DomainError(n, "Lobatto undefined for n ≤ 1."))
     elseif n == 2
         [-1.0, 1.0], [1.0, 1.0]
     elseif n == 3

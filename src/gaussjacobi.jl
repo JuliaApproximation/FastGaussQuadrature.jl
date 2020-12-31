@@ -5,7 +5,7 @@ gaussjacobi(n::Number, a::Number, b::Number) =
 function gaussjacobi(n::Integer, a::Float64, b::Float64)
     #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
     if n < 0
-        error("gaussjacobi($n,$a,$b) not defined: n must be positive.")
+        throw(DomainError(n, "gaussjacobi($n,$a,$b) not defined: n must be non-negative."))
     elseif a == 0. && b == 0.
         gausslegendre(n)
     elseif a == -0.5 && b == -0.5
@@ -21,7 +21,7 @@ function gaussjacobi(n::Integer, a::Float64, b::Float64)
     elseif n == 1
         [(b - a) / (a + b + 2)], [2^(a + b + 1) * beta(a + 1, b + 1)]
     elseif min(a,b) <= -1.
-        error("The Jacobi parameters correspond to a nonintegrable weight function")
+        throw(DomainError((a,b), "The Jacobi parameters correspond to a nonintegrable weight function"))
     elseif n <= 100 && max(a,b) < 5.
         jacobi_rec(n, a, b)
     elseif n > 100 && max(a,b) < 5.

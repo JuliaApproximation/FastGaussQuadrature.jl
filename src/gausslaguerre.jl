@@ -17,10 +17,10 @@ user can manually invoke the following routines:
 """
 function gausslaguerre(n::Integer, alpha = 0.0; reduced = false)
     if alpha <= -1
-        error("The Laguerre parameter α <= -1 corresponds to a nonintegrable weight function")
+        throw(DomainError(alpha, "The Laguerre parameter α <= -1 corresponds to a nonintegrable weight function"))
     end
     if n < 0
-        error("gausslaguerre($n,$alpha) not defined: n must be positive.")
+        throw(DomainError(n, "gausslaguerre($n,$alpha) not defined: n must be positive."))
     end
 
     # Guess the numerical type from the supplied type of alpha

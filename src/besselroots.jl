@@ -14,7 +14,7 @@ function besselroots(nu::Float64, n::Integer)
 # Later modified by A. Townsend to work in Julia
 
     if n < 0
-        error("Input N must be a positive integer")
+        throw(DomainError(n, "Input N must be a non-negative integer"))
     end
 
     x = zeros(n)
