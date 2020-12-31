@@ -2,30 +2,30 @@ function gausslegendre(n::Integer)
     # GAUSSLEGENDRE(n) COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
   if n <= 0
-        Float64[], Float64[]
+        return Float64[], Float64[]
     elseif n == 1
-        [0.0], [2.0]
+        return [0.0], [2.0]
     elseif n == 2
-        [-1 / sqrt(3), 1 / sqrt(3)], [1.0, 1.0]
+        return [-1 / sqrt(3), 1 / sqrt(3)], [1.0, 1.0]
     elseif n == 3
-        [-sqrt(3 / 5), 0.0, sqrt(3 / 5)], [5 / 9, 8 / 9, 5 / 9]
+        return [-sqrt(3 / 5), 0.0, sqrt(3 / 5)], [5 / 9, 8 / 9, 5 / 9]
     elseif n == 4
         a = 2 / 7 * sqrt(6 / 5)
-        ([-sqrt(3 / 7 + a), -sqrt(3/7-a), sqrt(3/7-a), sqrt(3/7+a)],
+        return ([-sqrt(3 / 7 + a), -sqrt(3/7-a), sqrt(3/7-a), sqrt(3/7+a)],
          [(18 - sqrt(30)) / 36, (18 + sqrt(30)) / 36,
           (18 + sqrt(30)) / 36, (18 - sqrt(30)) / 36])
     elseif n == 5
         b = 2 * sqrt(10 / 7)
-        ([-sqrt(5 + b) / 3, -sqrt(5 - b) / 3, 0.0,
+        return ([-sqrt(5 + b) / 3, -sqrt(5 - b) / 3, 0.0,
           sqrt(5 - b) / 3, sqrt(5 + b) / 3],
          [(322 - 13 * sqrt(70)) / 900, (322 + 13 * sqrt(70)) / 900, 128 / 225,
           (322 + 13 * sqrt(70)) / 900, (322 - 13 * sqrt(70)) / 900])
     elseif n <= 60
         # NEWTON'S METHOD WITH THREE-TERM RECURRENCE:
-        rec(n)
+        return rec(n)
     else
         # USE ASYMPTOTIC EXPANSIONS:
-        asy(n)
+        return asy(n)
     end
 end
 
