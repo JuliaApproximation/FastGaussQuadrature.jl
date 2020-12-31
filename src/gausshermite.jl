@@ -33,7 +33,8 @@ function unweightedgausshermite( n::Integer )
         x = [-flipdim(x[1],1) ; x[1]]
     end
     w .*= sqrt(π)/sum(exp.(-x.^2).*w)
-    (x, w)
+    
+    return x, w
 end
 
 function hermpts_asy( n::Integer )
@@ -56,7 +57,7 @@ function hermpts_asy( n::Integer )
     w = x.*val[1] .+ sqrt(2).*val[2]
     w .= 1 ./ w.^2;            # quadrature weights
 
-    (x, w)
+    return x, w
 end
 
 function hermpts_rec( n::Integer )
@@ -77,7 +78,7 @@ function hermpts_rec( n::Integer )
     x0 ./= sqrt(2)
     w = 1 ./ last.(val).^2           # quadrature weights
 
-    x = (x0, w)
+    return x0, w
 end
 
 function hermpoly_rec( n::Integer, x0)
@@ -105,6 +106,7 @@ function hermpoly_rec( n::Integer, x0)
 
     # return (value, derivative):
     val = (H, -x0*H + sqrt(n)*Hold)
+    return val
 end
 
 function hermpoly_rec( r::Base.OneTo, x0)
@@ -134,7 +136,7 @@ function hermpoly_rec( r::Base.OneTo, x0)
     end
     ret .*= w^(p-wc)
 
-    ret
+    return ret
 end
 
 hermpoly_rec( r::AbstractRange, x0) = hermpoly_rec(Base.OneTo(maximum(r)), x0)[r.+1]
@@ -216,7 +218,7 @@ function hermpoly_asy_airy(n::Integer, theta)
 
     dval = C.*dval
 
-    val = (val, dval)
+    return val, dval
 end
 
 let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875/6967296*t^(-8)+162375596875/334430208*t^(-10))

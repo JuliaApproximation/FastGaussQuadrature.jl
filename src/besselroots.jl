@@ -25,7 +25,7 @@ function besselroots(nu::Float64, n::Integer)
         for k in min(n,20)+1:n
             x[k] = McMahon(nu, k)
         end
-    elseif n>0 && nu >= -1 && nu <= 5
+    elseif n > 0 && nu >= -1 && nu <= 5
         correctFirstFew = Piessens( nu )
         for k in 1:min(n,6)
             x[k] = correctFirstFew[k]

@@ -8,7 +8,6 @@ sum(A) = Base.sum(A)
 flipdim(A, d) = reverse(A, dims=d)
 
 
-
 export gausslegendre
 export gausschebyshev
 export gausslaguerre

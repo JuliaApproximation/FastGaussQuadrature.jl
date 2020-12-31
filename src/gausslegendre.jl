@@ -50,7 +50,8 @@ function asy(n)
         x[i] = -x[i]
     end
     @inbounds mod(n, 2) == 1 && (x[m] = 0.0)
-    x, w
+
+    return x, w
 end
 
 function legpts_nodes(n, a)
@@ -102,7 +103,8 @@ function legpts_nodes(n, a)
     @inbounds for jj = 1:m
         nodes[jj] = cos(nodes[jj])
     end
-    nodes
+
+    return nodes
 end
 
 function legpts_weights(n, m, a)
@@ -172,6 +174,7 @@ function legpts_weights(n, m, a)
     @inbounds for i in 1:m
         weights[i] = 2 / (bJ1[i] * (a[i] / sin(a[i])) * weights[i])
     end
+
     return weights
 end
 
@@ -203,7 +206,8 @@ function rec(n)
     @inbounds for i in 1:n
         PP2[i] = 2 / ((1 - x[i]^2) * PP2[i]^2)
     end
-    x,PP2
+
+    return x,PP2
 end
 
 function innerRec(n, x)
