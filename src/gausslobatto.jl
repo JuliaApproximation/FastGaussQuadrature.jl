@@ -1,4 +1,4 @@
-function gausslobatto(n)
+function gausslobatto(n::Integer)
     # Gauss-Legendre-Lobatto Quadrature Nodes and Weights
     if n ≤ 1
         throw(DomainError(n, "Lobatto undefined for n ≤ 1."))

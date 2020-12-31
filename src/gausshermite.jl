@@ -22,7 +22,8 @@ function unweightedgausshermite(n::Integer)
        x = hermpts_asy(n)
     end
 
-    if mod(n,2) == 1                              # fold out
+    # fold out
+    if mod(n,2) == 1
         w = [flipdim(x[2][:],1); x[2][2:end]]
         x = [-flipdim(x[1],1) ; x[1][2:end]]
     else
@@ -78,9 +79,9 @@ function hermpts_rec(n::Integer)
     return x0, w
 end
 
-function hermpoly_rec( n::Integer, x0)
+function hermpoly_rec(n::Integer, x0)
     # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
-    n < 0 && throw(ArgumentError("n = $n must be positive"))
+    n < 0 && throw(DomainError(n, "Input n must be a non-negative integer"))
     # evaluate:
     w = exp(-x0^2 / (4*n))
     wc = 0 # 0 times we've applied wc
@@ -108,7 +109,7 @@ function hermpoly_rec(r::Base.OneTo, x0)
     isempty(r) && return [1.0]
     n = maximum(r)
     # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
-    n < 0 && throw(DomainError(n, "n = $n must be positive"))
+    n < 0 && throw(DomainError(n, "Input n must be a non-negative integer"))
     n == 0 && return [exp(-x0^2 / 4)]
     p = max(1,floor(Int,x0^2/100))
     w = exp(-x0^2 / (4*p))

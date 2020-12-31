@@ -1,8 +1,4 @@
-gaussjacobi(n::Number, a::Number, b::Number) =
-    gaussjacobi(Int(n),Float64(a),Float64(b))
-
-
-function gaussjacobi(n::Integer, a::Float64, b::Float64)
+function gaussjacobi(n::Integer, a::Real, b::Real)
     #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
     if n < 0
         throw(DomainError(n, "gaussjacobi($n,$a,$b) not defined: n must be non-negative."))
@@ -34,7 +30,7 @@ function gaussjacobi(n::Integer, a::Float64, b::Float64)
 end
 
 # Convenience function: convert any kind of numbers a and b to a joint floating point type
-jacobi_rec(n::Integer, a::Number, b::Number) = jacobi_rec(n, promote(float(a), float(b))...)
+jacobi_rec(n::Integer, a::Real, b::Real) = jacobi_rec(n, promote(float(a), float(b))...)
 
 function jacobi_rec(n::Integer, a::T, b::T) where {T <: AbstractFloat}
     #Compute nodes and weights using recurrrence relation.
@@ -402,7 +398,7 @@ function jacobimoment(a,b)
     ab = a + b
     T = float(typeof(ab))
     # Same as 2^(a+b+1) * beta(a+1,b+1)
-    return exp((ab+1)*log(convert(T,2)) + loggamma(a+1)+loggamma(b+1)-loggamma(2+ab) )
+    return exp((ab+1)*log(convert(T,2)) + loggamma(a+1)+loggamma(b+1)-loggamma(2+ab))
 end
 
 function jacobi_gw(n::Integer, a, b)

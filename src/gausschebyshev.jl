@@ -1,6 +1,10 @@
 function gausschebyshev(n::Integer, kind::Integer=1)
     # GAUSS-CHEBYSHEV NODES AND WEIGHTS.
 
+    if n < 0
+        throw(DomainError(n, "Input n must be a non-negative integer"))
+    end
+
     # Use known explicit formulas. Complexity O(n).
     if kind == 1
         # Gauss-ChebyshevT quadrature, i.e., w(x) = 1/sqrt(1-x^2)
