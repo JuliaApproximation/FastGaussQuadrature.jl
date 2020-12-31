@@ -1,6 +1,11 @@
 using FastGaussQuadrature, Test
 
 @testset "Gauss–Radau" begin
+    @testset "Check error" begin
+        @test_throws DomainError gaussradau(0)
+        @test_throws DomainError gaussradau(0,0,0)
+    end
+
     @testset "Legendre" begin
         n = 1
         x, w = gaussradau(n)

@@ -1,5 +1,13 @@
 @testset "Gauss–Chebyshev" begin
 
+    @testset "Check error" begin
+        @test_throws DomainError gausschebyshev(-1,1)
+        @test_throws DomainError gausschebyshev(-1,2)
+        @test_throws DomainError gausschebyshev(-1,3)
+        @test_throws DomainError gausschebyshev(-1,4)
+        @test_throws ArgumentError gausschebyshev(0,5)
+    end
+
     n = 10
 
     @testset "x.^2" begin
