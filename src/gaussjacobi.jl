@@ -181,7 +181,7 @@ function jacobi_asy(n, a, b)
     return x, w
 end
 
-function asy1(n::Integer, a::Float64, b::Float64, nbdy::Integer)::Tuple{Vector{Float64},Vector{Float64}}
+function asy1(n::Integer, a::Float64, b::Float64, nbdy::Integer)
     # Algorithm for computing nodes and weights in the interior.
 
     # Approximate roots via asymptotic formula: (Gatteschi and Pittaluga, 1985)
@@ -251,7 +251,6 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
     MM = collect(1:M)
 
     # The sine and cosine terms:
-    # alpha = @. ((2n+a+b+MM)/2)*onesT' * (onesM*t') - (a+0.5)*pi/2  # M × N matrix
     alpha = repeat((2n+a+b).+MM,1,N).*repeat(t',M)/2 .- (a+0.5)*pi/2  # M × N matrix
     cosA = cos.(alpha)
     sinA = sin.(alpha)
@@ -330,7 +329,9 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
         s = s + ds
     end
     p2 = exp(s)*sqrt(2*pi)*sqrt((n+a)*(n+b)/(2n+a+b))/(2n+a+b+1)
-    # HELP: what is g???
+    # g is a coefficients in
+    # ``\Gamma(z) = \frac{z^{z-1/2}}{\exp(z)}\sqrt{2\pi} \left(\sum_{i} B_i z^{-i}\right)``, where B_{i-1} = g[i].
+    # https://math.stackexchange.com/questions/1714423/what-is-the-pattern-of-the-stirling-series
     g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,
          5246819/75246796800, -534703531/902961561600,
          -4483131259/86684309913600, 432261921612371/514904800886784000]

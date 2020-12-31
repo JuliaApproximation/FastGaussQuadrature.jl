@@ -2,7 +2,7 @@ function besselroots(nu::Float64, n::Integer)
 #BESSELROOTS    The first N roots of the function J_v(x)
 
 # DEVELOPERS NOTES:
-#   V = 0 --> Full double precision for N <= 20 (Wolfram Alpha), and very
+#   V = 0 --> Full Float64 precision for N <= 20 (Wolfram Alpha), and very
 #     accurate approximations for N > 20 (McMahon's expansion)
 #   -1 <= V <= 5 : V ~= 0 --> 12 decimal figures for the 6 first zeros
 #     (Piessens's Chebyshev series approximations), and very accurate
@@ -60,6 +60,8 @@ function McMahon(nu::Float64, k::Integer)
     x = b - (mu-1)*( ((((((a13/b^2 + a11)/b^2 + a9)/b^2 + a7)/b^2 + a5)/b^2 + a3)/b^2 + a1)/b)
 end
 
+# Roots of Bessel funcion ``J_0`` in Float64.
+# https://mathworld.wolfram.com/BesselFunctionZeros.html
 const J0_roots =
     [   2.4048255576957728
         5.5200781102863106

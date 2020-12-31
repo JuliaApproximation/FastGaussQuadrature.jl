@@ -55,7 +55,7 @@ end
 underflow_threshold(x) = underflow_threshold(typeof(x))
 underflow_threshold(::Type{T}) where {T <: AbstractFloat} = 10floatmin(T)
 
-# We explicitly store the first 11 roots of the Airy function in double precision
+# We explicitly store the first 11 roots of the Airy function in Float64 precision
 const airy_roots = [-2.338107410459767, -4.08794944413097, -5.520559828095551,
     -6.786708090071759, -7.944133587120853, -9.02265085340981, -10.04017434155809,
     -11.00852430373326, -11.93601556323626, -12.828776752865757, -13.69148903521072]

@@ -1,7 +1,9 @@
 function gausslegendre(n::Integer)
     # GAUSSLEGENDRE(n) COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
-  if n <= 0
+    if n < 0
+        throw(DomainError(n, "Input n must be a non-negative integer"))
+    elseif n == 0
         return Float64[], Float64[]
     elseif n == 1
         return [0.0], [2.0]
