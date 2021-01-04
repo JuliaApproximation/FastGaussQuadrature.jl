@@ -2,7 +2,7 @@ function besselroots(nu::Float64, n::Integer)
 #BESSELROOTS    The first N roots of the function J_v(x)
 
 # DEVELOPERS NOTES:
-#   V = 0 --> Full double precision for N <= 20 (Wolfram Alpha), and very
+#   V = 0 --> Full Float64 precision for N <= 20 (Wolfram Alpha), and very
 #     accurate approximations for N > 20 (McMahon's expansion)
 #   -1 <= V <= 5 : V ~= 0 --> 12 decimal figures for the 6 first zeros
 #     (Piessens's Chebyshev series approximations), and very accurate
@@ -14,7 +14,7 @@ function besselroots(nu::Float64, n::Integer)
 # Later modified by A. Townsend to work in Julia
 
     if n < 0
-        error("Input N must be a positive integer")
+        throw(DomainError(n, "Input N must be a non-negative integer"))
     end
 
     x = zeros(n)
@@ -25,7 +25,7 @@ function besselroots(nu::Float64, n::Integer)
         for k in min(n,20)+1:n
             x[k] = McMahon(nu, k)
         end
-    elseif n>0 && nu >= -1 && nu <= 5
+    elseif n > 0 && nu >= -1 && nu <= 5
         correctFirstFew = Piessens( nu )
         for k in 1:min(n,6)
             x[k] = correctFirstFew[k]
@@ -38,7 +38,7 @@ function besselroots(nu::Float64, n::Integer)
             x[k] = McMahon(nu, k)
         end
     end
-    x
+    return x
 end
 
 function McMahon(nu::Float64, k::Integer)
@@ -58,8 +58,11 @@ function McMahon(nu::Float64, k::Integer)
     b = 0.25 * (2nu+4k-1)*pi
     # Evaluate using Horner's scheme:
     x = b - (mu-1)*( ((((((a13/b^2 + a11)/b^2 + a9)/b^2 + a7)/b^2 + a5)/b^2 + a3)/b^2 + a1)/b)
+    return x
 end
 
+# Roots of Bessel funcion ``J_0`` in Float64.
+# https://mathworld.wolfram.com/BesselFunctionZeros.html
 const J0_roots =
     [   2.4048255576957728
         5.5200781102863106
@@ -100,23 +103,23 @@ const Piessens_C = [
        0.000001164419  0.000001903082  0.000000051084  0.000000003677  0.000000000448  0.000000000077
       -0.000000485189 -0.000000781030 -0.000000015501 -0.000000000896 -0.000000000092 -0.000000000014
        0.000000203309  0.000000322648  0.000000004736  0.000000000220  0.000000000019  0.000000000002
-      -0.000000085602 -0.000000134047 -0.000000001456 -0.000000000054 -0.000000000004               0.
-       0.000000036192  0.000000055969  0.000000000450  0.000000000013               0.               0.
-      -0.000000015357 -0.000000023472 -0.000000000140 -0.000000000003               0.               0.
-       0.000000006537  0.000000009882  0.000000000043  0.000000000001               0.               0.
-      -0.000000002791 -0.000000004175 -0.000000000014               0.               0.               0.
-       0.000000001194  0.000000001770  0.000000000004               0.               0.               0.
-      -0.000000000512 -0.000000000752              0.               0.              0.               0.
-       0.000000000220  0.000000000321               0.               0.               0.               0.
-      -0.000000000095 -0.000000000137               0.               0.               0.               0.
-       0.000000000041  0.000000000059               0.               0.               0.               0.
-      -0.000000000018 -0.000000000025               0.               0.               0.               0.
-       0.000000000008  0.000000000011               0.               0.               0.               0.
-      -0.000000000003 -0.000000000005               0.               0.               0.               0.
-       0.000000000001  0.000000000002               0.               0.               0.               0.]
+      -0.000000085602 -0.000000134047 -0.000000001456 -0.000000000054 -0.000000000004               0
+       0.000000036192  0.000000055969  0.000000000450  0.000000000013               0               0
+      -0.000000015357 -0.000000023472 -0.000000000140 -0.000000000003               0               0
+       0.000000006537  0.000000009882  0.000000000043  0.000000000001               0               0
+      -0.000000002791 -0.000000004175 -0.000000000014               0               0               0
+       0.000000001194  0.000000001770  0.000000000004               0               0               0
+      -0.000000000512 -0.000000000752               0               0               0               0
+       0.000000000220  0.000000000321               0               0               0               0
+      -0.000000000095 -0.000000000137               0               0               0               0
+       0.000000000041  0.000000000059               0               0               0               0
+      -0.000000000018 -0.000000000025               0               0               0               0
+       0.000000000008  0.000000000011               0               0               0               0
+      -0.000000000003 -0.000000000005               0               0               0               0
+       0.000000000001  0.000000000002               0               0               0               0]
 
 
-function Piessens( nu::Float64 )
+function Piessens(nu::Float64)
     # Piessens's Chebyshev series approximations (1984). Calculates the 6 first
     # zeros to at least 12 decimal figures in region -1 <= V <= 5:
     C = Piessens_C

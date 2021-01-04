@@ -1,4 +1,10 @@
 @testset "Gauss–Jacobi" begin
+    @testset "check error" begin
+        @test_throws DomainError gaussjacobi(-1, 0.1, 0.1)
+        @test_throws DomainError gaussjacobi(-1, -1.1, 0.1)
+        @test_throws DomainError gaussjacobi(-1, 0.1, -1.1)
+    end
+
     tol = 1e-14
     @testset "a small n" begin
         n = 42

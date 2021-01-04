@@ -17,10 +17,10 @@ user can manually invoke the following routines:
 """
 function gausslaguerre(n::Integer, alpha = 0.0; reduced = false)
     if alpha <= -1
-        error("The Laguerre parameter α <= -1 corresponds to a nonintegrable weight function")
+        throw(DomainError(alpha, "The Laguerre parameter α <= -1 corresponds to a nonintegrable weight function"))
     end
     if n < 0
-        error("gausslaguerre($n,$alpha) not defined: n must be positive.")
+        throw(DomainError(n, "gausslaguerre($n,$alpha) not defined: n must be positive."))
     end
 
     # Guess the numerical type from the supplied type of alpha
@@ -55,7 +55,7 @@ end
 underflow_threshold(x) = underflow_threshold(typeof(x))
 underflow_threshold(::Type{T}) where {T <: AbstractFloat} = 10floatmin(T)
 
-# We explicitly store the first 11 roots of the Airy function in double precision
+# We explicitly store the first 11 roots of the Airy function in Float64 precision
 const airy_roots = [-2.338107410459767, -4.08794944413097, -5.520559828095551,
     -6.786708090071759, -7.944133587120853, -9.02265085340981, -10.04017434155809,
     -11.00852430373326, -11.93601556323626, -12.828776752865757, -13.69148903521072]
@@ -222,7 +222,7 @@ function gausslaguerre_asy(n::Integer, alpha;
         @warn "Unexpected inconsistency in the computation of nodes and weights"
     end
 
-    x, w
+    return x, w
 end
 
 ## Expansion coefficients
@@ -467,7 +467,7 @@ function gausslaguerre_asy_bessel(n, alpha, jak, d, T)
     wk = wfactor * (1 + wk)
     wdelta *= wfactor
 
-    xk, wk, max(xdelta,wdelta)
+    return xk, wk, max(xdelta,wdelta)
 end
 
 function gausslaguerre_asy0_bessel(n, jak, d, T)
@@ -496,7 +496,7 @@ function gausslaguerre_asy0_bessel(n, jak, d, T)
     wk = wfactor * (1 + wk)
     wdelta *= wfactor
 
-    xk, wk, max(xdelta,wdelta)
+    return xk, wk, max(xdelta,wdelta)
 end
 
 function compute_airy_root(n, k)
@@ -527,7 +527,7 @@ function gausslaguerre_asy_airy(n, alpha, k, d, T)
     wk = 4^(1/3)*xk^(alpha+1/3)*exp(-xk)/(airyaiprime(ak))^2
     wdelta = abs(wk)
 
-    xk, wk, max(xdelta,wdelta)
+    return xk, wk, max(xdelta,wdelta)
 end
 
 function gausslaguerre_asy0_airy(n, k, d, T)
@@ -544,7 +544,7 @@ function gausslaguerre_asy0_airy(n, k, d, T)
     wk = 4^(1/3) * xk^(1/3) * exp(-xk) / (airyaiprime(ak))^2
     wdelta = abs(wk)
 
-    xk, wk, max(xdelta,wdelta)
+    return xk, wk, max(xdelta,wdelta)
 end
 
 
@@ -560,7 +560,7 @@ function gausslaguerre_GW(n, alpha)
     T = SymTridiagonal(Vector(alph), beta)  # Jacobi matrix
     x, V = eigen(T)                 # eigenvalue decomposition
     w = gamma(alpha+1)*V[1,:].^2    # Quadrature weights
-    x, vec(w)
+    return x, vec(w)
 end
 
 
@@ -596,7 +596,8 @@ function gl_rec_newton(x0, n, alpha; maxiter = 20, computeweight = true)
         pn_min1, ~ = evalLaguerreRec(n-1, alpha, xk)
         wk = (n^2 +alpha*n)^(-1/2)/pn_min1/pn_deriv
     end
-    xk, wk
+
+    return xk, wk
 end
 
 "Compute Gauss-Laguerre rule based on the recurrence relation, using Newton iterations on an initial guess."
@@ -615,8 +616,6 @@ function gausslaguerre_rec(n, alpha; reduced = false)
 
     noUnderflow = true      # this flag turns false once the weights start to underflow
     for k in 1:n
-        local pn_deriv
-
         # Use sextic extrapolation for a new initial guess
         xk = (k <= n_pre) ? x_pre[k] : 7*x[k-1] -21*x[k-2] +35*x[k-3] -35*x[k-4] +21*x[k-5] -7*x[k-6] +x[k-7]
 
@@ -632,10 +631,12 @@ function gausslaguerre_rec(n, alpha; reduced = false)
                 push!(x, xk); push!(w, wk)
             end
         else
-            x[k] = xk; w[k] = wk
+            x[k] = xk
+            w[k] = wk
         end
     end
-    x, w
+
+    return x, w
 end
 
 
@@ -657,5 +658,6 @@ function evalLaguerreRec(n, alpha, x)
         pnd = (pnold+(x-2*k-alpha+1)*pndold)/sqrt(k*(alpha+k)) -sqrt((k-1+alpha)*(k-1)/k/(alpha+k))*pndprev
         pndprev = pndold
     end
-    pn, pnd
+
+    return pn, pnd
 end

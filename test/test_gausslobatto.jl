@@ -1,4 +1,9 @@
 @testset "Gauss–Lobatto" begin
+    # Check error
+    @test_throws DomainError gausslobatto(-1)
+    @test_throws DomainError gausslobatto(0)
+    @test_throws DomainError gausslobatto(1)
+
     n = 2
     x,w = gausslobatto(n)
     @test x[1] ≈ -1.

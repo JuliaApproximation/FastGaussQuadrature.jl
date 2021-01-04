@@ -1,6 +1,17 @@
 using FastGaussQuadrature
 
 @testset "Gauss–Hermite" begin
+    @testset "Check error" begin
+        @test_throws DomainError gausshermite(-1)
+    end
+    
+    @testset "Small n case" begin
+        @test gausshermite(0) == (Float64[], Float64[])
+        x, w = gausshermite(1)
+        @test x ≈ [0.0]
+        @test w ≈ [√π]
+    end
+
     tol = 1e-14
 
     @testset "Golub-Welsch" begin

@@ -33,6 +33,10 @@ exact_integral_cos2(a) = sqrt(pi)*cos(3/2*atan(a))/2 / (a^2+1)^(3/4)
 Random.seed!(0)
 
 @testset "Gauss–Laguerre" begin
+    # Check error
+    @test_throws DomainError gausslaguerre(1, -1.4)
+    @test_throws DomainError gausslaguerre(-1)
+
     ##########
     # Test the special cases
     ##########
