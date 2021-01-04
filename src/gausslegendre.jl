@@ -1,3 +1,18 @@
+@doc raw"""
+    gausslegendre(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+
+Return nodes and weights of [Gauss-Legendre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_quadrature).
+
+```math
+\int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i)
+```
+
+# Examples
+```jldoctest
+julia> x, w = gausslegendre(3); f(x) = x^4; dot(w, f.(x)) ≈ 2/5
+true
+```
+"""
 function gausslegendre(n::Integer)
     # GAUSSLEGENDRE(n) COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
