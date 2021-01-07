@@ -1,6 +1,49 @@
+@doc raw"""
+    gausslaguerre(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+
+Return nodes and weights of [Gauss-Laguerre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Laguerre_quadrature).
+
+```math
+\int_{0}^{+\infty} f(x) e^{-x} dx \approx \sum_{i=1}^{n} w_i f(x_i)
+```
+
+# Examples
+```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+julia> x, w = gausslaguerre(3);
+
+julia> f(x) = x^4;
+
+julia> I = dot(w, f.(x));
+
+julia> I ≈ 24
+true
+```
 """
-(x,w) = gausslaguerre(n) returns n Gauss-Laguerre nodes and weights.
-(x,w) = gausslaguerre(n, alpha) allows generalized Gauss-Laguerre quadrature.
+function gausslaguerre(n::Integer)
+    return gausslaguerre(n, 0.0)
+end
+
+
+@doc raw"""
+    gausslaguerre(n::Integer, α::Real) -> Tuple{Vector{Float64},Vector{Float64}}
+
+Return nodes and weights of generalized [Gauss-Laguerre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Laguerre_quadrature).
+
+```math
+\int_{0}^{+\infty} f(x) x^\alpha e^{-x} dx \approx \sum_{i=1}^{n} w_i f(x_i)
+```
+
+# Examples
+```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+julia> x, w = gausslaguerre(3, 1.0);
+
+julia> f(x) = x^4;
+
+julia> I = dot(w, f.(x));
+
+julia> I ≈ 120
+true
+```
 
 Optionally, a reduced quadrature rule can be computed. In that case, only those
 points and weights are computed for which the weight does not underflow in the
@@ -15,7 +58,7 @@ user can manually invoke the following routines:
    using the recurrence relation
 - `gausslaguerre_asy`: the asymptotic expansions
 """
-function gausslaguerre(n::Integer, alpha = 0.0; reduced = false)
+function gausslaguerre(n::Integer, alpha::Real; reduced = false)
     if alpha <= -1
         throw(DomainError(alpha, "The Laguerre parameter α <= -1 corresponds to a nonintegrable weight function"))
     end
