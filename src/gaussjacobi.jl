@@ -1,3 +1,24 @@
+@doc raw"""
+    gaussjacobi(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+
+Return nodes and weights of [Gauss-Jacobi quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Jacobi_quadrature).
+
+```math
+\int_{-1}^{1} f(x) (1-x)^\alpha(1+x)^\beta dx \approx \sum_{i=1}^{n} w_i f(x_i)
+```
+
+# Examples
+```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+julia> x, w = gaussjacobi(3, 1/3, -1/3);
+
+julia> f(x) = x^4;
+
+julia> I = dot(w, f.(x));
+
+julia> I ≈ 268π/729(√3)
+true
+```
+"""
 function gaussjacobi(n::Integer, a::Real, b::Real)
     #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
     if n < 0
