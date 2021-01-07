@@ -1,3 +1,24 @@
+@doc raw"""
+    gausshermite(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+
+Return nodes and weights of [Gauss-Hermite quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Hermite_quadrature).
+
+```math
+\int_{-\infty}^{+\infty} f(x) \exp(-x^2) dx \approx \sum_{i=1}^{n} w_i f(x_i)
+```
+
+# Examples
+```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+julia> x, w = gausshermite(3);
+
+julia> f(x) = x^4;
+
+julia> I = dot(w, f.(x));
+
+julia> I ≈ 3(√π)/4
+true
+```
+"""
 function gausshermite(n::Integer)
     x,w = unweightedgausshermite(n)
     w .*= exp.(-x.^2)
