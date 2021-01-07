@@ -8,8 +8,14 @@ Return nodes and weights of [Gauss-Legendre quadrature](https://en.wikipedia.org
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature)
-julia> x, w = gausslegendre(3); f(x) = x^4; dot(w, f.(x)) ≈ 2/5
+```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+julia> x, w = gausslegendre(3);
+
+julia> f(x) = x^4;
+
+julia> I = dot(w, f.(x));
+
+julia> I ≈ 2/5
 true
 ```
 """
