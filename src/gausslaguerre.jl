@@ -554,12 +554,12 @@ end
 Calculate Gauss-Laguerre nodes and weights from the eigenvalue decomposition of
 the Jacobi matrix.
 """
-function gausslaguerre_GW(n, alpha)
-    alph = 2*(1:n) .+ (alpha-1)     # 3-term recurrence coeffs a and b
-    beta = sqrt.( (1:n-1).*(alpha .+ (1:n-1)) )
-    T = SymTridiagonal(Vector(alph), beta)  # Jacobi matrix
+function gausslaguerre_GW(n, α)
+    _α = 2*(1:n) .+ (α-1)     # 3-term recurrence coeffs a and b
+    β = sqrt.( (1:n-1).*(α .+ (1:n-1)) )
+    T = SymTridiagonal(promote(collect(_α), β)...)
     x, V = eigen(T)                 # eigenvalue decomposition
-    w = gamma(alpha+1)*V[1,:].^2    # Quadrature weights
+    w = gamma(α+1)*V[1,:].^2    # Quadrature weights
     return x, vec(w)
 end
 
