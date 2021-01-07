@@ -2,7 +2,7 @@
     gausschebyshev(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
     gausschebyshev(n::Integer, 1) -> Tuple{Vector{Float64},Vector{Float64}}
 
-Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) type I.
+Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 1st kind.
 
 ```math
 \int_{-1}^{1} \frac{f(x)}{\sqrt{1-x^2}} dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -24,7 +24,7 @@ true
 
     gausschebyshev(n::Integer, 2) -> Tuple{Vector{Float64},Vector{Float64}}
 
-Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) type II.
+Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 2nd kind.
 
 ```math
 \int_{-1}^{1} f(x)\sqrt{1-x^2} dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -46,7 +46,7 @@ true
 
     gausschebyshev(n::Integer, 3) -> Tuple{Vector{Float64},Vector{Float64}}
 
-Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) type III.
+Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 3rd kind.
 
 ```math
 \int_{-1}^{1} f(x)\sqrt{1-x^2} dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -68,7 +68,7 @@ true
 
     gausschebyshev(n::Integer, 4) -> Tuple{Vector{Float64},Vector{Float64}}
 
-Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) type IV.
+Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 4th kind.
 
 ```math
 \int_{-1}^{1} f(x)\sqrt{1-x^2} dx \approx \sum_{i=1}^{n} w_i f(x_i)
