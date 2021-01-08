@@ -37,6 +37,14 @@ Random.seed!(0)
     @test_throws DomainError gausslaguerre(1, -1.4)
     @test_throws DomainError gausslaguerre(-1)
 
+    # Check optional argument
+    for n in 0:20
+        @test gausslaguerre(n) == gausslaguerre(n,0) == gausslaguerre(n,0.0)
+    end
+    for n in 30:10:200
+        @test gausslaguerre(n) == gausslaguerre(n,0) == gausslaguerre(n,0.0)
+    end
+
     ##########
     # Test the special cases
     ##########
