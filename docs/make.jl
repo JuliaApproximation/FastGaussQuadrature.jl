@@ -14,7 +14,7 @@ makedocs(;
     ],
     repo = "https://github.com/JuliaApproximation/FastGaussQuadrature.jl/blob/{commit}{path}#L{line}",
     sitename = "FastGaussQuadrature.jl",
-    # authors = "",
+    authors = "Alex Townsend, Sheehan Olver, Peter Opsomer, and contributors.",
     assets = String[],
 )
 
