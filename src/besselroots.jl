@@ -1,3 +1,8 @@
+function besselroots(nu::Real, n::Integer)
+    # FIXME (related issue #22)
+    return besselroots(Float64(nu), n)
+end
+
 function besselroots(nu::Float64, n::Integer)
 #BESSELROOTS    The first N roots of the function J_v(x)
 
@@ -39,6 +44,11 @@ function besselroots(nu::Float64, n::Integer)
         end
     end
     return x
+end
+
+function McMahon(nu::Real, k::Integer)
+    # FIXME (related issue #22)
+    return McMahon(Float64(nu), k)
 end
 
 function McMahon(nu::Float64, k::Integer)

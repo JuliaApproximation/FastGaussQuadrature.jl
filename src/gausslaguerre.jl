@@ -106,7 +106,7 @@ function gausslaguerre_asy(n::Integer, alpha;
         k += 1
         # We iterate until the estimated error of the bulk expansion is smaller
         # than the one of the Bessel expansion
-        jak = (k < k_bessel) ? jak_vector[k] : jak = FastGaussQuadrature.McMahon(alpha, k)
+        jak = (k < k_bessel) ? jak_vector[k] : jak = McMahon(alpha, k)
 
         xk, wk, δ_bessel = gausslaguerre_asy_bessel(n, alpha, jak, d, T)
         xkb, wkb, δ_bulk = gausslaguerre_asy_bulk(n, alpha, k, d, T)
