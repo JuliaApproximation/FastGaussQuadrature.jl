@@ -1,5 +1,5 @@
 function besselroots(nu::Real, n::Integer)
-    # FIXME (related issue #22)
+    # FIXME (related issue #22 and #80)
     return besselroots(Float64(nu), n)
 end
 
@@ -47,7 +47,7 @@ function besselroots(nu::Float64, n::Integer)
 end
 
 function McMahon(nu::Real, k::Integer)
-    # FIXME (related issue #22)
+    # FIXME (related issue #22 and #80)
     return McMahon(Float64(nu), k)
 end
 
@@ -140,6 +140,6 @@ function Piessens(nu::Float64)
         T[k+1] = 2*pt*T[k] - T[k-1]
     end
     y = C'*T
-    y[1] *= sqrt(nu+1)                  # Scale the first root.
-    y
+    y[1] *= sqrt(nu+1)  # Scale the first root.
+    return y
 end
