@@ -257,7 +257,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
     sinA2 = sinA.*cosT .- cosA.*sinT
 
     sinT = hcat(ones(N), cumprod(repeat((csc.(t/2)/2),1,M-1),2))  # M × N matrix
-    cosT = sec.(t/2)/2
+    secT = sec.(t/2)/2
 
     j = 0:M-2
     _vec = @. (0.5+a+j)*(0.5-a+j)/(j+1)/(2n+a+b+j+2)
@@ -303,7 +303,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
         end
         S = S .+ dS1 .+ dS2
         S2 = S2 .+ dS12 .+ dS22
-        SC[:,1:m] = SC[:,1:m].*cosT
+        SC[:,1:m] = SC[:,1:m].*secT
     end
 
     # Constant out the front:
@@ -312,12 +312,12 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
     dsab = (a+b)^2/4n
     ds = dsa + dsb - dsab
     s = ds
-    j = 1
+    i = 1
     dsold = ds # to fix a = -b bug.
     while (abs(ds/s) + dsold) > eps(Float64)/10
         dsold = abs(ds/s)
-        j += 1
-        tmp = -(j-1)/(j+1)/n
+        i += 1
+        tmp = -(i-1)/(i+1)/n
         dsa = tmp*dsa*a
         dsb = tmp*dsb*b
         dsab = tmp*dsab*(a+b)/2
@@ -325,7 +325,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
         s = s + ds
     end
     p2 = exp(s)*sqrt(2*pi)*sqrt((n+a)*(n+b)/(2n+a+b))/(2n+a+b+1)
-    # g is a coefficients in
+    # g is a vector of coefficients in
     # ``\Gamma(z) = \frac{z^{z-1/2}}{\exp(z)}\sqrt{2\pi} \left(\sum_{i} B_i z^{-i}\right)``, where B_{i-1} = g[i].
     # https://math.stackexchange.com/questions/1714423/what-is-the-pattern-of-the-stirling-series
     g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,
