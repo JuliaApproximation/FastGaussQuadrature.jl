@@ -106,7 +106,7 @@ function gausslaguerre_asy(n::Integer, alpha;
         k += 1
         # We iterate until the estimated error of the bulk expansion is smaller
         # than the one of the Bessel expansion
-        jak = (k < k_bessel) ? jak_vector[k] : jak = FastGaussQuadrature.McMahon(alpha, k)
+        jak = (k < k_bessel) ? jak_vector[k] : jak = McMahon(alpha, k)
 
         xk, wk, δ_bessel = gausslaguerre_asy_bessel(n, alpha, jak, d, T)
         xkb, wkb, δ_bulk = gausslaguerre_asy_bulk(n, alpha, k, d, T)
@@ -554,12 +554,12 @@ end
 Calculate Gauss-Laguerre nodes and weights from the eigenvalue decomposition of
 the Jacobi matrix.
 """
-function gausslaguerre_GW(n, alpha)
-    alph = 2*(1:n) .+ (alpha-1)     # 3-term recurrence coeffs a and b
-    beta = sqrt.( (1:n-1).*(alpha .+ (1:n-1)) )
-    T = SymTridiagonal(Vector(alph), beta)  # Jacobi matrix
+function gausslaguerre_GW(n, α)
+    _α = 2*(1:n) .+ (α-1)     # 3-term recurrence coeffs a and b
+    β = sqrt.( (1:n-1).*(α .+ (1:n-1)) )
+    T = SymTridiagonal(promote(collect(_α), β)...)
     x, V = eigen(T)                 # eigenvalue decomposition
-    w = gamma(alpha+1)*V[1,:].^2    # Quadrature weights
+    w = gamma(α+1)*V[1,:].^2    # Quadrature weights
     return x, vec(w)
 end
 
