@@ -382,28 +382,26 @@ function boundary(n::Integer, a::Float64, b::Float64, npts)
 end
 
 function jacobi_jacobimatrix(n, a, b)
-    ab = a + b
+    s = a + b
     ii = 2:n-1
-    abi = 2*ii .+ ab
-    aa = [(b - a)/(2 + ab);
-          (b^2 - a^2) ./ ((abi .- 2).*abi);
-          (b^2 - a^2) ./ ((2n - 2+ab).*(2n+ab))]
-    bb = [2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
-          2 .*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi]
+    si = 2*ii .+ s
+    aa = [(b - a)/(2 + s);
+          (b^2 - a^2) ./ ((si .- 2).*si);
+          (b^2 - a^2) ./ ((2n - 2+s).*(2n+s))]
+    bb = [2*sqrt( (1 + a)*(1 + b)/(s + 3))/(s + 2) ;
+          2 .*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ s)./(si.^2 .- 1))./si]
     return SymTridiagonal(aa, bb)
 end
 
-
 function jacobimoment(a,b)
-    ab = a + b
-    T = float(typeof(ab))
+    s = a + b
+    T = float(typeof(s))
     # Same as 2^(a+b+1) * beta(a+1,b+1)
-    return exp((ab+1)*log(convert(T,2)) + loggamma(a+1)+loggamma(b+1)-loggamma(2+ab))
+    return exp((s+1)*log(convert(T,2)) + loggamma(a+1)+loggamma(b+1)-loggamma(2+s))
 end
 
 function jacobi_gw(n::Integer, a, b)
     # Golub-Welsh for Gauss--Jacobi quadrature. This is used when max(a,b)>5.
-    ab = a + b
     x, V = eigen(jacobi_jacobimatrix(n,a,b))  # Eigenvalue decomposition.
     # Quadrature weights:
     w = V[1,:].^2 .* jacobimoment(a,b)
