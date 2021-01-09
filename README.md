@@ -82,12 +82,12 @@ Gauss quadrature for the weight functions `w(x) = (1-x)^a(1+x)^b`, `a,b>-1`.
 ## The algorithm for Gauss-Radau
 Gauss quadrature for the weight function `w(x)=1`, except the endpoint `-1` is included as a quadrature node.
 
-The Gauss-Radau nodes and weights can be computed via the `(0,1)` Gauss-Jacobi nodes and weights[[3]]("http://epubs.siam.org/doi/abs/10.1137/12088987)>.
+The Gauss-Radau nodes and weights can be computed via the `(0,1)` Gauss-Jacobi nodes and weights[[3]](http://epubs.siam.org/doi/abs/10.1137/120889873).
 
 ## The algorithm for Gauss-Lobatto
 Gauss quadrature for the weight function `w(x)=1`, except the endpoints `-1` and `1` are included as nodes.
 
-The Gauss-Lobatto nodes and weights can be computed via the `(1,1)` Gauss-Jacobi nodes and weights[[3]]("http://epubs.siam.org/doi/abs/10.1137/12088987)>.
+The Gauss-Lobatto nodes and weights can be computed via the `(1,1)` Gauss-Jacobi nodes and weights[[3]](http://epubs.siam.org/doi/abs/10.1137/120889873).
 
 ## The algorithm for Gauss-Laguerre
 Gauss quadrature for the weight function `w(x) = exp(-x)` on `[0,Inf)`
