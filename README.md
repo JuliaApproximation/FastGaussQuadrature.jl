@@ -3,7 +3,8 @@ FastGaussQuadrature.jl
 [![Build Status](https://travis-ci.org/JuliaApproximation/FastGaussQuadrature.jl.svg?branch=master)](https://travis-ci.org/JuliaApproximation/FastGaussQuadrature.jl) [![codecov](https://codecov.io/gh/JuliaApproximation/FastGaussQuadrature.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaApproximation/FastGaussQuadrature.jl)
 
 A Julia package to compute `n`-point Gauss quadrature nodes and weights to 16-digit accuracy and in `O(n)` time.
-So far the package includes `gausschebyshev()`, `gausslegendre()`, `gaussjacobi()`, `gaussradau()`, `gausslobatto()`, `gausslaguerre()`, and `gausshermite()`. This package is heavily influenced by [Chebfun](http://www.chebfun.org).
+So far the package includes `gausschebyshev()`, `gausslegendre()`, `gaussjacobi()`, `gaussradau()`, `gausslobatto()`, `gausslaguerre()`, and `gausshermite()`.
+This package is heavily influenced by [Chebfun](http://www.chebfun.org).
 
 An introduction to Gauss quadrature can be found [here](http://en.wikipedia.org/wiki/Gaussian_quadrature).
 For a quirky account on the history of computing Gauss-Legendre quadrature, see [[6]](http://pi.math.cornell.edu/~ajt/papers/QuadratureEssay.pdf).
@@ -14,36 +15,37 @@ For a quirky account on the history of computing Gauss-Legendre quadrature, see 
 * Change the perception that Gauss quadrature rules are expensive to compute.
 
 ## Examples
-Here we compute `100000` nodes and weights of the Gauss rules. Try a million or ten million.
+Here we compute `100000` nodes and weights of the Gauss rules.
+Try a million or ten million.
 
 ```julia
-@time gausschebyshev( 100000 );
-0.002681 seconds (9 allocations: 1.526 MB, 228.45% gc time)
+julia> @time gausschebyshev( 100000 );
+  0.001788 seconds (4 allocations: 1.526 MiB)
 
-@time gausslegendre( 100000 ); 
-0.007110 seconds (17 allocations: 2.671 MB)
+julia> @time gausslegendre( 100000 );
+  0.002976 seconds (10 allocations: 2.289 MiB)
 
-@time gaussjacobi( 100000, .9, -.1 );
-1.782347 seconds (20.84 k allocations: 1.611 GB, 22.89% gc time)
+julia> @time gaussjacobi( 100000, .9, -.1 );
+  0.894373 seconds (3.59 k allocations: 1.255 GiB, 36.38% gc time)
 
-@time gaussradau( 100000 );
-1.849520 seconds (741.84 k allocations: 1.625 GB, 22.59% gc time)
+julia> @time gaussradau( 100000 );
+  0.684122 seconds (3.59 k allocations: 1.256 GiB, 21.71% gc time)
 
-@time gausslobatto( 100000 );
-1.905083 seconds (819.73 k allocations: 1.626 GB, 23.45% gc time)
+julia> @time gausslobatto( 100000 );
+  0.748166 seconds (3.57 k allocations: 1.256 GiB, 27.78% gc time)
 
-@time gausslaguerre( 100000 )
-.891567 seconds (115.19 M allocations: 3.540 GB, 3.05% gc time)
+julia> @time gausslaguerre( 100000 );
+  0.156867 seconds (7 allocations: 2.292 MiB)
 
-@time gausshermite( 100000 );
-0.249756 seconds (201.22 k allocations: 131.643 MB, 4.92% gc time)
+julia> @time gausshermite( 100000 );
+  0.175055 seconds (386 allocations: 67.916 MiB, 9.18% gc time)
 ```
 
 The paper [[1]](http://epubs.siam.org/doi/abs/10.1137/140954969) computed a billion Gauss-Legendre nodes.
 So here we will do a billion + 1.
-```
-@time gausslegendre( 1000000001 );
-131.392154 seconds (17 allocations: 26.077 GB, 1.17% gc time)
+```julia
+julia> @time gausslegendre( 1000000001 );
+ 24.441304 seconds (10 allocations: 22.352 GiB, 2.08% gc time)
 ```
 (The nodes near the endpoints coalesce in 16-digits of precision.)
 
@@ -100,16 +102,14 @@ Gauss quadrature for the weight function `w(x) = exp(-x^2)` on the real line.
 The paper [[7]](http://arxiv.org/abs/1410.5286) also derives an `O(n)` algorithm for generalized Gauss-Hermite nodes and weights associated to weight functions of the form `exp(-V(x))`, where `V(x)` is a real polynomial.
 
 ## Example usage
-
-
 ```julia
-@time nodes, weights = gausslegendre( 100000 );
-0.007890 seconds (19 allocations: 2.671 MB)
+julia> @time nodes, weights = gausslegendre( 100000 );
+  0.002192 seconds (10 allocations: 2.289 MiB)
 
 # integrates f(x) = x^2 from -1 to 1
-@time dot( weights, nodes.^2 )
-0.004264 seconds (7 allocations: 781.484 KB)
-0.666666666666666
+julia> @time dot( weights, nodes.^2 )
+  0.000184 seconds (7 allocations: 781.422 KiB)
+0.6666666666666665
 ```
 
 ## References:
