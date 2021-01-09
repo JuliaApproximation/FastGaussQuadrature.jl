@@ -202,7 +202,7 @@ function asy1(n::Integer, a::Float64, b::Float64, nbdy::Integer)
     # Algorithm for computing nodes and weights in the interior.
 
     # Approximate roots via asymptotic formula: (Gatteschi and Pittaluga, 1985)
-    K = (2(n:-1:1).+a.-0.5).*pi./(2n+a+b+1)
+    K = π*(2(n:-1:1).+a.-0.5)/(2n+a+b+1)
     tt = K .+ (1/(2n+a+b+1)^2).*((0.25-a^2).*cot.(K/2).-(0.25-b^2).*tan.(K/2))
 
     # First half (x > 0):
@@ -212,14 +212,14 @@ function asy1(n::Integer, a::Float64, b::Float64, nbdy::Integer)
 
     # Newton iteration
     for _ in 1:10
-        vals, ders = feval_asy1(n, a, b, t, idx)         # Evaluate
+        vals, ders = feval_asy1(n, a, b, t, idx)  # Evaluate
         dt = vals./ders
-        t += dt                                     # Next iterate
-        if norm(dt[idx],Inf) > sqrt(eps(Float64))/100
+        t += dt  # Next iterate
+        if norm(dt[idx],Inf) < sqrt(eps(Float64))/100
             break
         end
     end
-    vals, ders = feval_asy1(n, a, b, t, idx)      # Once more for luck
+    vals, ders = feval_asy1(n, a, b, t, idx)  # Once more for luck
     t += vals./ders
 
     # Store
@@ -235,14 +235,14 @@ function asy1(n::Integer, a::Float64, b::Float64, nbdy::Integer)
     # Newton iteration
     for _ in 1:10
         vals, ders = feval_asy1(n, a, b, t, idx)  # Evaluate.
-        dt = vals./ders                                # Newton update.
+        dt = vals./ders  # Newton update.
         t += dt
-        if norm(dt[idx],Inf) > sqrt(eps(Float64))/100
+        if norm(dt[idx],Inf) < sqrt(eps(Float64))/100
             break
         end
     end
-    vals, ders = feval_asy1(n, a, b, t, idx)     # Once more for luck.
-    t += vals./ders                                 # Newton update.
+    vals, ders = feval_asy1(n, a, b, t, idx)  # Once more for luck.
+    t += vals./ders  # Newton update.
 
     # Store
     x_left = cos.(t)
@@ -265,12 +265,11 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
 
     # Some often used vectors/matrices:
     onesM = ones(M)
-    MM = collect(1:M)
 
     # The sine and cosine terms:
-    alpha = repeat((2n+a+b).+MM,1,N).*repeat(t',M)/2 .- (a+0.5)*pi/2  # M × N matrix
-    cosA = cos.(alpha)
-    sinA = sin.(alpha)
+    A = repeat((2n+a+b).+(1:M),1,N).*repeat(t',M)/2 .- (a+1/2)*π/2  # M × N matrix
+    cosA = cos.(A)
+    sinA = sin.(A)
 
     sinT = repeat(sin.(t)',M)
     cosT = repeat(cos.(t)',M)
@@ -278,7 +277,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
     sinA2 = sinA.*cosT .- cosA.*sinT
 
     sinT = hcat(ones(N), cumprod(repeat((csc.(t/2)/2),1,M-1),2))  # M × N matrix
-    cosT = sec.(t/2)/2
+    secT = sec.(t/2)/2
 
     j = 0:M-2
     _vec = @. (0.5+a+j)*(0.5-a+j)/(j+1)/(2n+a+b+j+2)
@@ -286,7 +285,7 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = Matrix(1.0I, M, M)
-    for l = 0:M-1
+    for l in 0:M-1
         j = 0:M-l-2
         _vec = @. (0.5+b+j)*(0.5-b+j)/(j+1)/(2n+a+b+j+l+2)
         P2[l+1,(l+1).+(1:length(j))] = cumprod(_vec,1)
@@ -299,32 +298,34 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = Matrix(1.0I, M, M)
-    for l = 0:M-1
+    for l in 0:M-1
         j = 0:M-l-2
         _vec = @. (0.5+b+j)*(0.5-b+j)/(j+1)/(2*(n-1)+a+b+j+l+2)
         P2[l+1,(l+1).+(1:length(j))] = cumprod(_vec,1)
     end
     PHI2 = repeat(P1,1,M).*P2
 
-    S = S2 = zeros(N)
-    SC = sinT
-    for m = 1:M
+    S = zeros(N)
+    S2 = zeros(N)
+    for m in 1:M
         l = 1:2:m
         phi = PHI[l, m]
-        dS1 = (SC[:, l]*phi) .* cosA[m, :]
+        dS1 = (sinT[:, l]*phi) .* cosA[m, :]
         phi2 = PHI2[l, m]
-        dS12 = (SC[:, l]*phi2) .* cosA2[m, :]
+        dS12 = (sinT[:, l]*phi2) .* cosA2[m, :]
         l = 2:2:m
         phi = PHI[l, m]
-        dS2 = (SC[:, l]*phi) .* sinA[m, :]
+        dS2 = (sinT[:, l]*phi) .* sinA[m, :]
         phi2 = PHI2[l, m]
-        dS22 = (SC[:, l]*phi2) .* sinA2[m, :]
+        dS22 = (sinT[:, l]*phi2) .* sinA2[m, :]
         if m - 1 > 10 && norm(dS1[idx] + dS2[idx], Inf) < eps(Float64) / 100
             break
         end
-        S = S .+ dS1 .+ dS2
-        S2 = S2 .+ dS12 .+ dS22
-        SC[:,1:m] = SC[:,1:m].*cosT
+        S .+= dS1
+        S .+= dS2
+        S2 .+= dS12
+        S2 .+= dS22
+        sinT[:,1:m] .*= secT
     end
 
     # Constant out the front:
@@ -333,38 +334,38 @@ function feval_asy1(n::Integer, a::Float64, b::Float64, t::AbstractVector, idx)
     dsab = (a+b)^2/4n
     ds = dsa + dsb - dsab
     s = ds
-    j = 1
+    i = 1
     dsold = ds # to fix a = -b bug.
-    while (abs(ds/s) + dsold) > eps(Float64)/10
+    while abs(ds/s)+dsold > eps(Float64)/10
         dsold = abs(ds/s)
-        j += 1
-        tmp = -(j-1)/(j+1)/n
+        i += 1
+        tmp = -(i-1)/(i+1)/n
         dsa = tmp*dsa*a
         dsb = tmp*dsb*b
         dsab = tmp*dsab*(a+b)/2
         ds = dsa + dsb - dsab
         s = s + ds
     end
-    p2 = exp(s)*sqrt(2*pi)*sqrt((n+a)*(n+b)/(2n+a+b))/(2n+a+b+1)
-    # g is a coefficients in
+    p2 = exp(s)*sqrt(2π*(n+a)*(n+b)/(2n+a+b))/(2n+a+b+1)
+    # g is a vector of coefficients in
     # ``\Gamma(z) = \frac{z^{z-1/2}}{\exp(z)}\sqrt{2\pi} \left(\sum_{i} B_i z^{-i}\right)``, where B_{i-1} = g[i].
     # https://math.stackexchange.com/questions/1714423/what-is-the-pattern-of-the-stirling-series
     g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,
          5246819/75246796800, -534703531/902961561600,
          -4483131259/86684309913600, 432261921612371/514904800886784000]
     f(g,z) = sum(g.*[1;cumprod(ones(9)./z)])
-    C = p2*(f(g,n+a)*f(g,n+b)/f(g,2n+a+b))*2/pi
-    C2 = C*(a+b+2n).*(a+b+1+2n)./(4*(a+n).*(b+n))
 
-    _vals = vec(C*S')
-    _S2 = vec(C2*S2')
+    # Float constant C, C2
+    C = 2*p2*(f(g,n+a)*f(g,n+b)/f(g,2n+a+b))/π
+    C2 = C*(a+b+2n)*(a+b+1+2n)/(4*(a+n)*(b+n))
+
+    vals = C*S
 
     # Use relation for derivative:
-    ders = (n.*(a.-b.-(2n+a+b).*cos.(t)).*_vals .+ 2 .*(n+a).*(n+b).*_S2)./(2n+a+b)./sin.(t)
-    t_abs = abs.(t)
-    denom = 1 ./ (sin.(t_abs/2).^(a+0.5).*cos.(t_abs/2).^(b+0.5))
-    vals = _vals.*denom
-    ders = ders.*denom
+    ders = (n*((a-b).-(2n+a+b)*cos.(t)).*vals .+ (2*(n+a)*(n+b)*C2).*S2)./(2n+a+b)./sin.(t)
+    denom = 1 ./ (sin.(abs.(t)/2).^(a+0.5).*cos.(t/2).^(b+0.5))
+    vals .*= denom
+    ders .*= denom
 
     return vals, ders
 end
@@ -385,7 +386,7 @@ function boundary(n::Integer, a::Float64, b::Float64, npts)
         vals, ders = innerjacobi_rec(n, x, a, b)   # Evaluate via asymptotic formula.
         dx = -vals./ders                   # Newton update.
         x += dx                             # Next iterate.
-        if norm(dx,Inf) > sqrt(eps(Float64))/200
+        if norm(dx,Inf) < sqrt(eps(Float64))/200
             break
         end
     end
@@ -403,28 +404,26 @@ function boundary(n::Integer, a::Float64, b::Float64, npts)
 end
 
 function jacobi_jacobimatrix(n, a, b)
-    ab = a + b
+    s = a + b
     ii = 2:n-1
-    abi = 2*ii .+ ab
-    aa = [(b - a)/(2 + ab);
-          (b^2 - a^2) ./ ((abi .- 2).*abi);
-          (b^2 - a^2) ./ ((2n - 2+ab).*(2n+ab))]
-    bb = [2*sqrt( (1 + a)*(1 + b)/(ab + 3))/(ab + 2) ;
-          2 .*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ ab)./(abi.^2 .- 1))./abi]
+    si = 2*ii .+ s
+    aa = [(b - a)/(2 + s);
+          (b^2 - a^2) ./ ((si .- 2).*si);
+          (b^2 - a^2) ./ ((2n - 2+s).*(2n+s))]
+    bb = [2*sqrt( (1 + a)*(1 + b)/(s + 3))/(s + 2) ;
+          2 .*sqrt.(ii.*(ii .+ a).*(ii .+ b).*(ii .+ s)./(si.^2 .- 1))./si]
     return SymTridiagonal(aa, bb)
 end
 
-
 function jacobimoment(a,b)
-    ab = a + b
-    T = float(typeof(ab))
+    s = a + b
+    T = float(typeof(s))
     # Same as 2^(a+b+1) * beta(a+1,b+1)
-    return exp((ab+1)*log(convert(T,2)) + loggamma(a+1)+loggamma(b+1)-loggamma(2+ab))
+    return exp((s+1)*log(convert(T,2)) + loggamma(a+1)+loggamma(b+1)-loggamma(2+s))
 end
 
 function jacobi_gw(n::Integer, a, b)
     # Golub-Welsh for Gauss--Jacobi quadrature. This is used when max(a,b)>5.
-    ab = a + b
     x, V = eigen(jacobi_jacobimatrix(n,a,b))  # Eigenvalue decomposition.
     # Quadrature weights:
     w = V[1,:].^2 .* jacobimoment(a,b)
