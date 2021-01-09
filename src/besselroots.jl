@@ -1,11 +1,30 @@
+@doc raw"""
+    gausslegendre(ν::Real, n::Integer) -> Vector{Float64}
+
+Return the first ``n`` roots of [Bessel function](https://en.wikipedia.org/wiki/Bessel_function).
+
+```math
+J_{\nu}(x) = \sum_{m=0}^{\infty}\frac{(-1)^j}{\Gamma(\nu+j+1)j!} \left(\frac{x}{2}\right)^{2j+\nu}
+```
+
+# Examples
+```jldoctest; setup = :(using FastGaussQuadrature, SpecialFunctions)
+julia> ν = 0.3;
+
+julia> roots = besselroots(ν, 10);
+
+julia> zeros = (x -> besselj(ν, x)).(roots);
+
+julia> all(zeros .< 1e-12)
+true
+```
+"""
 function besselroots(nu::Real, n::Integer)
     # FIXME (related issue #22 and #80)
     return besselroots(Float64(nu), n)
 end
 
 function besselroots(nu::Float64, n::Integer)
-#BESSELROOTS    The first N roots of the function J_v(x)
-
 # DEVELOPERS NOTES:
 #   V = 0 --> Full Float64 precision for N <= 20 (Wolfram Alpha), and very
 #     accurate approximations for N > 20 (McMahon's expansion)
