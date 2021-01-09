@@ -6,6 +6,146 @@
     end
 
     tol = 1e-14
+    tol_x = 4e-15
+    tol_w = 1e-13
+
+    n_range = vcat(0:10, 20:10:100, 120:20,300)
+
+    @testset "compatible with Gauss-Legendre" begin
+        α₀ = 0.0
+        β₀ = 0.0
+        α₊ = nextfloat(α₀)
+        β₊ = nextfloat(β₀)
+        α₋ = prevfloat(α₀)
+        β₋ = prevfloat(β₀)
+        for n in n_range
+            x, w = gausslegendre(n)
+            x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
+            x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
+            x₀₋, w₀₋ = gaussjacobi(n, α₀, β₋)
+            x₊₀, w₊₀ = gaussjacobi(n, α₊, β₀)
+            x₊₊, w₊₊ = gaussjacobi(n, α₊, β₊)
+            x₊₋, w₊₋ = gaussjacobi(n, α₊, β₋)
+            x₋₀, w₋₀ = gaussjacobi(n, α₋, β₀)
+            x₋₊, w₋₊ = gaussjacobi(n, α₋, β₊)
+            x₋₋, w₋₋ = gaussjacobi(n, α₋, β₋)
+            for _w in (w₀₀, w₀₊, w₀₋, w₊₀, w₊₊, w₊₋, w₋₀, w₋₊, w₋₋)
+                @test norm(w - _w) < tol_w
+            end
+            for _x in (x₀₀, x₀₊, x₀₋, x₊₀, x₊₊, x₊₋, x₋₀, x₋₊, x₋₋)
+                @test norm(x - _x) < tol_x
+            end
+        end
+    end
+
+    @testset "compatible with Gauss-Chebyshev of the 1st kind" begin
+        α₀ = -1/2
+        β₀ = -1/2
+        α₊ = nextfloat(α₀)
+        β₊ = nextfloat(β₀)
+        α₋ = prevfloat(α₀)
+        β₋ = prevfloat(β₀)
+        for n in n_range
+            x, w = gausschebyshev(n, 1)
+            x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
+            x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
+            x₀₋, w₀₋ = gaussjacobi(n, α₀, β₋)
+            x₊₀, w₊₀ = gaussjacobi(n, α₊, β₀)
+            x₊₊, w₊₊ = gaussjacobi(n, α₊, β₊)
+            x₊₋, w₊₋ = gaussjacobi(n, α₊, β₋)
+            x₋₀, w₋₀ = gaussjacobi(n, α₋, β₀)
+            x₋₊, w₋₊ = gaussjacobi(n, α₋, β₊)
+            x₋₋, w₋₋ = gaussjacobi(n, α₋, β₋)
+            for _w in (w₀₀, w₀₊, w₀₋, w₊₀, w₊₊, w₊₋, w₋₀, w₋₊, w₋₋)
+                @test norm(w - _w) < tol_w
+            end
+            for _x in (x₀₀, x₀₊, x₀₋, x₊₀, x₊₊, x₊₋, x₋₀, x₋₊, x₋₋)
+                @test norm(x - _x) < tol_x
+            end
+        end
+    end
+
+    @testset "compatible with Gauss-Chebyshev of the 2nd kind" begin
+        α₀ = 1/2
+        β₀ = 1/2
+        α₊ = nextfloat(α₀)
+        β₊ = nextfloat(β₀)
+        α₋ = prevfloat(α₀)
+        β₋ = prevfloat(β₀)
+        for n in n_range
+            x, w = gausschebyshev(n, 2)
+            x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
+            x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
+            x₀₋, w₀₋ = gaussjacobi(n, α₀, β₋)
+            x₊₀, w₊₀ = gaussjacobi(n, α₊, β₀)
+            x₊₊, w₊₊ = gaussjacobi(n, α₊, β₊)
+            x₊₋, w₊₋ = gaussjacobi(n, α₊, β₋)
+            x₋₀, w₋₀ = gaussjacobi(n, α₋, β₀)
+            x₋₊, w₋₊ = gaussjacobi(n, α₋, β₊)
+            x₋₋, w₋₋ = gaussjacobi(n, α₋, β₋)
+            for _w in (w₀₀, w₀₊, w₀₋, w₊₀, w₊₊, w₊₋, w₋₀, w₋₊, w₋₋)
+                @test norm(w - _w) < tol_w
+            end
+            for _x in (x₀₀, x₀₊, x₀₋, x₊₀, x₊₊, x₊₋, x₋₀, x₋₊, x₋₋)
+                @test norm(x - _x) < tol_x
+            end
+        end
+    end
+
+    @testset "compatible with Gauss-Chebyshev of the 3rd kind" begin
+        α₀ = -1/2
+        β₀ = 1/2
+        α₊ = nextfloat(α₀)
+        β₊ = nextfloat(β₀)
+        α₋ = prevfloat(α₀)
+        β₋ = prevfloat(β₀)
+        for n in n_range
+            x, w = gausschebyshev(n, 3)
+            x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
+            x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
+            x₀₋, w₀₋ = gaussjacobi(n, α₀, β₋)
+            x₊₀, w₊₀ = gaussjacobi(n, α₊, β₀)
+            x₊₊, w₊₊ = gaussjacobi(n, α₊, β₊)
+            x₊₋, w₊₋ = gaussjacobi(n, α₊, β₋)
+            x₋₀, w₋₀ = gaussjacobi(n, α₋, β₀)
+            x₋₊, w₋₊ = gaussjacobi(n, α₋, β₊)
+            x₋₋, w₋₋ = gaussjacobi(n, α₋, β₋)
+            for _w in (w₀₀, w₀₊, w₀₋, w₊₀, w₊₊, w₊₋, w₋₀, w₋₊, w₋₋)
+                @test norm(w - _w) < tol_w
+            end
+            for _x in (x₀₀, x₀₊, x₀₋, x₊₀, x₊₊, x₊₋, x₋₀, x₋₊, x₋₋)
+                @test norm(x - _x) < tol_x
+            end
+        end
+    end
+
+    @testset "compatible with Gauss-Chebyshev of the 4th kind" begin
+        α₀ = 1/2
+        β₀ = -1/2
+        α₊ = nextfloat(α₀)
+        β₊ = nextfloat(β₀)
+        α₋ = prevfloat(α₀)
+        β₋ = prevfloat(β₀)
+        for n in n_range
+            x, w = gausschebyshev(n, 4)
+            x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
+            x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
+            x₀₋, w₀₋ = gaussjacobi(n, α₀, β₋)
+            x₊₀, w₊₀ = gaussjacobi(n, α₊, β₀)
+            x₊₊, w₊₊ = gaussjacobi(n, α₊, β₊)
+            x₊₋, w₊₋ = gaussjacobi(n, α₊, β₋)
+            x₋₀, w₋₀ = gaussjacobi(n, α₋, β₀)
+            x₋₊, w₋₊ = gaussjacobi(n, α₋, β₊)
+            x₋₋, w₋₋ = gaussjacobi(n, α₋, β₋)
+            for _w in (w₀₀, w₀₊, w₀₋, w₊₀, w₊₊, w₊₋, w₋₀, w₋₊, w₋₋)
+                @test norm(w - _w) < tol_w
+            end
+            for _x in (x₀₀, x₀₊, x₀₋, x₊₀, x₊₊, x₊₋, x₋₀, x₋₊, x₋₋)
+                @test norm(x - _x) < tol_x
+            end
+        end
+    end
+
     @testset "a small n" begin
         n = 42
         a = -.1
