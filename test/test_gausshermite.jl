@@ -16,20 +16,20 @@ using FastGaussQuadrature
 
     @testset "Golub-Welsch" begin
         n = 18;
-        x,w = gausshermite( n )
+        x,w = gausshermite(n)
         @test isa(x,Vector{Float64})
         @test isa(w,Vector{Float64})
         @test (length(x) == n && length(w) == n)
-        @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < tol)
+        @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(π)/2) < tol)
     end
 
     @testset "Recurrence" begin
         n = 42
-        x,w = gausshermite( n )
+        x,w = gausshermite(n)
         @test isa(x,Vector{Float64})
         @test isa(w,Vector{Float64})
         @test (length(x) == n && length(w) == n)
-        @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < tol)
+        @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(π)/2) < tol)
         @test abs(x[37] - 5.660357581283058) < tol
         @test abs(w[17] - 0.032202101288908) < tol
 
@@ -39,20 +39,20 @@ using FastGaussQuadrature
 
     @testset "Asymptotics"  begin
         n = 251
-        x,w = gausshermite( n )
+        x,w = gausshermite(n)
         @test isa(x,Vector{Float64})
         @test isa(w,Vector{Float64})
         @test (length(x) == n && length(w) == n)
-        @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < 300*tol)
+        @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(π)/2) < 300*tol)
         @test abs(x[37] - -13.292221459334638) < tol
         @test abs(w[123] - 0.117419270715955) < 2*tol
 
         n = 500
-        x,w = gausshermite( n )
+        x,w = gausshermite(n)
         @test isa(x,Vector{Float64})
         @test isa(w,Vector{Float64})
         @test (length(x) == n && length(w) == n)
-        @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(pi)/2) < 300*tol)
+        @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(π)/2) < 300*tol)
     end
 
     @testset "Recurrence" begin
@@ -77,7 +77,7 @@ using FastGaussQuadrature
 
     @testset "Transform" begin
         n = 500
-        x,w = FastGaussQuadrature.unweightedgausshermite( n )
+        x,w = FastGaussQuadrature.unweightedgausshermite(n)
         @test w[1] ≠ 0
 
         V = Array{Float64}(undef,n,n)
@@ -85,7 +85,6 @@ using FastGaussQuadrature
             V[k,:] = FastGaussQuadrature.hermpoly_rec(0:n-1, sqrt(2)*x[k])
         end
 
-        
         f = x -> first(FastGaussQuadrature.hermpoly_rec(1, sqrt(2)*x))
         @test V' * (w.* f.(x)) ≈ [0; sqrt(π); zeros(n-2)]
         f = x -> first(FastGaussQuadrature.hermpoly_rec(2, sqrt(2)*x))

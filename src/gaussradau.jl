@@ -47,18 +47,18 @@ function gaussradau(n::Integer, T::Type=Float64)
     end
 end
 
-function gaussradau(n::Integer, a, b)
+function gaussradau(n::Integer, α, β)
     if n ≤ 0
         throw(DomainError(n, "Input N must be a positive integer"))
     end
     m = n - 1
-    s = a + b
+    s = α + β
     T = float(eltype(s))
-    μ = jacobimoment(a, b)
+    μ = jacobimoment(α, β)
     n == 0 && return T[], T[]
     n == 1 && return [-one(T)], [μ]
-    J = jacobi_jacobimatrix(n, a, b)
-    aᴿ = -1 + 2m*convert(T,m+a)/((2m+s)*(2m+s+1))
+    J = jacobi_jacobimatrix(n, α, β)
+    aᴿ = -1 + 2m*convert(T,m+α)/((2m+s)*(2m+s+1))
     J.dv[end] = aᴿ
     x, V = eigen(J)
     w = V[1,:].^2 .* μ

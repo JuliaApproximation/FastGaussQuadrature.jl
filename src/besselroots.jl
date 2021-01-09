@@ -19,62 +19,62 @@ julia> all(zeros .< 1e-12)
 true
 ```
 """
-function besselroots(nu::Real, n::Integer)
+function besselroots(ν::Real, n::Integer)
     # FIXME (related issue #22 and #80)
-    return besselroots(Float64(nu), n)
+    return besselroots(Float64(ν), n)
 end
 
-function besselroots(nu::Float64, n::Integer)
+function besselroots(ν::Float64, n::Integer)
 # DEVELOPERS NOTES:
-#   V = 0 --> Full Float64 precision for N <= 20 (Wolfram Alpha), and very
-#     accurate approximations for N > 20 (McMahon's expansion)
-#   -1 <= V <= 5 : V ~= 0 --> 12 decimal figures for the 6 first zeros
+#   ν = 0 --> Full Float64 precision for n ≤ 20 (Wolfram Alpha), and very
+#     accurate approximations for n > 20 (McMahon's expansion)
+#   -1 ≤ ν ≤ 5 : ν ~= 0 --> 12 decimal figures for the 6 first zeros
 #     (Piessens's Chebyshev series approximations), and very accurate
 #     approximations for the others (McMahon's expansion)
-#   V > 5 --> moderately accurate for the 6 first zeros and good
+#   ν > 5 --> moderately accurate for the 6 first zeros and good
 #     approximations for the others (McMahon's expansion)
 
 # This code was originally written by L. L. Peixoto in MATLAB.
 # Later modified by A. Townsend to work in Julia
 
     if n < 0
-        throw(DomainError(n, "Input N must be a non-negative integer"))
+        throw(DomainError(n, "Input n must be a non-negative integer"))
     end
 
     x = zeros(n)
-    if n > 0 && nu == 0
+    if n > 0 && ν == 0
         for k in 1:min(n,20)
             x[k] = J0_roots[k]
         end
         for k in min(n,20)+1:n
-            x[k] = McMahon(nu, k)
+            x[k] = McMahon(ν, k)
         end
-    elseif n > 0 && nu >= -1 && nu <= 5
-        correctFirstFew = Piessens( nu )
+    elseif n > 0 && ν ≥ -1 && ν ≤ 5
+        correctFirstFew = Piessens( ν )
         for k in 1:min(n,6)
             x[k] = correctFirstFew[k]
         end
         for k in min(n,6)+1:n
-            x[k] = McMahon(nu, k)
+            x[k] = McMahon(ν, k)
         end
-    elseif nu > 5
+    elseif ν > 5
         for k in 1:n
-            x[k] = McMahon(nu, k)
+            x[k] = McMahon(ν, k)
         end
     end
     return x
 end
 
-function McMahon(nu::Real, k::Integer)
+function McMahon(ν::Real, k::Integer)
     # FIXME (related issue #22 and #80)
-    return McMahon(Float64(nu), k)
+    return McMahon(Float64(ν), k)
 end
 
-function McMahon(nu::Float64, k::Integer)
+function McMahon(ν::Float64, k::Integer)
     # McMahon's expansion. This expansion gives very accurate approximation
-    # for the sth zero (s >= 7) in the whole region V >=- 1, and moderate
+    # for the sth zero (s ≥ 7) in the whole region ν ≥ -1, and moderate
     # approximation in other cases.
-    mu = 4nu^2
+    mu = 4ν^2
     a1 = 1 / 8
     a3 = (7mu-31) / 384
     a5 = 4*(3779+mu*(-982+83mu)) / 61440 # Evaluate via Horner's method.
@@ -84,7 +84,7 @@ function McMahon(nu::Float64, k::Integer)
           mu*(-287149133 + 5592657mu))))) / 10463949619200
     a13 = 576 *(423748443625564327 + mu*(-100847472093088506 + mu*(8929489333108377 +
         mu*(-426353946885548+mu*(13172003634537+mu*(-291245357370 + 4148944183mu)))))) / 13059009124761600
-    b = 0.25 * (2nu+4k-1)*pi
+    b = 0.25 * (2ν+4k-1)*π
     # Evaluate using Horner's scheme:
     x = b - (mu-1)*( ((((((a13/b^2 + a11)/b^2 + a9)/b^2 + a7)/b^2 + a5)/b^2 + a3)/b^2 + a1)/b)
     return x
@@ -148,17 +148,17 @@ const Piessens_C = [
        0.000000000001  0.000000000002               0               0               0               0]
 
 
-function Piessens(nu::Float64)
+function Piessens(ν::Float64)
     # Piessens's Chebyshev series approximations (1984). Calculates the 6 first
-    # zeros to at least 12 decimal figures in region -1 <= V <= 5:
+    # zeros to at least 12 decimal figures in region -1 ≤ ν ≤ 5:
     C = Piessens_C
     T = Array{Float64}(undef,size(C,1))
-    pt = (nu-2)/3
+    pt = (ν-2)/3
     T[1], T[2] = 1., pt
     for k = 2:size(C,1)-1
         T[k+1] = 2*pt*T[k] - T[k-1]
     end
     y = C'*T
-    y[1] *= sqrt(nu+1)  # Scale the first root.
+    y[1] *= sqrt(ν+1)  # Scale the first root.
     return y
 end
