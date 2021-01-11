@@ -1,3 +1,24 @@
+@doc raw"""
+    gausshermite(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+
+Return nodes and weights of [Gauss-Hermite quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Hermite_quadrature).
+
+```math
+\int_{-\infty}^{+\infty} f(x) \exp(-x^2) dx \approx \sum_{i=1}^{n} w_i f(x_i)
+```
+
+# Examples
+```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+julia> x, w = gausshermite(3);
+
+julia> f(x) = x^4;
+
+julia> I = dot(w, f.(x));
+
+julia> I ≈ 3(√π)/4
+true
+```
+"""
 function gausshermite(n::Integer)
     x,w = unweightedgausshermite(n)
     w .*= exp.(-x.^2)
@@ -10,11 +31,11 @@ function unweightedgausshermite(n::Integer)
     elseif n == 0
         return Float64[],Float64[]
     elseif n == 1
-        return [0.0],[sqrt(pi)]
-    elseif n <= 20
+        return [0.0],[sqrt(π)]
+    elseif n ≤ 20
        # GW algorithm
        x = hermpts_gw(n)
-    elseif n <= 200
+    elseif n ≤ 200
        # REC algorithm
        x = hermpts_rec(n)
     else
@@ -38,22 +59,22 @@ end
 function hermpts_asy(n::Integer)
     # Compute Hermite nodes and weights using asymptotic formula
 
-    x0 = HermiteInitialGuesses(n) # get initial guesses
+    x0 = HermiteInitialGuesses(n)  # get initial guesses
     t0 = x0./sqrt(2n+1)
-    theta0 = acos.(t0)               # convert to theta-variable
+    theta0 = acos.(t0)  # convert to theta-variable
     val = x0;
     for k = 1:20
         val = hermpoly_asy_airy(n, theta0);
         dt = -val[1]./(sqrt(2).*sqrt(2n+1).*val[2].*sin.(theta0))
-        theta0 .-= dt;                        # Newton update
+        theta0 .-= dt  # Newton update
         if norm(dt,Inf) < sqrt(eps(Float64))/10
            break
         end
     end
     t0 = cos.(theta0)
-    x = sqrt(2n+1)*t0                          #back to x-variable
+    x = sqrt(2n+1)*t0  #back to x-variable
     w = x.*val[1] .+ sqrt(2).*val[2]
-    w .= 1 ./ w.^2;            # quadrature weights
+    w .= 1 ./ w.^2  # quadrature weights
 
     return x, w
 end
@@ -74,7 +95,7 @@ function hermpts_rec(n::Integer)
         end
     end
     x0 ./= sqrt(2)
-    w = 1 ./ last.(val).^2           # quadrature weights
+    w = 1 ./ last.(val).^2  # quadrature weights
 
     return x0, w
 end
@@ -90,7 +111,7 @@ function hermpoly_rec(n::Integer, x0)
     H = x0
     for k = 1:n-1
         Hold, H = H, (x0*H/sqrt(k+1) - Hold/sqrt(1+1/k))
-        while abs(H) ≥ 100 && wc < n # regularise
+        while abs(H) ≥ 100 && wc < n  # regularise
             H *= w
             Hold *= w
             wc += 1
@@ -121,7 +142,7 @@ function hermpoly_rec(r::Base.OneTo, x0)
     push!(ret, H)
     for k = 1:n-1
         Hold, H = H, (x0*H/sqrt(k+1) - Hold/sqrt(1+1/k))
-        while abs(H) ≥ 100 && wc < p # regularise
+        while abs(H) ≥ 100 && wc < p  # regularise
             ret .*= w
             H *= w
             Hold *= w
@@ -149,7 +170,7 @@ function hermpoly_asy_airy(n::Integer, theta)
     eta = 0.5 .* theta .- 0.25 .* sin2T
     chi = -(3*eta/2).^(2/3)
     phi = (-chi./sinT.^2).^(1/4)
-    C = 2*sqrt(pi)*musq^(1/6)*phi
+    C = 2*sqrt(π)*musq^(1/6)*phi
     Airy0 = real.(airyai.(musq.^(2/3).*chi))
     Airy1 = real.(airyaiprime.(musq.^(2/3).*chi))
 
@@ -188,7 +209,7 @@ function hermpoly_asy_airy(n::Integer, theta)
     eta = .5*theta - .25*sin2T
     chi = -(3*eta/2).^(2/3)
     phi = (-chi./sinT.^2).^(1/4)
-    C = sqrt(2*pi)*musq^(1/3)./phi
+    C = sqrt(2*π)*musq^(1/3)./phi
 
     # v polynomials in (12.10.10)
     v0 = 1;
@@ -228,22 +249,22 @@ let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875
         # rappresentazione asintotica, Ann. Mat. Pura Appl. 26 (1947), pp. 283-300.
 
         # Error if n < 20 because initial guesses are based on asymptotic expansions:
-        @assert n>=20
+        @assert n ≥ 20
 
         # Gatteschi formula involving airy roots [1].
         # These initial guess are good near x = sqrt(n+1/2);
         if mod(n,2) == 1
             m = (n-1)>>1
-            bess = (1:m)*pi
+            bess = (1:m)*π
             a = .5
         else
             m = n>>1
-            bess = ((0:m-1) .+ 0.5)*pi
+            bess = ((0:m-1) .+ 0.5)*π
             a = -.5
         end
         nu = 4*m + 2*a + 2
 
-        airyrts = -T(3/8*pi*(4*(1:m) .- 1))
+        airyrts = -T(3/8*π*(4*(1:m) .- 1))
 
         # Roots of Airy function in Float64
         # https://mathworld.wolfram.com/AiryFunctionZeros.html
@@ -266,11 +287,11 @@ let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875
 
         # Tricomi initial guesses. Equation (2.1) in [1]. Originally in [2].
         # These initial guesses are good near x = 0 . Note: zeros of besselj(+/-.5,x)
-        # are integer and half-integer multiples of pi.
+        # are integer and half-integer multiples of π.
         # x_init_bess =  bess/sqrt(nu).*sqrt((1+ (bess.^2+2*(a^2-1))/3/nu^2) );
-        Tnk0 = fill(pi/2,m)
+        Tnk0 = fill(π/2,m)
         nu = (4*m+2*a+2)
-        rhs = ((4*m+3) .- 4*(1:m))/nu*pi
+        rhs = ((4*m+3) .- 4*(1:m))/nu*π
 
         for k = 1:7
             val = Tnk0 .- sin.(Tnk0) .- rhs
@@ -300,14 +321,14 @@ end
 
 
 function hermpts_gw(n::Integer)
-    # Golub--Welsch algorithm. Used here for n<=20.
+    # Golub--Welsch algorithm. Used here for n ≤ 20.
 
-    beta = sqrt.((1:n-1)/2)              # 3-term recurrence coeffs
+    beta = sqrt.((1:n-1)/2)  # 3-term recurrence coeffs
     T = SymTridiagonal(zeros(n), beta)  # Jacobi matrix
-    (D, V) = eigen(T)                      # Eigenvalue decomposition
-    indx = sortperm(D)                  # Hermite points
-    x = D[indx]
-    w = sqrt(pi)*V[1,indx].^2            # weights
+    (D, V) = eigen(T)  # Eigenvalue decomposition
+    indx = sortperm(D)  # Hermite points
+    x = D[indx]  # nodes
+    w = sqrt(π)*V[1,indx].^2  # weights
 
     # Enforce symmetry:
     ii = floor(Int, n/2)+1:n

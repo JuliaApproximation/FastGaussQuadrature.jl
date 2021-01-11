@@ -3,14 +3,14 @@
 # Test integration
 tol = 4.0e-10
 
-# Evaluate the exact integral of x^alpha * p(x) *exp(-x) on the positive halfline,
+# Evaluate the exact integral of x^α * p(x) *exp(-x) on the positive halfline,
 # where p(x) = sum( coef[i+1]*x^i, i=0..degree(p)) is a polynomial given by its
 # monomial coefficients
-function exact_integral_poly(alpha, coef)
+function exact_integral_poly(α, coef)
     # do calculations in BigFloat precision
     z = big(0.0)
     for i in 1:length(coef)
-        z += gamma(big(alpha)+big(i)) * big(coef[i])
+        z += gamma(big(α)+big(i)) * big(coef[i])
     end
     Float64(z)
 end
@@ -24,11 +24,11 @@ function polyval(x, coef)
     z
 end
 
-# Evaluate the exact integral of cos(a*x) * x^alpha * exp(-x) on the positive halfline
-# - For alpha = 0
+# Evaluate the exact integral of cos(a*x) * x^α * exp(-x) on the positive halfline
+# - For α = 0
 exact_integral_cos1(a) = 1/(a^2+1)
-# - For alpha = 1/2
-exact_integral_cos2(a) = sqrt(pi)*cos(3/2*atan(a))/2 / (a^2+1)^(3/4)
+# - For α = 1/2
+exact_integral_cos2(a) = sqrt(π)*cos(3/2*atan(a))/2 / (a^2+1)^(3/4)
 
 Random.seed!(0)
 
@@ -65,11 +65,11 @@ Random.seed!(0)
     ##########
     n = 42
     ##########
-    alpha = 0.0
+    α = 0.0
     coef = rand(17)
-    Z = exact_integral_poly(alpha, coef)
+    Z = exact_integral_poly(α, coef)
 
-    x, w = gausslaguerre(n, alpha)
+    x, w = gausslaguerre(n, α)
     @test isa(x, Vector{Float64})
     @test isa(w, Vector{Float64})
     @test abs(sum(w) - 1) < tol
@@ -78,21 +78,21 @@ Random.seed!(0)
     @test abs(w[7] - 0.055372813167092) < tol
     @test abs(dot(w, polyval(x, coef)) - Z)/abs(Z) < tol
 
-    x_gw, w_gw = FastGaussQuadrature.gausslaguerre_GW(n, alpha)
+    x_gw, w_gw = FastGaussQuadrature.gausslaguerre_GW(n, α)
     @test abs(x[37] - 98.388267163326702) < tol
     @test abs(w[7] - 0.055372813167092) < tol
     @test abs(dot(w, polyval(x, coef)) - Z)/abs(Z) < tol
 
-    x_rec, w_rec = FastGaussQuadrature.gausslaguerre_rec(n, alpha)
+    x_rec, w_rec = FastGaussQuadrature.gausslaguerre_rec(n, α)
     @test abs(x[37] - 98.388267163326702) < tol
     @test abs(w[7] - 0.055372813167092) < tol
     @test abs(dot(w, polyval(x, coef)) - Z)/abs(Z) < tol
 
 
-    alpha = 0.5
+    α = 0.5
     coef = rand(17)
-    Z = exact_integral_poly(alpha, coef)
-    x, w = gausslaguerre(n, alpha)
+    Z = exact_integral_poly(α, coef)
+    x, w = gausslaguerre(n, α)
     @test abs(dot(w, polyval(x, coef)) - Z)/abs(Z) < tol
 
 
@@ -100,8 +100,8 @@ Random.seed!(0)
     ##########
     n = 251
     ##########
-    alpha = 0.0
-    x, w = gausslaguerre(n, alpha)
+    α = 0.0
+    x, w = gausslaguerre(n, α)
     a = 4
     Z = exact_integral_cos1(a)
     @test isa(x, Vector{Float64})
@@ -110,8 +110,8 @@ Random.seed!(0)
     @test abs(w[3] - 0.050091759039996) < tol
     @test abs(dot(w, cos.(a*x)) - Z) < tol
 
-    alpha = 0.5
-    x, w = gausslaguerre(n, alpha)
+    α = 0.5
+    x, w = gausslaguerre(n, α)
     @test abs(x[44] -19.095577327730616 ) < tol
     @test abs(w[18] - 0.026245779174690266) < tol
     a = 4
@@ -122,15 +122,15 @@ Random.seed!(0)
     ############
     n = 350000
     ############
-    alpha = 0.0
+    α = 0.0
     a = 50
     Z = exact_integral_cos1(a)
-    x, w = gausslaguerre(n, alpha)
+    x, w = gausslaguerre(n, α)
     @test isa(x, Vector{Float64})
     @test isa(w, Vector{Float64})
     @test abs(dot(w, cos.(a*x)) - Z) < tol
 
-    alpha = 0.44
-    x, w = gausslaguerre(n, alpha; reduced = true)
+    α = 0.44
+    x, w = gausslaguerre(n, α; reduced = true)
     @test w[end] < 100*floatmin(Float64)
 end

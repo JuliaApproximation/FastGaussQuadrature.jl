@@ -1,2 +1,6 @@
 .DS_Store
 /Manifest.toml
+/dev/
+/docs/build/
+/docs/site/
+/docs/Manifest.toml

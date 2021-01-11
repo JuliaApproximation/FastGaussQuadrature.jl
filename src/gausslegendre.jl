@@ -1,3 +1,24 @@
+@doc raw"""
+    gausslegendre(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+
+Return nodes and weights of [Gauss-Legendre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_quadrature).
+
+```math
+\int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i)
+```
+
+# Examples
+```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+julia> x, w = gausslegendre(3);
+
+julia> f(x) = x^4;
+
+julia> I = dot(w, f.(x));
+
+julia> I ≈ 2/5
+true
+```
+"""
 function gausslegendre(n::Integer)
     # GAUSSLEGENDRE(n) COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
@@ -22,7 +43,7 @@ function gausslegendre(n::Integer)
           sqrt(5 - b) / 3, sqrt(5 + b) / 3],
          [(322 - 13 * sqrt(70)) / 900, (322 + 13 * sqrt(70)) / 900, 128 / 225,
           (322 + 13 * sqrt(70)) / 900, (322 - 13 * sqrt(70)) / 900])
-    elseif n <= 60
+    elseif n ≤ 60
         # NEWTON'S METHOD WITH THREE-TERM RECURRENCE:
         return rec(n)
     else
@@ -63,7 +84,7 @@ function legpts_nodes(n, a)
     nodes = cot.(a)
     vn² = vn * vn
     vn⁴ = vn² * vn²
-    @inbounds if n <= 255
+    @inbounds if n ≤ 255
         vn⁶ = vn⁴ * vn²
         for i in 1:m
             u = nodes[i]
@@ -82,7 +103,7 @@ function legpts_nodes(n, a)
             node = muladd(v4, vn⁶, node)
             nodes[i] = node
         end
-    elseif n <= 3950
+    elseif n ≤ 3950
         for i in 1:m
             u = nodes[i]
             u² = u^2
@@ -114,13 +135,13 @@ function legpts_weights(n, m, a)
     vn = 1 / (n + 0.5)
     vn² = vn^2
     weights = Array{Float64}(undef, m)
-    if n <= 850000
+    if n ≤ 850000
         @inbounds for i in 1:m
             weights[i] = cot(a[i])
         end
     end
     # Split out the part that can be vectorized by llvm
-    @inbounds if n <= 170
+    @inbounds if n ≤ 170
         for i in 1:m
             u = weights[i]
             u² = u^2
@@ -142,7 +163,7 @@ function legpts_weights(n, m, a)
                            3749 / 15360 * u, -1125 / 1024)
             weights[i] = @evalpoly(vn², 1 / vn² + W1, W2, W3)
         end
-    elseif n <= 1500
+    elseif n ≤ 1500
         for i in 1:m
             u = weights[i]
             u² = u^2
@@ -156,7 +177,7 @@ function legpts_weights(n, m, a)
                            muladd(ua, -31.0, 81.0)) / 384
             weights[i] = muladd(vn², W2, 1 / vn² + W1)
         end
-    elseif n <= 850000
+    elseif n ≤ 850000
         for i in 1:m
             u = weights[i]
             u² = u^2

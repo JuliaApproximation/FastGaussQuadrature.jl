@@ -1,7 +1,32 @@
-"""
-   gaussradau(n)
+@doc raw"""
+    gaussradau(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
 
-Creates the n-point Gauss-Radau quadrature rule, with the first node fixed at -1.
+Return nodes and weights of [Gauss-Radau quadrature](https://mathworld.wolfram.com/RadauQuadrature.html).
+
+```math
+\int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i)
+```
+
+# Examples
+```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+julia> x, w = gaussradau(3);
+
+julia> f(x) = x^4;
+
+julia> I = dot(w, f.(x));
+
+julia> I ≈ 2/5
+true
+```
+
+Note that the first node is fixed at -1.
+
+```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+julia> x, w = gaussradau(3);
+
+julia> x[1]
+-1.0
+```
 """
 function gaussradau(n::Integer, T::Type=Float64)
     a = b = zero(T)
@@ -22,18 +47,18 @@ function gaussradau(n::Integer, T::Type=Float64)
     end
 end
 
-function gaussradau(n::Integer, a, b)
+function gaussradau(n::Integer, α, β)
     if n ≤ 0
         throw(DomainError(n, "Input N must be a positive integer"))
     end
     m = n - 1
-    s = a + b
+    s = α + β
     T = float(eltype(s))
-    μ = jacobimoment(a, b)
+    μ = jacobimoment(α, β)
     n == 0 && return T[], T[]
     n == 1 && return [-one(T)], [μ]
-    J = jacobi_jacobimatrix(n, a, b)
-    aᴿ = -1 + 2m*convert(T,m+a)/((2m+s)*(2m+s+1))
+    J = jacobi_jacobimatrix(n, α, β)
+    aᴿ = -1 + 2m*convert(T,m+α)/((2m+s)*(2m+s+1))
     J.dv[end] = aᴿ
     x, V = eigen(J)
     w = V[1,:].^2 .* μ

@@ -7,9 +7,19 @@ julia:
   - 1.0
   - 1.5
   - nightly
-matrix:
-  allow_failures:
-    - julia: nightly  
 notifications:
   email: false
+jobs:
+  allow_failures:
+    - julia: nightly
+  fast_finish: true
+  include:
+    - stage: Documentation
+      julia: nightly
+      script: julia --project=docs -e '
+          using Pkg;
+          Pkg.develop(PackageSpec(path=pwd()));
+          Pkg.instantiate();
+          include("docs/make.jl");'
+      after_success: skip
 codecov: true
