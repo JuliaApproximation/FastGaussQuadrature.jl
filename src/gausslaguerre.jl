@@ -85,7 +85,7 @@ function gausslaguerre(n::Integer, α::Real; reduced = false)
         gausslaguerre_rec(n, α)
     else
         # Use explicit asymptotic expansions for larger n
-        # The restriction to α comes from the restriction on nu in besselroots
+        # The restriction to α comes from the restriction on ν in besselroots
         if α < 5
             gausslaguerre_asy(n, α, reduced=reduced, T=-1, recompute=true)
         else
@@ -652,8 +652,8 @@ function gausslaguerre_rec(n, α; reduced = false)
     # We compute up to 7 starting values for the Newton iterations
     n_pre = min(n, 7)
 
-    nu = 4n + 2α + 2
-    x_pre = T.(besselroots(α, n_pre)).^2 / nu # this is a lower bound by [DLMF 18.16.10]
+    ν = 4n + 2α + 2
+    x_pre = T.(besselroots(α, n_pre)).^2 / ν # this is a lower bound by [DLMF 18.16.10]
 
     noUnderflow = true  # this flag turns false once the weights start to underflow
     for k in 1:n

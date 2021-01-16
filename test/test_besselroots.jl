@@ -6,10 +6,10 @@ import SpecialFunctions: besselj
  
     tol = 1e-11
 
-    # Check if besselj(nu, besselroots(nu, n) ) is small:
+    # Check if besselj(ν, besselroots(ν, n) ) is small:
 
-    for nu = 0.:0.1:5.
+    for ν = 0.:0.1:5.
         n = 10
-        @test norm( besselj.(nu, besselroots(nu, n) ), Inf ) < tol
+        @test norm( besselj.(ν, besselroots(ν, n) ), Inf ) < tol
     end
 end
