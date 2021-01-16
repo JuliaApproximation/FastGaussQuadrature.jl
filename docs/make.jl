@@ -12,6 +12,7 @@ makedocs(;
         "Gaussian Quadrature" => "gaussquadrature.md",
         "Benchmark" => "benchmark.md",
         "Roots of Bessel function" => "besselroots.md",
+        "Misc." => "misc.md",
         "References" => "reference.md",
     ],
     repo = "https://github.com/JuliaApproximation/FastGaussQuadrature.jl/blob/{commit}{path}#L{line}",

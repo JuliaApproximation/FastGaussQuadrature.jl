@@ -253,7 +253,7 @@ end
 """
 Evaluate the interior asymptotic formula at x = cos(t).
 Assumption:
-* length(t) == n ÷ 2
+* `length(t) == n ÷ 2`
 """
 function feval_asy1(n::Integer, α::Float64, β::Float64, t::AbstractVector, idx)
     # Number of terms in the expansion:
