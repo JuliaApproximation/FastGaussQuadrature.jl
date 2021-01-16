@@ -2,6 +2,7 @@ module FastGaussQuadrature
 
 using LinearAlgebra
 using SpecialFunctions
+using StaticArrays
 
 export gausslegendre
 export gausschebyshev
