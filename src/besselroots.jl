@@ -42,15 +42,15 @@ function besselroots(ν::Float64, n::Integer)
     end
 
     x = zeros(n)
-    if n > 0 && ν == 0
+    if ν == 0
         for k in 1:min(n,20)
             x[k] = J0_roots[k]
         end
         for k in min(n,20)+1:n
             x[k] = McMahon(ν, k)
         end
-    elseif n > 0 && ν ≥ -1 && ν ≤ 5
-        correctFirstFew = Piessens( ν )
+    elseif -1 ≤ ν ≤ 5
+        correctFirstFew = Piessens(ν)
         for k in 1:min(n,6)
             x[k] = correctFirstFew[k]
         end
@@ -74,19 +74,19 @@ function McMahon(ν::Float64, k::Integer)
     # McMahon's expansion. This expansion gives very accurate approximation
     # for the sth zero (s ≥ 7) in the whole region ν ≥ -1, and moderate
     # approximation in other cases.
-    mu = 4ν^2
+    μ = 4ν^2
     a1 = 1 / 8
-    a3 = (7mu-31) / 384
-    a5 = 4*(3779+mu*(-982+83mu)) / 61440 # Evaluate via Horner's method.
-    a7 = 6*(-6277237+mu*(1585743+mu*(-153855+6949mu))) / 20643840
-    a9 = 144*(2092163573+mu*(-512062548+mu*(48010494+mu*(-2479316+70197mu)))) / 11890851840
-    a11 = 720 *(-8249725736393+mu*(1982611456181+mu*(-179289628602+mu*(8903961290 +
-          mu*(-287149133 + 5592657mu))))) / 10463949619200
-    a13 = 576 *(423748443625564327 + mu*(-100847472093088506 + mu*(8929489333108377 +
-        mu*(-426353946885548+mu*(13172003634537+mu*(-291245357370 + 4148944183mu)))))) / 13059009124761600
+    a3 = (7μ-31) / 384
+    a5 = 4*(3779+μ*(-982+83μ)) / 61440 # Evaluate via Horner's method.
+    a7 = 6*(-6277237+μ*(1585743+μ*(-153855+6949μ))) / 20643840
+    a9 = 144*(2092163573+μ*(-512062548+μ*(48010494+μ*(-2479316+70197μ)))) / 11890851840
+    a11 = 720 *(-8249725736393+μ*(1982611456181+μ*(-179289628602+μ*(8903961290 +
+          μ*(-287149133 + 5592657μ))))) / 10463949619200
+    a13 = 576 *(423748443625564327 + μ*(-100847472093088506 + μ*(8929489333108377 +
+        μ*(-426353946885548+μ*(13172003634537+μ*(-291245357370 + 4148944183μ)))))) / 13059009124761600
     b = 0.25 * (2ν+4k-1)*π
     # Evaluate using Horner's scheme:
-    x = b - (mu-1)*( ((((((a13/b^2 + a11)/b^2 + a9)/b^2 + a7)/b^2 + a5)/b^2 + a3)/b^2 + a1)/b)
+    x = b - (μ-1)*( ((((((a13/b^2 + a11)/b^2 + a9)/b^2 + a7)/b^2 + a5)/b^2 + a3)/b^2 + a1)/b)
     return x
 end
 
