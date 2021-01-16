@@ -19,7 +19,7 @@ julia> I ≈ 2/5
 true
 ```
 """
-function gausslegendre(n::Integer)
+@inline function gausslegendre(n::Integer)
     # GAUSSLEGENDRE(n) COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
     if n < 0
@@ -230,7 +230,7 @@ function rec(n)
         PP2[i] = 2 / ((1 - x[i]^2) * PP2[i]^2)
     end
 
-    return x,PP2
+    return x, PP2
 end
 
 function innerRec(n, x)
