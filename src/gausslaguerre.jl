@@ -149,7 +149,7 @@ function gausslaguerre_asy(n::Integer, α;
         k += 1
         # We iterate until the estimated error of the bulk expansion is smaller
         # than the one of the Bessel expansion
-        jak = (k < k_bessel) ? jak_vector[k] : jak = McMahon(α, k)
+        jak = (k < k_bessel) ? jak_vector[k] : McMahon(α, k)
 
         xk, wk, δ_bessel = gausslaguerre_asy_bessel(n, α, jak, d, T)
         xkb, wkb, δ_bulk = gausslaguerre_asy_bulk(n, α, k, d, T)
