@@ -106,16 +106,11 @@ const airy_roots = [-2.338107410459767, -4.08794944413097, -5.520559828095551,
 
 
 """
-Compute the Gauss-Laguerre rule using explicit asymptotic expansions for the nodes
-and weights.
+Compute the Gauss-Laguerre rule using explicit asymptotic expansions for the nodes and weights.
 Optional parameters are:
-- `reduced`: compute a reduced quadrature rule, discarding all points and weights
-as soon as the weights underflow
-- `T`: the order of the expansion. Set `T=-1` to determine the order adaptively
-depending on the size of the terms in the expansion
-- `recompute`: if a crude measure of the error is larger than a tolerance,
-the point and weight are recomputed using the (slower) recursion+newton approach,
-yielding more reliable accurate results.
+- `reduced`: compute a reduced quadrature rule, discarding all points and weights as soon as the weights underflow
+- `T`: the order of the expansion. Set `T=-1` to determine the order adaptively depending on the size of the terms in the expansion
+- `recompute`: if a crude measure of the error is larger than a tolerance, the point and weight are recomputed using the (slower) recursion+newton approach, yielding more reliable accurate results.
 """
 function gausslaguerre_asy(n::Integer, α;
     reduced = false,
