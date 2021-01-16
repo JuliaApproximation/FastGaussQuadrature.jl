@@ -15,6 +15,7 @@ export besselroots
 
 import SpecialFunctions: besselj, airyai, airyaiprime
 
+include("constants.jl")
 include("gausslegendre.jl")
 include("gausschebyshev.jl")
 include("gausslaguerre.jl")
