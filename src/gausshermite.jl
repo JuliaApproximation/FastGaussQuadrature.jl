@@ -45,11 +45,11 @@ function unweightedgausshermite(n::Integer)
 
     # fold out
     if mod(n,2) == 1
-        w = [flipdim(x[2][:],1); x[2][2:end]]
-        x = [-flipdim(x[1],1) ; x[1][2:end]]
+        w = [reverse(x[2][:], dims=1); x[2][2:end]]
+        x = [-reverse(x[1], dims=1) ; x[1][2:end]]
     else
-        w = [flipdim(x[2][:],1); x[2][:]]
-        x = [-flipdim(x[1],1) ; x[1]]
+        w = [reverse(x[2][:], dims=1); x[2][:]]
+        x = [-reverse(x[1], dims=1) ; x[1]]
     end
     w .*= sqrt(π)/sum(exp.(-x.^2).*w)
 
@@ -283,7 +283,7 @@ let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875
         x_init = sqrt.(abs.(nu .+ (2^(2/3)).*airyrts.*nu^(1/3) .+ (1/5*2^(4/3)).*airyrts.^2 .* nu^(-1/3) .+
             (11/35-a^2-12/175).*airyrts.^3 ./ nu .+ ((16/1575).*airyrts.+(92/7875).*airyrts.^4).*2^(2/3).*nu^(-5/3) .-
             ((15152/3031875).*airyrts.^5 .+ (1088/121275).*airyrts.^2).*2^(1/3).*nu^(-7/3)))
-        x_init_airy = flipdim(x_init,1)
+        x_init_airy = reverse(x_init, dims=1)
 
         # Tricomi initial guesses. Equation (2.1) in [1]. Originally in [2].
         # These initial guesses are good near x = 0 . Note: zeros of besselj(+/-.5,x)

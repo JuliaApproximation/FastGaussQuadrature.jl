@@ -275,32 +275,32 @@ function feval_asy1(n::Integer, α::Float64, β::Float64, t::AbstractVector, idx
     cosA2 = cosA.*cosT .+ sinA.*sinT
     sinA2 = sinA.*cosT .- cosA.*sinT
 
-    sinT = hcat(ones(N), cumprod(repeat((csc.(t/2)/2),1,M-1),2))  # M × N matrix
+    sinT = hcat(ones(N), cumprod(repeat((csc.(t/2)/2),1,M-1), dims=2))  # M × N matrix
     secT = sec.(t/2)/2
 
     j = 0:M-2
     _vec = @. (0.5+α+j)*(0.5-α+j)/(j+1)/(2n+α+β+j+2)
-    P1 = [1;cumprod(_vec,1)]
+    P1 = [1;cumprod(_vec)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = Matrix(1.0I, M, M)
     for l in 0:M-1
         j = 0:M-l-2
         _vec = @. (0.5+β+j)*(0.5-β+j)/(j+1)/(2n+α+β+j+l+2)
-        P2[l+1,(l+1).+(1:length(j))] = cumprod(_vec,1)
+        P2[l+1,(l+1).+(1:length(j))] = cumprod(_vec)
     end
     PHI = repeat(P1,1,M).*P2
 
     j = 0:M-2
     _vec = @. (0.5+α+j)*(0.5-α+j)/(j+1)/(2*(n-1)+α+β+j+2)
-    P1 = [1;cumprod(_vec,1)]
+    P1 = [1;cumprod(_vec)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = Matrix(1.0I, M, M)
     for l in 0:M-1
         j = 0:M-l-2
         _vec = @. (0.5+β+j)*(0.5-β+j)/(j+1)/(2*(n-1)+α+β+j+l+2)
-        P2[l+1,(l+1).+(1:length(j))] = cumprod(_vec,1)
+        P2[l+1,(l+1).+(1:length(j))] = cumprod(_vec)
     end
     PHI2 = repeat(P1,1,M).*P2
 
