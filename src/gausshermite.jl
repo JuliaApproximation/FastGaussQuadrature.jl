@@ -44,16 +44,16 @@ function unweightedgausshermite(n::Integer)
     end
 
     # fold out
-    if mod(n,2) == 1
-        w = [reverse(x[2][:], dims=1); x[2][2:end]]
-        x = [-reverse(x[1], dims=1) ; x[1][2:end]]
+    if isodd(n)
+        _w = [reverse(x[2][:]); x[2][2:end]]
+        _x = [-reverse(x[1]) ; x[1][2:end]]
     else
-        w = [reverse(x[2][:], dims=1); x[2][:]]
-        x = [-reverse(x[1], dims=1) ; x[1]]
+        _w = [reverse(x[2][:]); x[2][:]]
+        _x = [-reverse(x[1]) ; x[1]]
     end
-    w .*= sqrt(π)/sum(exp.(-x.^2).*w)
+    _w .*= sqrt(π)/sum(exp.(-_x.^2).*_w)
 
-    return x, w
+    return _x, _w
 end
 
 function hermpts_asy(n::Integer)
@@ -61,17 +61,17 @@ function hermpts_asy(n::Integer)
 
     x0 = HermiteInitialGuesses(n)  # get initial guesses
     t0 = x0./sqrt(2n+1)
-    theta0 = acos.(t0)  # convert to theta-variable
+    θ = acos.(t0)  # convert to theta-variable
     val = x0;
-    for k = 1:20
-        val = hermpoly_asy_airy(n, theta0);
-        dt = -val[1]./(sqrt(2).*sqrt(2n+1).*val[2].*sin.(theta0))
-        theta0 .-= dt  # Newton update
-        if norm(dt,Inf) < sqrt(eps(Float64))/10
+    for _ in 1:20
+        val = hermpoly_asy_airy(n, θ);
+        dθ = -val[1]./(sqrt(2).*sqrt(2n+1).*val[2].*sin.(θ))
+        θ .-= dθ  # Newton update
+        if norm(dθ,Inf) < sqrt(eps(Float64))/10
            break
         end
     end
-    t0 = cos.(theta0)
+    t0 = cos.(θ)
     x = sqrt(2n+1)*t0  #back to x-variable
     w = x.*val[1] .+ sqrt(2).*val[2]
     w .= 1 ./ w.^2  # quadrature weights
@@ -85,12 +85,12 @@ function hermpts_rec(n::Integer)
     x0 = HermiteInitialGuesses(n)
     x0 .*= sqrt(2)
     val = x0
-    for _ = 1:10
+    for _ in 1:10
         val = hermpoly_rec.(n, x0)
         dx = first.(val)./last.(val)
         dx[ isnan.( dx ) ] .= 0
         x0 .= x0 .- dx
-        if norm(dx, Inf)<sqrt(eps(Float64))
+        if norm(dx, Inf) < sqrt(eps(Float64))
             break
         end
     end
@@ -262,7 +262,7 @@ let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875
             bess = ((0:m-1) .+ 0.5)*π
             a = -.5
         end
-        nu = 4*m + 2*a + 2
+        ν = 4m + 2a + 2
 
         airyrts = -T(3/8*π*(4*(1:m) .- 1))
 
@@ -280,18 +280,18 @@ let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875
             -12.828776752865757]
         airyrts[1:10] = airyrts_exact  # correct first 10.
 
-        x_init = sqrt.(abs.(nu .+ (2^(2/3)).*airyrts.*nu^(1/3) .+ (1/5*2^(4/3)).*airyrts.^2 .* nu^(-1/3) .+
-            (11/35-a^2-12/175).*airyrts.^3 ./ nu .+ ((16/1575).*airyrts.+(92/7875).*airyrts.^4).*2^(2/3).*nu^(-5/3) .-
-            ((15152/3031875).*airyrts.^5 .+ (1088/121275).*airyrts.^2).*2^(1/3).*nu^(-7/3)))
-        x_init_airy = reverse(x_init, dims=1)
+        x_init = sqrt.(abs.(ν .+ (2^(2/3)).*airyrts.*ν^(1/3) .+ (1/5*2^(4/3)).*airyrts.^2 .* ν^(-1/3) .+
+            (11/35-a^2-12/175).*airyrts.^3 ./ ν .+ ((16/1575).*airyrts.+(92/7875).*airyrts.^4).*2^(2/3).*ν^(-5/3) .-
+            ((15152/3031875).*airyrts.^5 .+ (1088/121275).*airyrts.^2).*2^(1/3).*ν^(-7/3)))
+        x_init_airy = reverse(x_init)
 
         # Tricomi initial guesses. Equation (2.1) in [1]. Originally in [2].
         # These initial guesses are good near x = 0 . Note: zeros of besselj(+/-.5,x)
         # are integer and half-integer multiples of π.
-        # x_init_bess =  bess/sqrt(nu).*sqrt((1+ (bess.^2+2*(a^2-1))/3/nu^2) );
+        # x_init_bess =  bess/sqrt(ν).*sqrt((1+ (bess.^2+2*(a^2-1))/3/ν^2) );
         Tnk0 = fill(π/2,m)
-        nu = (4*m+2*a+2)
-        rhs = ((4*m+3) .- 4*(1:m))/nu*π
+        ν = (4*m+2*a+2)
+        rhs = ((4*m+3) .- 4*(1:m))/ν*π
 
         for k = 1:7
             val = Tnk0 .- sin.(Tnk0) .- rhs
@@ -301,7 +301,7 @@ let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875
         end
 
         tnk = cos.(Tnk0./2).^2
-        x_init_sin = @. sqrt(nu*tnk - (5 / (4 * (1-tnk)^2) - 1 / (1 - tnk)-1 + 3*a^2)/3 / nu)
+        x_init_sin = @. sqrt(ν*tnk - (5 / (4 * (1-tnk)^2) - 1 / (1 - tnk)-1 + 3*a^2)/3 / ν)
 
         # Patch together
         p = 0.4985+eps(Float64)
