@@ -61,7 +61,7 @@ function hermpts_asy(n::Integer)
 
     x0 = HermiteInitialGuesses(n)  # get initial guesses
     t0 = x0./sqrt(2n+1)
-    θ = acos.(t0)  # convert to theta-variable
+    θ = acos.(t0)  # convert to θ-variable
     val = x0;
     for _ in 1:20
         val = hermpoly_asy_airy(n, θ);
@@ -159,25 +159,28 @@ end
 hermpoly_rec(r::AbstractRange, x0) = hermpoly_rec(Base.OneTo(maximum(r)), x0)[r.+1]
 
 
-function hermpoly_asy_airy(n::Integer, theta)
+function hermpoly_asy_airy(n::Integer, θ::AbstractVector)
     # HERMPOLY_ASY evaluation hermite poly using Airy asymptotic formula in
-    # theta-space.
+    # θ-space.
 
     musq = 2n+1;
-    cosT = cos.(theta)
-    sinT = sin.(theta)
+    cosT = cos.(θ)
+    sinT = sin.(θ)
     sin2T = 2 .* cosT.*sinT
-    eta = 0.5 .* theta .- 0.25 .* sin2T
-    chi = -(3*eta/2).^(2/3)
-    phi = (-chi./sinT.^2).^(1/4)
-    C = 2*sqrt(π)*musq^(1/6)*phi
-    Airy0 = real.(airyai.(musq.^(2/3).*chi))
-    Airy1 = real.(airyaiprime.(musq.^(2/3).*chi))
+    η = 0.5 .* θ .- 0.25 .* sin2T
+    χ = -(3*η/2).^(2/3)
+    φ = (-χ./sinT.^2).^(1/4)
+    C = 2*sqrt(π)*musq^(1/6)*φ
+    Airy0 = real.(airyai.(musq.^(2/3).*χ))
+    Airy1 = real.(airyaiprime.(musq.^(2/3).*χ))
 
     # Terms in (12.10.43):
-    a0 = 1; b0 = 1
-    a1 = 15/144; b1 = -7/5*a1
-    a2 = 5*7*9*11/2/144^2; b2 = -13/11*a2
+    a0 = 1
+    b0 = 1
+    a1 = 15/144
+    b1 = -7/5*a1
+    a2 = 5*7*9*11/2/144^2
+    b2 = -13/11*a2
     a3 = 7*9*11*13*15*17/6/144^3
     b3 = -19/17*a3
 
@@ -191,25 +194,25 @@ function hermpoly_asy_airy(n::Integer, theta)
     val = A0*Airy0
 
     # second term
-    B0 = @. -(a0*phi^6 * u1+a1*u0)/chi^2
+    B0 = @. -(a0*φ^6 * u1+a1*u0)/χ^2
     val .+=  B0.*Airy1./musq.^(4/3)
 
     # third term
-    A1 = @. (b0*phi^12 * u2 + b1*phi^6 * u1 + b2*u0)/chi^3
+    A1 = @. (b0*φ^12 * u2 + b1*φ^6 * u1 + b2*u0)/χ^3
     val .+= A1.*Airy0/musq.^2
 
     # fourth term
-    B1 = @. -(phi^18 * u3 + a1*phi^12 * u2 + a2*phi^6 * u1 + a3*u0)/chi^5
+    B1 = @. -(φ^18 * u3 + a1*φ^12 * u2 + a2*φ^6 * u1 + a3*u0)/χ^5
     val .+= B1.*Airy1./musq.^(4/3+2)
 
     val .= C.*val
 
     ## Derivative
 
-    eta = .5*theta - .25*sin2T
-    chi = -(3*eta/2).^(2/3)
-    phi = (-chi./sinT.^2).^(1/4)
-    C = sqrt(2*π)*musq^(1/3)./phi
+    η = .5*θ - .25*sin2T
+    χ = -(3*η/2).^(2/3)
+    φ = (-χ./sinT.^2).^(1/4)
+    C = sqrt(2*π)*musq^(1/3)./φ
 
     # v polynomials in (12.10.10)
     v0 = 1;
@@ -218,7 +221,7 @@ function hermpoly_asy_airy(n::Integer, theta)
     v3 = @. (259290*cosT + 238425*cosT^3 - 36387*cosT^5 + 18189*cosT^7 - 4042*cosT^9)/414720
 
     # first term
-    C0 = -(b0*phi.^6 .* v1 .+ b1.*v0)./chi
+    C0 = -(b0*φ.^6 .* v1 .+ b1.*v0)./χ
     dval = C0.*Airy0/musq.^(2/3)
 
     # second term
@@ -226,11 +229,11 @@ function hermpoly_asy_airy(n::Integer, theta)
     dval = dval + D0*Airy1
 
     # third term
-    C1 = @. -(phi^18 * v3 + b1*phi^12 * v2 + b2*phi^6 * v1 + b3*v0)/chi^4
+    C1 = @. -(φ^18 * v3 + b1*φ^12 * v2 + b2*φ^6 * v1 + b3*v0)/χ^4
     dval = dval + C1.*Airy0/musq.^(2/3+2)
 
     # fourth term
-    D1 = @. (a0*phi^12 * v2 + a1*phi^6 * v1 + a2*v0)/chi^3
+    D1 = @. (a0*φ^12 * v2 + a1*φ^6 * v1 + a2*v0)/χ^3
     dval = dval + D1.*Airy1/musq.^2
 
     dval = C.*dval
@@ -253,7 +256,7 @@ let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875
 
         # Gatteschi formula involving airy roots [1].
         # These initial guess are good near x = sqrt(n+1/2);
-        if mod(n,2) == 1
+        if isodd(n)
             m = (n-1)>>1
             bess = (1:m)*π
             a = .5
@@ -308,7 +311,7 @@ let T(t) = @. t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875
         x_init = [x_init_sin[1:convert(Int,floor(p*n))] ;
         x_init_airy[convert(Int,ceil(p*n)):end]]
 
-        if mod(n, 2) == 1
+        if isodd(n)
             x_init = [0 ; x_init]
             x_init = x_init[1:m+1]
         else

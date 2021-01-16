@@ -72,7 +72,7 @@ function asy(n)
     @inbounds for i in 1:m
         x[i] = -x[i]
     end
-    @inbounds mod(n, 2) == 1 && (x[m] = 0.0)
+    @inbounds isodd(n) && (x[m] = 0.0)
 
     return x, w
 end
