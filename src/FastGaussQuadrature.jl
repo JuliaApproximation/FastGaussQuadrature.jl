@@ -1,12 +1,8 @@
 module FastGaussQuadrature
 
-using SpecialFunctions, LinearAlgebra
-cumprod(A::AbstractArray) = Base.cumprod(A, dims=1)
-cumprod(A::AbstractArray, d::Int) = Base.cumprod(A, dims=d)
-sum(A::AbstractArray, n::Int) = Base.sum(A, dims=n)
-sum(A) = Base.sum(A)
-flipdim(A, d) = reverse(A, dims=d)
-
+using LinearAlgebra
+using SpecialFunctions
+using StaticArrays
 
 export gausslegendre
 export gausschebyshev
@@ -19,6 +15,7 @@ export besselroots
 
 import SpecialFunctions: besselj, airyai, airyaiprime
 
+include("constants.jl")
 include("gausslegendre.jl")
 include("gausschebyshev.jl")
 include("gausslaguerre.jl")

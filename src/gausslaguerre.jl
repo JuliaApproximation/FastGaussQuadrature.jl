@@ -85,7 +85,7 @@ function gausslaguerre(n::Integer, α::Real; reduced = false)
         gausslaguerre_rec(n, α)
     else
         # Use explicit asymptotic expansions for larger n
-        # The restriction to α comes from the restriction on nu in besselroots
+        # The restriction to α comes from the restriction on ν in besselroots
         if α < 5
             gausslaguerre_asy(n, α, reduced=reduced, T=-1, recompute=true)
         else
@@ -97,12 +97,6 @@ end
 # Our threshold for deciding on underflow
 underflow_threshold(x) = underflow_threshold(typeof(x))
 underflow_threshold(::Type{T}) where {T <: AbstractFloat} = 10floatmin(T)
-
-# We explicitly store the first 11 roots of the Airy function in Float64 precision
-const airy_roots = [-2.338107410459767, -4.08794944413097, -5.520559828095551,
-    -6.786708090071759, -7.944133587120853, -9.02265085340981, -10.04017434155809,
-    -11.00852430373326, -11.93601556323626, -12.828776752865757, -13.69148903521072]
-
 
 
 """
@@ -144,7 +138,7 @@ function gausslaguerre_asy(n::Integer, α;
         k += 1
         # We iterate until the estimated error of the bulk expansion is smaller
         # than the one of the Bessel expansion
-        jak = (k < k_bessel) ? jak_vector[k] : jak = McMahon(α, k)
+        jak = (k < k_bessel) ? jak_vector[k] : McMahon(α, k)
 
         xk, wk, δ_bessel = gausslaguerre_asy_bessel(n, α, jak, d, T)
         xkb, wkb, δ_bulk = gausslaguerre_asy_bulk(n, α, k, d, T)
@@ -647,8 +641,8 @@ function gausslaguerre_rec(n, α; reduced = false)
     # We compute up to 7 starting values for the Newton iterations
     n_pre = min(n, 7)
 
-    nu = 4n + 2α + 2
-    x_pre = T.(besselroots(α, n_pre)).^2 / nu # this is a lower bound by [DLMF 18.16.10]
+    ν = 4n + 2α + 2
+    x_pre = T.(besselroots(α, n_pre)).^2 / ν # this is a lower bound by [DLMF 18.16.10]
 
     noUnderflow = true  # this flag turns false once the weights start to underflow
     for k in 1:n
