@@ -9,7 +9,7 @@ J_{\nu}(x) = \sum_{m=0}^{\infty}\frac{(-1)^j}{\Gamma(\nu+j+1)j!} \left(\frac{x}{
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, SpecialFunctions)
+```jldoctest
 julia> ν = 0.3;
 
 julia> roots = approx_besselroots(ν, 10);

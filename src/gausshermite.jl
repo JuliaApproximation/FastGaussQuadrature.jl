@@ -8,7 +8,7 @@ Return nodes and weights of [Gauss-Hermite quadrature](https://en.wikipedia.org/
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausshermite(3);
 
 julia> f(x) = x^4;

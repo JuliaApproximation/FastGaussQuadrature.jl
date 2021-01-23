@@ -71,7 +71,7 @@ const Piessens_C = @SMatrix [
 Values of Bessel function ``J_1`` on first ten roots of Bessel function `J_0`.
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, SpecialFunctions)
+```jldoctest
 julia> roots = approx_besselroots(0,10);
 
 julia> (besselj1.(roots)).^2 ≈ FastGaussQuadrature.besselJ1_10

@@ -1,6 +1,9 @@
 using Documenter
 using FastGaussQuadrature
 
+# Setup for doctests in docstrings
+DocMeta.setdocmeta!(FastGaussQuadrature, :DocTestSetup, :(using LinearAlgebra, SpecialFunctions, FastGaussQuadrature))
+
 makedocs(;
     modules = [FastGaussQuadrature],
     format = Documenter.HTML(

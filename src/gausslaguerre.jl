@@ -8,7 +8,7 @@ Return nodes and weights of [Gauss-Laguerre quadrature](https://en.wikipedia.org
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausslaguerre(3);
 
 julia> f(x) = x^4;
@@ -34,7 +34,7 @@ Return nodes and weights of generalized [Gauss-Laguerre quadrature](https://en.w
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausslaguerre(3, 1.0);
 
 julia> f(x) = x^4;

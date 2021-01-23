@@ -9,7 +9,7 @@ Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.or
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausschebyshev(3);
 
 julia> f(x) = x^4;
@@ -31,7 +31,7 @@ Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.or
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausschebyshev(3, 2);
 
 julia> f(x) = x^4;
@@ -53,7 +53,7 @@ Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.or
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausschebyshev(3, 3);
 
 julia> f(x) = x^4;
@@ -75,7 +75,7 @@ Return nodes and weights of [Gauss-Chebyshev quadrature](https://en.wikipedia.or
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausschebyshev(3, 4);
 
 julia> f(x) = x^4;

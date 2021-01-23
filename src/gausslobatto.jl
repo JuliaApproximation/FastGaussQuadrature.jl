@@ -8,7 +8,7 @@ Return nodes and weights of [Gauss-Lobatto quadrature](https://mathworld.wolfram
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausslobatto(4);
 
 julia> f(x) = x^4;
@@ -21,7 +21,7 @@ true
 
 Note that the both ends of nodes are fixed at -1 and 1.
 
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausslobatto(4);
 
 julia> x[1], x[end]
