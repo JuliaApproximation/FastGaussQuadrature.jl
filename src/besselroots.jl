@@ -1,5 +1,5 @@
 @doc raw"""
-    gausslegendre(ν::Real, n::Integer) -> Vector{Float64}
+    approx_besselroots(ν::Real, n::Integer) -> Vector{Float64}
 
 Return the first ``n`` roots of [Bessel function](https://en.wikipedia.org/wiki/Bessel_function).
 Note that this function is only 12-digits of precision.
