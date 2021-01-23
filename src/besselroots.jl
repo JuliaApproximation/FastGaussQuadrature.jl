@@ -220,3 +220,8 @@ function besselJ1(m)
     end
     return Jk2
 end
+
+function besselroots(ν::Real, n::Integer)
+    @warn "`besselroots` has been renamed to `approx_besselroots`, and `besselroots` will be removed in the next major release."
+    return approx_besselroots(ν, n)
+end
