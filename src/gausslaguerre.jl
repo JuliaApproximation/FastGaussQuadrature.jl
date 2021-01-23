@@ -130,7 +130,7 @@ function gausslaguerre_asy(n::Integer, α;
 
     # The Bessel region
     # First compute the roots of the Bessel function of order α
-    jak_vector = besselroots(α, k_bessel)
+    jak_vector = approx_besselroots(α, k_bessel)
 
     bessel_wins = true
     k = 0
@@ -642,7 +642,7 @@ function gausslaguerre_rec(n, α; reduced = false)
     n_pre = min(n, 7)
 
     ν = 4n + 2α + 2
-    x_pre = T.(besselroots(α, n_pre)).^2 / ν # this is a lower bound by [DLMF 18.16.10]
+    x_pre = T.(approx_besselroots(α, n_pre)).^2 / ν # this is a lower bound by [DLMF 18.16.10]
 
     noUnderflow = true  # this flag turns false once the weights start to underflow
     for k in 1:n

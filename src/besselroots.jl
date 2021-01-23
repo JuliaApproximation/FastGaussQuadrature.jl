@@ -2,6 +2,7 @@
     gausslegendre(ν::Real, n::Integer) -> Vector{Float64}
 
 Return the first ``n`` roots of [Bessel function](https://en.wikipedia.org/wiki/Bessel_function).
+Note that this function is only 12-digits of precision.
 
 ```math
 J_{\nu}(x) = \sum_{m=0}^{\infty}\frac{(-1)^j}{\Gamma(\nu+j+1)j!} \left(\frac{x}{2}\right)^{2j+\nu}
@@ -11,7 +12,7 @@ J_{\nu}(x) = \sum_{m=0}^{\infty}\frac{(-1)^j}{\Gamma(\nu+j+1)j!} \left(\frac{x}{
 ```jldoctest; setup = :(using FastGaussQuadrature, SpecialFunctions)
 julia> ν = 0.3;
 
-julia> roots = besselroots(ν, 10);
+julia> roots = approx_besselroots(ν, 10);
 
 julia> zeros = (x -> besselj(ν, x)).(roots);
 
@@ -19,12 +20,12 @@ julia> all(zeros .< 1e-12)
 true
 ```
 """
-function besselroots(ν::Real, n::Integer)
+function approx_besselroots(ν::Real, n::Integer)
     # FIXME (related issue #22 and #80)
-    return besselroots(Float64(ν), n)
+    return approx_besselroots(Float64(ν), n)
 end
 
-function besselroots(ν::Float64, n::Integer)
+function approx_besselroots(ν::Float64, n::Integer)
 # DEVELOPERS NOTES:
 #   ν = 0 --> Full Float64 precision for n ≤ 20 (Wolfram Alpha), and very
 #     accurate approximations for n > 20 (McMahon's expansion)
