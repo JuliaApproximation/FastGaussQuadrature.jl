@@ -61,8 +61,9 @@ jobs:
             Pkg.instantiate()'
       - run: |
           julia --project=docs -e '
-            using Documenter: doctest
+            using Documenter
             using FastGaussQuadrature
+            DocMeta.setdocmeta!(FastGaussQuadrature, :DocTestSetup, :(using LinearAlgebra, FastGaussQuadrature))
             doctest(FastGaussQuadrature)'
       - run: julia --project=docs docs/make.jl
         env:
