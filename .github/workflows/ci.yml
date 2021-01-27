@@ -63,7 +63,7 @@ jobs:
           julia --project=docs -e '
             using Documenter
             using FastGaussQuadrature
-            DocMeta.setdocmeta!(FastGaussQuadrature, :DocTestSetup, :(using LinearAlgebra, FastGaussQuadrature))
+            DocMeta.setdocmeta!(FastGaussQuadrature, :DocTestSetup, :(using LinearAlgebra, SpecialFunctions, FastGaussQuadrature))
             doctest(FastGaussQuadrature)'
       - run: julia --project=docs docs/make.jl
         env:
