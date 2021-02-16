@@ -8,7 +8,7 @@ Return nodes and weights of [Gauss-Laguerre quadrature](https://en.wikipedia.org
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausslaguerre(3);
 
 julia> f(x) = x^4;
@@ -34,7 +34,7 @@ Return nodes and weights of generalized [Gauss-Laguerre quadrature](https://en.w
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gausslaguerre(3, 1.0);
 
 julia> f(x) = x^4;
@@ -130,7 +130,7 @@ function gausslaguerre_asy(n::Integer, α;
 
     # The Bessel region
     # First compute the roots of the Bessel function of order α
-    jak_vector = besselroots(α, k_bessel)
+    jak_vector = approx_besselroots(α, k_bessel)
 
     bessel_wins = true
     k = 0
@@ -642,7 +642,7 @@ function gausslaguerre_rec(n, α; reduced = false)
     n_pre = min(n, 7)
 
     ν = 4n + 2α + 2
-    x_pre = T.(besselroots(α, n_pre)).^2 / ν # this is a lower bound by [DLMF 18.16.10]
+    x_pre = T.(approx_besselroots(α, n_pre)).^2 / ν # this is a lower bound by [DLMF 18.16.10]
 
     noUnderflow = true  # this flag turns false once the weights start to underflow
     for k in 1:n

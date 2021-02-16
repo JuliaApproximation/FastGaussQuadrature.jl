@@ -20,15 +20,11 @@ To check an integral
 \int_{-1}^{1} x^4 dx = \frac{2}{5}
 ```
 by numerically, try following code.
-```julia
-julia> using FastGaussQuadrature, LinearAlgebra
 
-julia> x, w = gausslegendre(3);
-
-julia> f(x) = x^4;
-
-julia> I = dot(w, f.(x));
-
-julia> I ≈ 2/5
-true
+```@repl
+using FastGaussQuadrature, LinearAlgebra
+x, w = gausslegendre(3)
+f(x) = x^4
+I = dot(w, f.(x))
+I ≈ 2/5
 ```

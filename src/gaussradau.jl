@@ -8,7 +8,7 @@ Return nodes and weights of [Gauss-Radau quadrature](https://mathworld.wolfram.c
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gaussradau(3);
 
 julia> f(x) = x^4;
@@ -21,7 +21,7 @@ true
 
 Note that the first node is fixed at -1.
 
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gaussradau(3);
 
 julia> x[1]

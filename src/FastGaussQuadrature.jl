@@ -11,6 +11,7 @@ export gausshermite
 export gaussjacobi
 export gausslobatto
 export gaussradau
+export approx_besselroots
 export besselroots
 
 import SpecialFunctions: besselj, airyai, airyaiprime

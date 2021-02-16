@@ -8,7 +8,7 @@ Return nodes and weights of [Gauss-Jacobi quadrature](https://en.wikipedia.org/w
 ```
 
 # Examples
-```jldoctest; setup = :(using FastGaussQuadrature, LinearAlgebra)
+```jldoctest
 julia> x, w = gaussjacobi(3, 1/3, -1/3);
 
 julia> f(x) = x^4;
@@ -374,7 +374,7 @@ function boundary(n::Integer, α::Float64, β::Float64, npts::Integer)
 
     # Use Newton iterations to find the first few Bessel roots:
     smallK = min(30, npts)
-    jk = besselroots(α, smallK)
+    jk = approx_besselroots(α, smallK)
 
     # Approximate roots via asymptotic formula: (see Olver 1974)
     phik = jk/(n + .5*(α + β + 1))

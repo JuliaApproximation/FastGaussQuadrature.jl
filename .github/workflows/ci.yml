@@ -1,7 +1,12 @@
 name: CI
 on:
-  - push
-  - pull_request
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+    tags: '*'
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -56,8 +61,9 @@ jobs:
             Pkg.instantiate()'
       - run: |
           julia --project=docs -e '
-            using Documenter: doctest
+            using Documenter
             using FastGaussQuadrature
+            DocMeta.setdocmeta!(FastGaussQuadrature, :DocTestSetup, :(using LinearAlgebra, SpecialFunctions, FastGaussQuadrature))
             doctest(FastGaussQuadrature)'
       - run: julia --project=docs docs/make.jl
         env:
