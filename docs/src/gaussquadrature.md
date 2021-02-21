@@ -62,7 +62,7 @@ Gauss quadrature for the weight functions ``w(x) = (1-x)^\alpha(1+x)^\beta``, ``
 
 * For ``n ≤ 100``: Use Newton's method to solve ``P_n(x)=0``. Evaluate ``P_n`` and ``P_n'`` by three-term recurrence.
 * For ``n > 100``: Use Newton's method to solve ``P_n(x)=0``. Evaluate ``P_n`` and ``P_n'`` by an asymptotic expansion (in the interior of ``[-1,1]``) and the three-term recurrence ``O(n^{-2})`` close to the endpoints. (This is a small modification to the algorithm described in [[3]](http://epubs.siam.org/doi/abs/10.1137/120889873).)
-* For ``max(a,b) > 5``: Use the Golub-Welsch algorithm requiring ``O(n^2)`` operations.
+* For ``\max(a,b) > 5``: Use the Golub-Welsch algorithm requiring ``O(n^2)`` operations.
 
 ```@docs
 gaussjacobi(n::Integer, α::Real, β::Real)
