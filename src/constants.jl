@@ -1,6 +1,13 @@
 @doc raw"""
 First twenty roots of Bessel funcion ``J_0`` in Float64.
 https://mathworld.wolfram.com/BesselFunctionZeros.html
+
+# Examples
+```jldoctest
+julia> zeros = besselj0.(FastGaussQuadrature.J0_roots);
+
+julia> all(zeros .< 1e-14)
+true
 """
 const J0_roots = @SVector [
     2.4048255576957728,
@@ -94,6 +101,15 @@ const besselJ1_10 = @SVector [
 
 @doc raw"""
 The first 11 roots of the Airy function in Float64 precision
+https://mathworld.wolfram.com/AiryFunctionZeros.html
+
+# Examples
+```jldoctest
+julia> zeros = airy.(FastGaussQuadrature.airy_roots);
+
+julia> all(zeros .< 1e-14)
+true
+```
 """
 const airy_roots = @SVector [
     -2.338107410459767,
@@ -101,7 +117,7 @@ const airy_roots = @SVector [
     -5.520559828095551,
     -6.786708090071759,
     -7.944133587120853,
-    -9.02265085340981,
+    -9.022650853340981,
     -10.04017434155809,
     -11.00852430373326,
     -11.93601556323626,
