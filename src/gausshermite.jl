@@ -268,7 +268,7 @@ function hermite_initialguess(n::Integer)
     T(t) = t^(2/3)*(1+5/48*t^(-2)-5/36*t^(-4)+(77125/82944)*t^(-6) -108056875/6967296*t^(-8)+162375596875/334430208*t^(-10))
     airyrts = -T.(3π/8*(4*(1:m) .- 1))
 
-    airyrts[1:11] = airy_roots  # correct first 11.
+    airyrts[1:11] = AIRY_ROOTS  # correct first 11.
 
     x_init = sqrt.(abs.(ν .+ (2^(2/3)).*airyrts.*ν^(1/3) .+ (1/5*2^(4/3)).*airyrts.^2 .* ν^(-1/3) .+
         (11/35-a^2-12/175).*airyrts.^3 ./ ν .+ ((16/1575).*airyrts.+(92/7875).*airyrts.^4).*2^(2/3).*ν^(-5/3) .-
