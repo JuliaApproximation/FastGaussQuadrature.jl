@@ -278,29 +278,25 @@ function feval_asy1(n::Integer, α::Float64, β::Float64, t::AbstractVector, idx
     sinT = hcat(ones(N), cumprod(repeat((csc.(t/2)/2),1,M-1), dims=2))  # M × N matrix
     secT = sec.(t/2)/2
 
-    j = 0:M-2
-    _vec = @. (0.5+α+j)*(0.5-α+j)/(j+1)/(2n+α+β+j+2)
+    _vec = [(α+j-1/2)*(-α+j-1/2)/(2n+α+β+j+1)/j for j in 1:M-1]
     P1 = [1;cumprod(_vec)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = Matrix(1.0I, M, M)
-    for l in 0:M-1
-        j = 0:M-l-2
-        _vec = @. (0.5+β+j)*(0.5-β+j)/(j+1)/(2n+α+β+j+l+2)
-        P2[l+1,(l+1).+(1:length(j))] = cumprod(_vec)
+    for l in 1:M
+        _vec = [(β+j-1/2)*(-β+j-1/2)/(2n+α+β+j+l)/j for j in 1:M-l-2]
+        P2[l,l+1:M-2] = cumprod(_vec)
     end
     PHI = repeat(P1,1,M).*P2
 
-    j = 0:M-2
-    _vec = @. (0.5+α+j)*(0.5-α+j)/(j+1)/(2*(n-1)+α+β+j+2)
+    _vec = [(α+j-1/2)*(-α+j-1/2)/(2n+α+β+j-1)/j for j in 1:M-1]
     P1 = [1;cumprod(_vec)]
     P1[3:4:end] = -P1[3:4:end]
     P1[4:4:end] = -P1[4:4:end]
     P2 = Matrix(1.0I, M, M)
-    for l in 0:M-1
-        j = 0:M-l-2
-        _vec = @. (0.5+β+j)*(0.5-β+j)/(j+1)/(2*(n-1)+α+β+j+l+2)
-        P2[l+1,(l+1).+(1:length(j))] = cumprod(_vec)
+    for l in 1:M
+        _vec = [(β+j-1/2)*(-β+j-1/2)/(2n+α+β+j+l-2)/j for j in 1:M-l-2]
+        P2[l,l+1:M-2] = cumprod(_vec)
     end
     PHI2 = repeat(P1,1,M).*P2
 
@@ -352,7 +348,7 @@ function feval_asy1(n::Integer, α::Float64, β::Float64, t::AbstractVector, idx
     g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,
          5246819/75246796800, -534703531/902961561600,
          -4483131259/86684309913600, 432261921612371/514904800886784000]
-    f(g,z) = sum(g.*[1;cumprod(ones(9)./z)])
+    f(g,z) = dot(g, [1;cumprod(ones(9)./z)])
 
     # Float constant C, C2
     C = 2*p2*(f(g,n+α)*f(g,n+β)/f(g,2n+α+β))/π
@@ -394,11 +390,11 @@ function boundary(n::Integer, α::Float64, β::Float64, npts::Integer)
     x += dx
 
     # flip:
-    x = x[npts:-1:1]
-    ders = ders[npts:-1:1]
+    x = reverse(x)
+    ders = reverse(ders)
 
     # Revert to x-space:
-    w = @. 1 /((1-x^2)*ders^2)
+    w = 1 ./ ((1 .- x.^2) .* ders.^2)
     return x, w
 end
 
