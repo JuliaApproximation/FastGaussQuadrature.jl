@@ -184,7 +184,7 @@ function besselJ1(m)
          151 / 80, -7 / 24, 0.0, 2.0)
     # First 10 are precomputed:
     @inbounds for jj = 1:min(m, 10)
-        Jk2[jj] = BESSELJ1_ON_BESSELBESSELJ0_ROOTS[jj]
+        Jk2[jj] = BESSELJ1_ON_BESSELJ0_ROOTS[jj]
     end
     @inbounds for jj = 11:min(m, 15)
         ak = π * (jj - .25)
