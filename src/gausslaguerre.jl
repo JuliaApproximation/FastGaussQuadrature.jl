@@ -534,7 +534,7 @@ end
 function compute_airy_root(n, k)
     index = n-k+1
     if index ≤ 11
-        ak = airy_roots[index]
+        ak = AIRY_ROOTS[index]
     else
         t = 3 * π/2 * (index-0.25)
         ak = -t^(2/3)*(1 + 5/48/t^2 - 5/36/t^4 + 77125/82944/t^6 -10856875/6967296/t^8)

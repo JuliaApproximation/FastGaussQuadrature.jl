@@ -1,8 +1,15 @@
 @doc raw"""
 First twenty roots of Bessel funcion ``J_0`` in Float64.
 https://mathworld.wolfram.com/BesselFunctionZeros.html
+
+# Examples
+```jldoctest
+julia> zeros = besselj0.(FastGaussQuadrature.BESSELJ0_ROOTS);
+
+julia> all(zeros .< 1e-14)
+true
 """
-const J0_roots = @SVector [
+const BESSELJ0_ROOTS = @SVector [
     2.4048255576957728,
     5.5200781102863106,
     8.6537279129110122,
@@ -33,7 +40,7 @@ j_{\nu, s} \approx \sum_{k}^{n} C_{k,s} T_k(\frac{\nu-2}{3})
 ```
 where $j_{\nu, s}$ is a ``s``-th zero of Bessel function ``J_\nu``, ``\{T_k\}`` are Chebyshev polynomials and ``C_{k, s}`` is the coefficients.
 """
-const Piessens_C = @SMatrix [
+const PIESSENS_C = @SMatrix [
        2.883975316228  8.263194332307 11.493871452173 14.689036505931 17.866882871378 21.034784308088
        0.767665211539  4.209200330779  4.317988625384  4.387437455306  4.435717974422  4.471319438161
       -0.086538804759 -0.164644722483 -0.130667664397 -0.109469595763 -0.094492317231 -0.083234240394
@@ -74,11 +81,11 @@ Values of Bessel function ``J_1`` on first ten roots of Bessel function `J_0`.
 ```jldoctest
 julia> roots = approx_besselroots(0,10);
 
-julia> (besselj1.(roots)).^2 ≈ FastGaussQuadrature.besselJ1_10
+julia> (besselj1.(roots)).^2 ≈ FastGaussQuadrature.BESSELJ1_ON_BESSELJ0_ROOTS
 true
 ```
 """
-const besselJ1_10 = @SVector [
+const BESSELJ1_ON_BESSELJ0_ROOTS = @SVector [
     0.2695141239419169,
     0.1157801385822037,
     0.07368635113640822,
@@ -94,14 +101,23 @@ const besselJ1_10 = @SVector [
 
 @doc raw"""
 The first 11 roots of the Airy function in Float64 precision
+https://mathworld.wolfram.com/AiryFunctionZeros.html
+
+# Examples
+```jldoctest
+julia> zeros = airy.(FastGaussQuadrature.AIRY_ROOTS);
+
+julia> all(zeros .< 1e-14)
+true
+```
 """
-const airy_roots = @SVector [
+const AIRY_ROOTS = @SVector [
     -2.338107410459767,
     -4.08794944413097,
     -5.520559828095551,
     -6.786708090071759,
     -7.944133587120853,
-    -9.02265085340981,
+    -9.022650853340981,
     -10.04017434155809,
     -11.00852430373326,
     -11.93601556323626,

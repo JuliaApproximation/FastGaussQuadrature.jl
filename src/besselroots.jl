@@ -45,13 +45,13 @@ function approx_besselroots(ν::Float64, n::Integer)
     x = zeros(n)
     if ν == 0
         for k in 1:min(n,20)
-            x[k] = J0_roots[k]
+            x[k] = BESSELJ0_ROOTS[k]
         end
         for k in min(n,20)+1:n
             x[k] = McMahon(ν, k)
         end
     elseif -1 ≤ ν ≤ 5
-        correctFirstFew = Piessens(ν)
+        correctFirstFew = piessens(ν)
         for k in 1:min(n,6)
             x[k] = correctFirstFew[k]
         end
@@ -131,10 +131,10 @@ function _piessens_chebyshev30(ν::Float64)
     return T
 end
 
-function Piessens(ν::Float64)
+function piessens(ν::Float64)
     # Piessens's Chebyshev series approximations (1984). Calculates the 6 first
     # zeros to at least 12 decimal figures in region -1 ≤ ν ≤ 5:
-    C = Piessens_C
+    C = PIESSENS_C
     T = _piessens_chebyshev30(ν)
     y = C'*T
     _y = collect(y)
@@ -151,7 +151,7 @@ function besselZeroRoots(m)
          0.0, -124 / 3, 0.0, 1.0, 0.0)
     # First 20 are precomputed:
     @inbounds for jj = 1:min(m, 20)
-        jk[jj] = J0_roots[jj]
+        jk[jj] = BESSELJ0_ROOTS[jj]
     end
     @inbounds for jj = 21:min(m, 47)
         ak = π * (jj - .25)
@@ -184,7 +184,7 @@ function besselJ1(m)
          151 / 80, -7 / 24, 0.0, 2.0)
     # First 10 are precomputed:
     @inbounds for jj = 1:min(m, 10)
-        Jk2[jj] = besselJ1_10[jj]
+        Jk2[jj] = BESSELJ1_ON_BESSELJ0_ROOTS[jj]
     end
     @inbounds for jj = 11:min(m, 15)
         ak = π * (jj - .25)
