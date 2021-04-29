@@ -1,7 +1,7 @@
 @doc raw"""
-    gausslegendre(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+    gausslegendre(n::Integer) -> x, w
 
-Return nodes and weights of [Gauss-Legendre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_quadrature).
+Return nodes `x` and weights `w` of [Gauss-Legendre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_quadrature).
 
 ```math
 \int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i)
