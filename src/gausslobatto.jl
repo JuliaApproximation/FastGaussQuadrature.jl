@@ -1,7 +1,7 @@
 @doc raw"""
-    gausslobatto(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+    gausslobatto(n::Integer) -> x, w  # nodes, weights
 
-Return nodes and weights of [Gauss-Lobatto quadrature](https://mathworld.wolfram.com/LobattoQuadrature.html).
+Return nodes `x` and weights `w` of [Gauss-Lobatto quadrature](https://mathworld.wolfram.com/LobattoQuadrature.html).
 
 ```math
 \int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i)

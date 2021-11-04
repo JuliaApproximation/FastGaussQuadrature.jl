@@ -1,7 +1,7 @@
 @doc raw"""
-    gausshermite(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+    gausshermite(n::Integer) -> x, w  # nodes, weights
 
-Return nodes and weights of [Gauss-Hermite quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Hermite_quadrature).
+Return nodes `x` and weights `w` of [Gauss-Hermite quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Hermite_quadrature).
 
 ```math
 \int_{-\infty}^{+\infty} f(x) \exp(-x^2) dx \approx \sum_{i=1}^{n} w_i f(x_i)
