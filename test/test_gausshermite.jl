@@ -75,6 +75,17 @@ using FastGaussQuadrature
         @test FastGaussQuadrature.hermpoly_rec(0:20^2,20)[end] ≈ FastGaussQuadrature.hermpoly_rec(20^2,20)[1]
     end
 
+    @testset "All" begin
+        for n in 2:220
+            x,w = gausshermite(n)
+            @test isa(x,Vector{Float64})
+            @test isa(w,Vector{Float64})
+            @test (length(x) == n && length(w) == n)
+            # The tol should be large for large n.
+            @test (dot(w,x) < tol && abs(dot(w,x.^2) - sqrt(π)/2) < 1000*tol)
+        end
+    end
+
     @testset "Transform" begin
         n = 500
         x,w = FastGaussQuadrature.unweightedgausshermite(n)
