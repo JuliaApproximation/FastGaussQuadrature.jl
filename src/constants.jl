@@ -8,6 +8,7 @@ julia> zeros = besselj0.(FastGaussQuadrature.BESSELJ0_ROOTS);
 
 julia> all(zeros .< 1e-14)
 true
+```
 """
 const BESSELJ0_ROOTS = @SVector [
     2.4048255576957728,
