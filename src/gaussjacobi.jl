@@ -1,7 +1,7 @@
 @doc raw"""
-    gaussjacobi(n::Integer) -> Tuple{Vector{Float64},Vector{Float64}}
+    gaussjacobi(n::Integer) -> x, w  # nodes, weights
 
-Return nodes and weights of [Gauss-Jacobi quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Jacobi_quadrature).
+Return nodes `x` and weights `w` of [Gauss-Jacobi quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Jacobi_quadrature).
 
 ```math
 \int_{-1}^{1} f(x) (1-x)^\alpha(1+x)^\beta dx \approx \sum_{i=1}^{n} w_i f(x_i)
