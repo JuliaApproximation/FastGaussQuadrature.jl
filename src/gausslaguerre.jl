@@ -27,7 +27,7 @@ end
 @doc raw"""
     gausslaguerre(n::Integer, α::Real) -> x, w  # nodes, weights
 
-Return nodes and weights of generalized [Gauss-Laguerre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Laguerre_quadrature).
+Return nodes `x` and weights `w` of generalized [Gauss-Laguerre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Laguerre_quadrature).
 
 ```math
 \int_{0}^{+\infty} f(x) x^\alpha e^{-x} dx \approx \sum_{i=1}^{n} w_i f(x_i)
