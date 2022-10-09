@@ -307,8 +307,7 @@ gl_bulk_x7(t, d) = -d^5/181440*(1-t)^2/t^2*(10797500*(1-t)^(-10)
     - 43122800*(1-t)^(-9) + 66424575*(1-t)^(-8) -48469876*(1-t)^(-7)
     + 16131880*(1-t)^(-6) - 80*221*(1-t)^(-4) - 1727136*(1-t)^(-5) - 320*43*(1-t)^(-3)
     - 384*1346*(1-t)^(-2) + 23040*31*(1-t)^(-1) -285696)
-gl_bulk_x9(t, d) = d^7/10886400*(1-t)^3/t^3*(43222750000*(1-t)^(-14)
-    - 241928673000*(1-t)^(-13) + 566519158800*(1-t)^(-12) -714465642135*(1-t)^(-11)
+gl_bulk_x9(t, d) = d^7 / 10886400 * (1-t)^3 / t^3 * (43222750000*(1-t)^(-14) - 241928673000*(1-t)^(-13) + 566519158800*(1-t)^(-12) -714465642135*(1-t)^(-11)
     + 518401904799*(1-t)^(-10) + 672*64957561*(1-t)^(-8)   - 212307298152*(1-t)^(-9)
     - 192*15948182*(1-t)^(-7)  - 3360*7823*(1-t)^(-6) + 1792*1598*(1-t)^(-5)
     + 16128*(- 641)*(1-t)^(-4)  -768*555239*(1-t)^(-3)  + 768*1193053*(1-t)^(-2)
@@ -326,37 +325,49 @@ gl_bulk_w7(t, d) = -(1-t)^3/90720/t^3*d^6*(43190000*(1-t)^(-12)
 
 
 ## The hard edge (Bessel region)
+function gl_bessel(jak, d, α)
+    jak² = jak * jak
+    d² = d * d
+    d⁴ = d² * d²
+    d⁸ = d⁴ * d⁴
+    α² = α * α
 
-gl_bessel_x3(jak, d, α) = (jak^2 + 2*α^2 - 2)*d^2 / 3
-gl_bessel_x5(jak, d, α) = (11*jak^4 +3*jak^2*(11*α^2-19) +46*α^4 -140*α^2 +94)*d^4 / 45
-gl_bessel_x7(jak, d, α) = (657*jak^6 +36*jak^4*(73*α^2-181) +2*jak^2*(2459*α^4 -10750*α^2 +14051)
-    + 4*(1493*α^6 -9303*α^4 +19887*α^2 - 12077) )*d^6 / 2835
-gl_bessel_x9(jak, d, α) = (10644*jak^8 + 60*(887*α^2 - 2879)*jak^6 + (125671*α^4 -729422*α^2 + 1456807)*jak^4
-    + 3*(63299*α^6 - 507801*α^4 + 1678761*α^2 - 2201939)*jak^2 + 2*(107959*α^8
-    - 1146220*α^6 + 5095482*α^4 -10087180*α^2 + 6029959) )*d^8 / 42525
-
-gl_bessel_w3(jak, d, α) = (α^2 + jak^2 -1)*2*d^2 / 3
-gl_bessel_w5(jak, d, α) = (46*α^4 + 33*jak^4 +6*jak^2*(11*α^2 -19) -140*α^2 +94)*d^4 / 45
-gl_bessel_w7(jak, d, α) = (1493*α^6 + 657*jak^6 + 27*(73*α^2 - 181)*jak^4 - 9303*α^4
-    + (2459*α^4 -10750*α^2 + 14051)*jak^2 + 19887*α^2 - 12077)*4*d^6 / 2835
-gl_bessel_w9(jak, d, α) = (215918*α^8 + 53220*jak^8 + 240*(887*α^2 - 2879)*jak^6 -2292440*α^6 +
-    3*(125671*α^4 - 729422*α^2 + 1456807)*jak^4 + 10190964*α^4  +
-    6*(63299*α^6 - 507801*α^4 + 1678761*α^2 -2201939)*jak^2 -
-    20174360*α^2 + 12059918)*d^8 / 42525
+    c1 = evalpoly(α², (-2, 2))
+    x3 = d² * evalpoly(jak², (c1, 1)) / 3
+    w3 = d² * evalpoly(jak², (c1, 2)) / 3
+    c1, c2 = evalpoly(α², (94, -140, 46)), evalpoly(α², (-19, 11)) 
+    x5 = d⁴ * evalpoly(jak², (c1, 3*c2, 11)) / 45
+    w5 = d⁴ * evalpoly(jak², (c1, 6*c2, 33)) / 45
+    c1, c2, c3 = evalpoly(α², (-12077, 19887, -9303, 1493)), evalpoly(α², (14051, -10750, 2459)), evalpoly(α², (-181, 73))
+    x7 = d⁴ * d² * evalpoly(jak², (4*c1, 2*c2, 36*c3, 657)) / 2835
+    w7 = 4 * d⁴ * d² * evalpoly(jak², (c1, c2, 27*c3, 657)) / 2835
+    c1, c2, = evalpoly(α², (6029959, -10087180, 5095482, -1146220, 107959)), evalpoly(α², (-2201939, 1678761, -507801, 63299))
+    c3, c4 = evalpoly(α², (1456807, -729422, 125671)), evalpoly(α², (-2879, 887))
+    x9 = d⁸ * evalpoly(jak², (2*c1, 3*c2, c3, 60*c4, 10644)) / 42525
+    w9 = d⁸ * evalpoly(jak², (2*c1, 6*c2, 3*c3, 240*c4, 53220)) / 42525
+    return (x3, x5, x7, x9), (w3, w5, w7, w9)
+end
 
 # And for α = 0:
-gl_bessel_x3(jak, d) = (jak^2 - 2)*d^2 / 3
-gl_bessel_x5(jak, d) = (11*jak^4 - 57*jak^2 + 94)d^4 / 45
-gl_bessel_x7(jak, d) = (657*jak^6 - 6516*jak^4 + 28102*jak^2 - 48308)*d^6 / 2835
-gl_bessel_x9(jak, d) = (10644*jak^8 - 172740*jak^6 + 1456807*jak^4 -  6605817*jak^2 + 12059918)*d^8 / 42525
-gl_bessel_x11(jak, d) = (410649*jak^10 -  9908262*jak^8 + 138902061*jak^6 - 1248722004*jak^4 + 6028914206*jak^2 - 11427291076)*d^10 / 1403325
+function gl_bessel(jak, d)
+    jak² = jak * jak
+    d² = d * d
+    d⁴ = d² * d²
+    d⁸ = d⁴ * d⁴
 
-gl_bessel_w3(jak, d) = (jak^2 - 1)*2*d^2 / 3
-gl_bessel_w5(jak, d) = (33*jak^4 -114*jak^2 + 94)*d^4 / 45
-gl_bessel_w7(jak, d) = (657*jak^6 - 4887*jak^4 + 14051*jak^2 - 12077)*4*d^6 / 2835
-gl_bessel_w9(jak, d) = (53220*jak^8 - 690960*jak^6 + 4370421*jak^4 - 13211634*jak^2 + 12059918)*d^8 / 42525
-gl_bessel_w11(jak, d) = (1231947*jak^10 - 24770655*jak^8 + 277804122*jak^6 - 1873083006*jak^4 + 6028914206*jak^2 - 5713645538)*2*d^10 / 1403325
+    x3 = d² * evalpoly(jak², (-2, 1)) / 3
+    x5 = d⁴ * evalpoly(jak², (94, -57, 11)) / 45
+    x7 = d⁴ * d² * evalpoly(jak², (-48308, 28102, -6516, 657)) / 2835
+    x9 = d⁸ * evalpoly(jak², (12059918, -6605817, 1456807, -172740, 10644)) / 42525
+    x11 = d⁸ * d² * evalpoly(jak², (-11427291076, 6028914206, -1248722004, 138902061, -9908262, 410649)) / 1403325
 
+    w3 = 2 * d² * evalpoly(jak², (-1, 1)) / 3
+    w5 = d⁴ * evalpoly(jak², (94, -114, 33)) / 45
+    w7 = 4 * d⁴ * d² * evalpoly(jak², (-12077, 14051, -4887, 657)) / 2835
+    w9 = d⁸ * evalpoly(jak², (12059918, -13211634, 4370421, -690960, 53220)) / 42525
+    w11 = 2 * d⁸ * d² * evalpoly(jak², (-5713645538, 6028914206, -1873083006, 277804122, -24770655, 1231947)) / 1403325
+    return (x3, x5, x7, x9, x11), (w3, w5, w7, w9, w11)
+end
 
 ## The soft edge (Airy region)
 
@@ -474,17 +485,8 @@ function gausslaguerre_asy_bessel(n, α, jak, d, T)
     if α == 0
         return gausslaguerre_asy0_bessel(n, jak, d, T)
     end
-    x3 = gl_bessel_x3(jak, d, α)
-    x5 = gl_bessel_x5(jak, d, α)
-    x7 = gl_bessel_x7(jak, d, α)
-    x9 = gl_bessel_x9(jak, d, α)
-    w3 = gl_bessel_w3(jak, d, α)
-    w5 = gl_bessel_w5(jak, d, α)
-    w7 = gl_bessel_w7(jak, d, α)
-    w9 = gl_bessel_w9(jak, d, α)
 
-    xs = (x3, x5, x7, x9)
-    ws = (w3, w5, w7, w9)
+    xs, ws = gl_bessel(jak, d, α)
 
     xk, xdelta = (T > 0) ? sum_explicit(xs, (T-1)>>1) : sum_adaptive(xs)
     wk, wdelta = (T > 0) ? sum_explicit(ws, (T-1)>>1) : sum_adaptive(ws)
@@ -503,20 +505,8 @@ function gausslaguerre_asy_bessel(n, α, jak, d, T)
 end
 
 function gausslaguerre_asy0_bessel(n, jak, d, T)
-    x3 = gl_bessel_x3(jak, d)
-    x5 = gl_bessel_x5(jak, d)
-    x7 = gl_bessel_x7(jak, d)
-    x9 = gl_bessel_x9(jak, d)
-    x11 = gl_bessel_x11(jak, d)
-    w3 = gl_bessel_w3(jak, d)
-    w5 = gl_bessel_w5(jak, d)
-    w7 = gl_bessel_w7(jak, d)
-    w9 = gl_bessel_w9(jak, d)
-    w11 = gl_bessel_w11(jak, d)
-
-    xs = (x3, x5, x7, x9, x11)
-    ws = (w3, w5, w7, w9, w11)
-
+    xs, ws = gl_bessel(jak, d)
+  
     xk, xdelta = (T > 0) ? sum_explicit(xs, (T-1)>>1) : sum_adaptive(xs)
     wk, wdelta = (T > 0) ? sum_explicit(ws, (T-1)>>1) : sum_adaptive(ws)
 
