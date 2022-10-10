@@ -156,12 +156,12 @@ function besselZeroRoots(m)
     @inbounds for jj = 21:min(m, 47)
         ak = π * (jj - .25)
         ak82 = (.125 / ak)^2
-        jk[jj] = ak + .125 / ak * @evalpoly(ak82, 1.0, p[7], p[5], p[3])
+        jk[jj] = ak + .125 / ak * evalpoly(ak82, (1.0, p[7], p[5], p[3]))
     end
     @inbounds for jj = 48:min(m, 344)
         ak = π * (jj - .25)
         ak82 = (.125 / ak)^2
-        jk[jj] = ak + .125 / ak * @evalpoly(ak82, 1.0, p[7], p[5])
+        jk[jj] = ak + .125 / ak * evalpoly(ak82, (1.0, p[7], p[5]))
     end
     @inbounds for jj = 345:min(m,13191)
         ak = π * (jj - .25)
@@ -189,20 +189,17 @@ function besselJ1(m)
     @inbounds for jj = 11:min(m, 15)
         ak = π * (jj - .25)
         ak2 = (1 / ak)^2
-        Jk2[jj] = 1 / (π * ak) * muladd(@evalpoly(ak2, c[5], c[4], c[3],
-                                                  c[2], c[1]), ak2^2, c[7])
+        Jk2[jj] = 1 / (π * ak) * muladd(evalpoly(ak2, (c[5], c[4], c[3], c[2], c[1])), ak2^2, c[7])
     end
     @inbounds for jj = 16:min(m, 21)
         ak = π * (jj - .25)
         ak2 = (1 / ak)^2
-        Jk2[jj] = 1 / (π * ak) * muladd(@evalpoly(ak2, c[5], c[4], c[3], c[2]),
-                                        ak2^2, c[7])
+        Jk2[jj] = 1 / (π * ak) * muladd(evalpoly(ak2, (c[5], c[4], c[3], c[2])), ak2^2, c[7])
     end
     @inbounds for jj = 22:min(m,55)
         ak = π * (jj - .25)
         ak2 = (1 / ak)^2
-        Jk2[jj] = 1 / (π * ak) * muladd(@evalpoly(ak2, c[5], c[4], c[3]),
-                                        ak2^2, c[7])
+        Jk2[jj] = 1 / (π * ak) * muladd(evalpoly(ak2, (c[5], c[4], c[3])), ak2^2, c[7])
     end
     @inbounds for jj = 56:min(m,279)
         ak = π * (jj - .25)
