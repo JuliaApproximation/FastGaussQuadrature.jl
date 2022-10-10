@@ -424,7 +424,7 @@ function gausslaguerre_asy_bulk(n, α, k, d, T)
         return gausslaguerre_asy0_bulk(n, k, d, T)
     end
 
-    t = 0.8842769004296226#gl_bulk_solve_t(n, k, d)
+    t = gl_bulk_solve_t(n, k, d)
     xs, ws = gl_bulk(t, d, α)
 
     xk, xdelta = (T > 0) ? sum_explicit(xs, (T-1)>>1) : sum_adaptive(xs)
