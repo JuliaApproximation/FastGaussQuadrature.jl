@@ -364,15 +364,19 @@ function gl_bessel(jak, d)
 end
 
 ## The soft edge (Airy region)
+function gl_airy(ak, d, α)
+    T = eltype(α)
+    cbrt_d = cbrt(d)
+    cbrt_d2 = cbrt_d * cbrt_d
+    ak² = ak * ak
+    ak³ = ak² * ak
+    ak⁴ = ak² * ak²
 
-gl_airy_x1(ak, d, α) = 1/d + ak*(d/4)^(-1/3)
-gl_airy_x3(ak, d, α) = ak^2*(d*16)^(1/3)/5 + (11/35-α^2-12/175*ak^3)*d + (16/1575*ak+92/7875*ak^4)*2^(2/3)*d^(5/3)
-gl_airy_x5(ak, d, α) = -(15152/3031875*ak^5+1088/121275*ak^2)*2^(1/3)*d^(7/3)
-
-gl_airy_x1(ak, d) = 1/d + ak*(d/4)^(-1/3)
-gl_airy_x3(ak, d) = ak^2*(d*16)^(1/3)/5 + (11/35-12/175*ak^3)*d + (16/1575*ak+92/7875*ak^4)*2^(2/3)*d^(5/3)
-gl_airy_x5(ak, d) = -(15152/3031875*ak^5+1088/121275*ak^2)*2^(1/3)*d^(7/3)
-
+    x1 = 1 / d + ak  * cbrt(T(4)) / cbrt_d
+    x3 = ak² * cbrt(T(16)) / 5 * cbrt_d + (T(11)/35 - α^2 - T(12)/175*ak³)*d + (T(16)/1575 * ak + T(92)/7875*ak⁴) * cbrt(T(4)) * d * cbrt_d2
+    x5 = -(T(15152)/3031875 * ak⁴ * ak + T(1088)/121275 * ak²) * cbrt(T(2)) * d * d * cbrt_d
+    return x1, x3, x5
+end
 
 # Sum the first Q elements of vals, and return the absolute value of the next
 # value in the list (or of the last value in the list)
@@ -510,16 +514,8 @@ function compute_airy_root(n, k)
 end
 
 function gausslaguerre_asy_airy(n, α, k, d, T)
-    if α == 0
-        return gausslaguerre_asy0_airy(n, k, d, T)
-    end
-
     ak = compute_airy_root(n, k)
-    x1 = gl_airy_x1(ak, d, α)
-    x3 = gl_airy_x3(ak, d, α)
-    x5 = gl_airy_x5(ak, d, α)
-
-    xs = (x1, x3, x5)
+    xs = gl_airy(ak, d, α)
 
     xk, xdelta = (T > 0) ? sum_explicit(xs, (T+1)>>1) : sum_adaptive(xs)
 
@@ -528,24 +524,6 @@ function gausslaguerre_asy_airy(n, α, k, d, T)
 
     return xk, wk, max(xdelta,wdelta)
 end
-
-function gausslaguerre_asy0_airy(n, k, d, T)
-    ak = compute_airy_root(n, k)
-
-    x1 = gl_airy_x1(ak, d)
-    x3 = gl_airy_x3(ak, d)
-    x5 = gl_airy_x5(ak, d)
-
-    xs = (x1, x3, x5)
-
-    xk, xdelta = (T > 0) ? sum_explicit(xs, (T+1)>>1) : sum_adaptive(xs)
-
-    wk = 4^(1/3) * xk^(1/3) * exp(-xk) / (airyaiprime(ak))^2
-    wdelta = abs(wk)
-
-    return xk, wk, max(xdelta,wdelta)
-end
-
 
 """
 Calculate Gauss-Laguerre nodes and weights from the eigenvalue decomposition of
