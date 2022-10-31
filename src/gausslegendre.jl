@@ -95,7 +95,7 @@ function legpts_nodes(n, a)
             ai⁵ = ai² * ai³
             node = ai + (u - 1 / ai) / 8 * vn²
             v1 = (6 * (1 + u²) / ai + 25 / ai³ - u * muladd(31, u², 33)) / 384
-            v2 = u * @evalpoly(u², 2595 / 15360, 6350 / 15360, 3779 / 15360)
+            v2 = u * evalpoly(u², (2595 / 15360, 6350 / 15360, 3779 / 15360))
             v3 = (1 + u²) * (-muladd(31 / 1024, u², 11 / 1024) / ai +
                              u / 512 / ai² + -25 / 3072 / ai³)
             v4 = (v2 - 1073 / 5120 / ai⁵ + v3)
@@ -151,17 +151,16 @@ function legpts_weights(n, m, a)
             ai⁻² = 1 / ai²
             ua = u * ai
             W1 = muladd(ua - 1, ai⁻², 1.0) / 8
-            W2 = @evalpoly(ai⁻², @evalpoly(u², -27.0, -84.0, -56.0),
+            W2 = evalpoly(ai⁻², (evalpoly(u², (-27.0, -84.0, -56.0)),
                            muladd(-3.0, muladd(u², -2.0, 1.0), 6 * ua),
-                           muladd(ua, -31.0, 81.0)) / 384
-            W3 = @evalpoly(ai⁻¹, @evalpoly(u², 153 / 1024, 295 / 256, 187 / 96,
-                                           151 / 160),
-                           @evalpoly(u², -65 / 1024, -119 / 768, -35 / 384) * u,
-                           @evalpoly(u², 5 / 512, 15 / 512, 7 / 384),
+                           muladd(ua, -31.0, 81.0))) / 384
+            W3 = evalpoly(ai⁻¹, (evalpoly(u², (153 / 1024, 295 / 256, 187 / 96, 151 / 160)),
+                           evalpoly(u², (-65 / 1024, -119 / 768, -35 / 384)) * u,
+                           evalpoly(u², (5 / 512, 15 / 512, 7 / 384)),
                            muladd(u², 1 / 512, -13 / 1536) * u,
                            muladd(u², -7 / 384, + 53 / 3072),
-                           3749 / 15360 * u, -1125 / 1024)
-            weights[i] = @evalpoly(vn², 1 / vn² + W1, W2, W3)
+                           3749 / 15360 * u, -1125 / 1024))
+            weights[i] = evalpoly(vn², (1 / vn² + W1, W2, W3))
         end
     elseif n ≤ 1500
         for i in 1:m
@@ -172,9 +171,9 @@ function legpts_weights(n, m, a)
             ai⁻² = 1 / ai²
             ua = u * ai
             W1 = muladd(ua - 1, ai⁻², 1.0) / 8
-            W2 = @evalpoly(ai⁻², @evalpoly(u², -27.0, -84.0, -56.0),
+            W2 = evalpoly(ai⁻², (evalpoly(u², (-27.0, -84.0, -56.0)),
                            muladd(-3.0, muladd(u², -2.0, 1.0), 6 * ua),
-                           muladd(ua, -31.0, 81.0)) / 384
+                           muladd(ua, -31.0, 81.0))) / 384
             weights[i] = muladd(vn², W2, 1 / vn² + W1)
         end
     elseif n ≤ 850000
