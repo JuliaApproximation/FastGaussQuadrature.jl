@@ -1,5 +1,3 @@
-using FastGaussQuadrature
-
 @testset "Gauss–Hermite" begin
     @testset "Check error" begin
         @test_throws DomainError gausshermite(-1)
