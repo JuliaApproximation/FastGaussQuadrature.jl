@@ -1,7 +1,7 @@
 # Test gausslaguerre.jl
 
 # Test integration
-tol = 4.0e-10
+tol = 1.0e-13
 
 # Evaluate the exact integral of x^α * p(x) *exp(-x) on the positive halfline,
 # where p(x) = sum( coef[i+1]*x^i, i=0..degree(p)) is a polynomial given by its
@@ -79,14 +79,14 @@ Random.seed!(0)
     @test abs(dot(w, polyval(x, coef)) - Z)/abs(Z) < tol
 
     x_gw, w_gw = FastGaussQuadrature.gausslaguerre_GW(n, α)
-    @test abs(x[37] - 98.388267163326702) < tol
-    @test abs(w[7] - 0.055372813167092) < tol
-    @test abs(dot(w, polyval(x, coef)) - Z)/abs(Z) < tol
+    @test abs(x_gw[37] - 98.388267163326702) < tol
+    @test abs(w_gw[7] - 0.055372813167092) < tol
+    @test abs(dot(w_gw, polyval(x_gw, coef)) - Z)/abs(Z) < tol
 
     x_rec, w_rec = FastGaussQuadrature.gausslaguerre_rec(n, α)
-    @test abs(x[37] - 98.388267163326702) < tol
-    @test abs(w[7] - 0.055372813167092) < tol
-    @test abs(dot(w, polyval(x, coef)) - Z)/abs(Z) < tol
+    @test abs(x_rec[37] - 98.388267163326702) < tol
+    @test abs(w_rec[7] - 0.055372813167092) < tol
+    @test abs(dot(w_rec, polyval(x_rec, coef)) - Z)/abs(Z) < tol
 
 
     α = 0.5
