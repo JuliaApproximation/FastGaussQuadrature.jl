@@ -1,6 +1,3 @@
-import SpecialFunctions
-import SpecialFunctions: besselj
-
 @testset "Bessel Roots" begin
     @test_throws DomainError approx_besselroots(0.0, -1)
 
