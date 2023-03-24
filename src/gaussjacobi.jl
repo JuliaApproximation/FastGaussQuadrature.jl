@@ -1,7 +1,8 @@
 @doc raw"""
-    gaussjacobi(n::Integer) -> x, w  # nodes, weights
+    gaussjacobi(n::Integer, α::Real, β::Real) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Jacobi quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Jacobi_quadrature).
+Return nodes `x` and weights `w` of [Gauss-Jacobi quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Jacobi_quadrature)
+for exponents `α` and `β`.
 
 ```math
 \int_{-1}^{1} f(x) (1-x)^\alpha(1+x)^\beta dx \approx \sum_{i=1}^{n} w_i f(x_i)
