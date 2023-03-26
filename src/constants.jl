@@ -1,5 +1,5 @@
 @doc raw"""
-First twenty roots of Bessel funcion ``J_0`` in Float64.
+First twenty roots of Bessel function ``J_0`` in Float64.
 https://mathworld.wolfram.com/BesselFunctionZeros.html
 
 # Examples
