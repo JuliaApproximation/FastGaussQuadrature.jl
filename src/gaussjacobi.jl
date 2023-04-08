@@ -53,6 +53,7 @@ end
 
 # Convenience function: convert any kind of numbers a and b to a joint floating point type
 jacobi_rec(n::Integer, α::Real, β::Real) = jacobi_rec(n, promote(float(α), float(β))...)
+jacobi_asy(n::Integer, α::Real, β::Real) = jacobi_asy(n, promote(float(α), float(β))...)
 
 function jacobi_rec(n::Integer, α::T, β::T) where {T <: AbstractFloat}
     #Compute nodes and weights using recurrrence relation.
@@ -172,7 +173,7 @@ function weightsConstant(n, α, β)
     return 2^(α + β + 1) * C
 end
 
-function jacobi_asy(n, α, β)
+function jacobi_asy(n::Integer, α::Float64, β::Float64)
     # ASY  Compute nodes and weights using asymptotic formulae.
 
     # Determine switch between interior and boundary regions:
