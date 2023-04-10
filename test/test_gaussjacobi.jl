@@ -214,6 +214,12 @@
         @test isa(x,Vector{Float64})
         @test isa(w,Vector{Float64})
     end
+    @testset "missing promotion with integers (#117)" begin
+        x1, w1 = gaussjacobi(500, 0, -1/2)
+        x2, w2 = gaussjacobi(500, 0.0, -1/2)
+        @test x1 == x2
+        @test w1 == w2
+    end
 
     @testset "jacobi_rec against a precomputed rule in BigFloat" begin
         x,w = FastGaussQuadrature.jacobi_rec(10, big(0), big(0))
