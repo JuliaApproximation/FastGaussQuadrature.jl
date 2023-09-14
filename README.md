@@ -4,6 +4,7 @@ FastGaussQuadrature.jl
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaApproximation.github.io/FastGaussQuadrature.jl/dev)
 [![Build Status](https://github.com/JuliaApproximation/FastGaussQuadrature.jl/workflows/CI/badge.svg)](https://github.com/JuliaApproximation/FastGaussQuadrature.jl/actions)
 [![codecov](https://codecov.io/gh/JuliaApproximation/FastGaussQuadrature.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaApproximation/FastGaussQuadrature.jl)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 A Julia package to compute `n`-point Gauss quadrature nodes and weights to 16-digit accuracy and in `O(n)` time.
 So far the package includes `gausschebyshev()`, `gausslegendre()`, `gaussjacobi()`, `gaussradau()`, `gausslobatto()`, `gausslaguerre()`, and `gausshermite()`.
