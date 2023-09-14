@@ -19,7 +19,12 @@ julia> I ≈ 3π/8
 true
 ```
 """
-gausschebyshev1(n::Integer) = [cos((2 * k - 1) * π / (2 * n)) for k = n:-1:1], fill(π / n, n)
+function gausschebyshev1(n::Integer)
+    if n < 0
+        throw(DomainError(n, "Input n must be a non-negative integer"))
+    end
+    return [cos((2 * k - 1) * π / (2 * n)) for k = n:-1:1], fill(π / n, n)
+end
 
 @doc raw"""
     gausschebyshev2(n::Integer) -> x, w  # nodes, weights
@@ -42,7 +47,12 @@ julia> I ≈ π/16
 true
 ```
 """
-gausschebyshev2(n::Integer) = [cos(k * π / (n + 1)) for k = n:-1:1], [π/(n + 1) * sin(k / (n + 1) * π)^2 for k = n:-1:1]
+function gausschebyshev2(n::Integer)
+    if n < 0
+        throw(DomainError(n, "Input n must be a non-negative integer"))
+    end
+    return [cos(k * π / (n + 1)) for k = n:-1:1], [π/(n + 1) * sin(k / (n + 1) * π)^2 for k = n:-1:1]
+end
 
 @doc raw"""
     gausschebyshev3(n::Integer) -> x, w  # nodes, weights
@@ -65,7 +75,12 @@ julia> I ≈ 3π/8
 true
 ```
 """
-gausschebyshev3(n::Integer) = [cos((k - .5) * π / (n + .5)) for k = n:-1:1], [2π / (n + .5) * cos((k - .5) * π / (2 * (n + .5)))^2 for k = n:-1:1]
+function gausschebyshev3(n::Integer)
+    if n < 0
+        throw(DomainError(n, "Input n must be a non-negative integer"))
+    end
+    return [cos((k - .5) * π / (n + .5)) for k = n:-1:1], [2π / (n + .5) * cos((k - .5) * π / (2 * (n + .5)))^2 for k = n:-1:1]
+end
 
 @doc raw"""
     gausschebyshev4(n::Integer) -> x, w  # nodes, weights
@@ -88,7 +103,12 @@ julia> I ≈ 3π/8
 true
 ```
 """
-gausschebyshev4(n::Integer) = [cos(k * π / (n + .5)) for k = n:-1:1], [2π / (n + .5) * sin(k * π / (2 * (n + .5)))^2 for k = n:-1:1]
+function gausschebyshev4(n::Integer)
+    if n < 0
+        throw(DomainError(n, "Input n must be a non-negative integer"))
+    end
+    return [cos(k * π / (n + .5)) for k = n:-1:1], [2π / (n + .5) * sin(k * π / (2 * (n + .5)))^2 for k = n:-1:1]
+end
 
 function gausschebyshev(n::Integer, kind::Integer=1)
     # GAUSS-CHEBYSHEV NODES AND WEIGHTS.
