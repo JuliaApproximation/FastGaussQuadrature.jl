@@ -73,6 +73,21 @@
         @test FastGaussQuadrature.hermpoly_rec(0:20^2,20)[end] ≈ FastGaussQuadrature.hermpoly_rec(20^2,20)[1]
     end
 
+    @testset "Normalize" begin
+        for t ∈ 1:6
+            x,w = gausshermite(t; normalize = true)
+            N = 2t - 1 
+            v = 1.0
+            for n ∈ 2:2:N
+                v *= (n-1)
+                @test v ≈ dot( x.^n, w )
+            end
+            for n ∈ 1:2:N
+                @test abs( 0.0 - dot( x.^n, w ) ) < 10 * tol
+            end
+        end
+    end
+
     @testset "All" begin
         for n in 2:220
             x,w = gausshermite(n)
