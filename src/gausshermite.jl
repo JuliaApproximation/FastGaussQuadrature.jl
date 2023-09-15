@@ -1,5 +1,5 @@
 @doc raw"""
-    gausshermite(n::Integer; probabilist = false) -> x, w  # nodes, weights
+    gausshermite(n::Integer; normalize = false) -> x, w  # nodes, weights
 
 Return nodes `x` and weights `w` of [Gauss-Hermite quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Hermite_quadrature).
 
@@ -7,7 +7,7 @@ Return nodes `x` and weights `w` of [Gauss-Hermite quadrature](https://en.wikipe
 \int_{-\infty}^{+\infty} f(x) \exp(-x^2) dx \approx \sum_{i=1}^{n} w_i f(x_i)
 ```
 
-The option `probabilist=true` instead computes
+The option `normalize=true` instead computes
 ```math
 \int_{-\infty}^{+\infty} f(x) \phi(x) dx \approx \sum_{i=1}^{n} w_i f(x_i),
 ```
@@ -25,10 +25,10 @@ julia> I ≈ 3(√π)/4
 true
 ```
 """
-function gausshermite(n::Integer; probabilist = false)
+function gausshermite(n::Integer; normalize = false)
     x,w = unweightedgausshermite(n)
     w .*= exp.(-x.^2)
-    probabilist ? ( sqrt(2.0) * x, w / sqrt( π ) ) : ( x, w )
+    normalize ? ( sqrt(2.0) * x, w / sqrt( π ) ) : ( x, w )
 end
 
 function unweightedgausshermite(n::Integer)
