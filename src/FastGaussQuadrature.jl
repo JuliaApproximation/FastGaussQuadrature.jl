@@ -6,10 +6,10 @@ using StaticArrays
 
 export gausslegendre
 export gausschebyshev
-export gausschebyshev1
-export gausschebyshev2
-export gausschebyshev3
-export gausschebyshev4
+export gausschebyshevT
+export gausschebyshevU
+export gausschebyshevV
+export gausschebyshevW
 export gausslaguerre
 export gausshermite
 export gaussjacobi

@@ -1,5 +1,5 @@
 @doc raw"""
-    gausschebyshev1(n::Integer) -> x, w  # nodes, weights
+    gausschebyshevT(n::Integer) -> x, w  # nodes, weights
 
 Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 1st kind.
 
@@ -9,7 +9,7 @@ Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wiki
 
 # Examples
 ```jldoctest
-julia> x, w = gausschebyshev1(3);
+julia> x, w = gausschebyshevT(3);
 
 julia> f(x) = x^4;
 
@@ -19,7 +19,7 @@ julia> I ≈ 3π/8
 true
 ```
 """
-function gausschebyshev1(n::Integer)
+function gausschebyshevT(n::Integer)
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
@@ -27,7 +27,7 @@ function gausschebyshev1(n::Integer)
 end
 
 @doc raw"""
-    gausschebyshev2(n::Integer) -> x, w  # nodes, weights
+    gausschebyshevU(n::Integer) -> x, w  # nodes, weights
 
 Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 2nd kind.
 
@@ -37,7 +37,7 @@ Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wiki
 
 # Examples
 ```jldoctest
-julia> x, w = gausschebyshev2(3);
+julia> x, w = gausschebyshevU(3);
 
 julia> f(x) = x^4;
 
@@ -47,7 +47,7 @@ julia> I ≈ π/16
 true
 ```
 """
-function gausschebyshev2(n::Integer)
+function gausschebyshevU(n::Integer)
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
@@ -55,7 +55,7 @@ function gausschebyshev2(n::Integer)
 end
 
 @doc raw"""
-    gausschebyshev3(n::Integer) -> x, w  # nodes, weights
+    gausschebyshevV(n::Integer) -> x, w  # nodes, weights
 
 Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 3rd kind.
 
@@ -65,7 +65,7 @@ Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wiki
 
 # Examples
 ```jldoctest
-julia> x, w = gausschebyshev3(3);
+julia> x, w = gausschebyshevV(3);
 
 julia> f(x) = x^4;
 
@@ -75,7 +75,7 @@ julia> I ≈ 3π/8
 true
 ```
 """
-function gausschebyshev3(n::Integer)
+function gausschebyshevV(n::Integer)
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
@@ -83,7 +83,7 @@ function gausschebyshev3(n::Integer)
 end
 
 @doc raw"""
-    gausschebyshev4(n::Integer) -> x, w  # nodes, weights
+    gausschebyshevW(n::Integer) -> x, w  # nodes, weights
 
 Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 4th kind.
 
@@ -93,7 +93,7 @@ Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wiki
 
 # Examples
 ```jldoctest
-julia> x, w = gausschebyshev4(3);
+julia> x, w = gausschebyshevW(3);
 
 julia> f(x) = x^4;
 
@@ -103,7 +103,7 @@ julia> I ≈ 3π/8
 true
 ```
 """
-function gausschebyshev4(n::Integer)
+function gausschebyshevW(n::Integer)
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
@@ -120,20 +120,20 @@ function gausschebyshev(n::Integer, kind::Integer=1)
     # Use known explicit formulas. Complexity O(n).
     if kind == 1
         # Gauss-ChebyshevT quadrature, i.e., w(x) = 1/sqrt(1-x^2)
-        Base.depwarn("`gausschebyshev(n, 1)` is deprecated and will be removed in the next breaking release. Please use `gausschebyshev1(n)` instead.", :gausschebyshev)
-        return gausschebyshev1(n)
+        Base.depwarn("`gausschebyshev(n, 1)` is deprecated and will be removed in the next breaking release. Please use `gausschebyshevT(n)` instead.", :gausschebyshev)
+        return gausschebyshevT(n)
     elseif kind == 2
         # Gauss-ChebyshevU quadrature, i.e., w(x) = sqrt(1-x^2)
-        Base.depwarn("`gausschebyshev(n, 2)` is deprecated and will be removed in the next breaking release. Please use `gausschebyshev2(n)` instead.", :gausschebyshev)
-        return gausschebyshev2(n)
+        Base.depwarn("`gausschebyshev(n, 2)` is deprecated and will be removed in the next breaking release. Please use `gausschebyshevU(n)` instead.", :gausschebyshev)
+        return gausschebyshevU(n)
     elseif kind == 3
         # Gauss-ChebyshevV quadrature, i.e., w(x) = sqrt((1+x)/(1-x))
-        Base.depwarn("`gausschebyshev(n, 3)` is deprecated and will be removed in the next breaking release. Please use `gausschebyshev3(n)` instead.", :gausschebyshev)
-        return gausschebyshev3(n)
+        Base.depwarn("`gausschebyshev(n, 3)` is deprecated and will be removed in the next breaking release. Please use `gausschebyshevV(n)` instead.", :gausschebyshev)
+        return gausschebyshevV(n)
     elseif kind == 4
         # Gauss-ChebyshevW quadrature, i.e., w(x) = sqrt((1-x)/(1+x))
-        Base.depwarn("`gausschebyshev(n, 4)` is deprecated and will be removed in the next breaking release. Please use `gausschebyshev4(n)` instead.", :gausschebyshev)
-        return gausschebyshev4(n)
+        Base.depwarn("`gausschebyshev(n, 4)` is deprecated and will be removed in the next breaking release. Please use `gausschebyshevW(n)` instead.", :gausschebyshev)
+        return gausschebyshevW(n)
     else
         throw(ArgumentError("Chebyshev kind should be 1, 2, 3, or 4"))
     end
