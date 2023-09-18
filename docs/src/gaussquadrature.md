@@ -53,10 +53,10 @@ There are four kinds of Gauss-Chebyshev quadrature rules, corresponding to four 
 They are all have explicit simple formulas for the nodes and weights [[4]](https://books.google.co.jp/books?id=8FHf0P3to0UC).
 
 ```@docs
-gausschebyshevT(n::Integer)
-gausschebyshevU(n::Integer)
-gausschebyshevV(n::Integer)
-gausschebyshevW(n::Integer)
+gausschebyshevt(n::Integer)
+gausschebyshevu(n::Integer)
+gausschebyshevv(n::Integer)
+gausschebyshevw(n::Integer)
 ```
 
 
