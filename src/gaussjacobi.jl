@@ -174,7 +174,7 @@ function weightsConstant(n, α, β)
 end
 
 function jacobi_asy(n::Integer, α::Float64, β::Float64)
-    # ASY  Compute nodes and weights using asymptotic formulae.
+    # ASY Compute nodes and weights using asymptotic formulae.
 
     # Determine switch between interior and boundary regions:
     nbdy = 10
@@ -185,12 +185,12 @@ function jacobi_asy(n::Integer, α::Float64, β::Float64)
     x, w = asy1(n, α, β, nbdy)
 
     # Boundary formula (right):
-    xbdy = boundary(n, α, β, nbdy)
+    xbdy = asy2(n, α, β, nbdy)
     x[bdyidx1], w[bdyidx1] = xbdy
 
     # Boundary formula (left):
     if α ≠ β
-        xbdy = boundary(n, β, α, nbdy)
+        xbdy = asy2(n, β, α, nbdy)
     end
     x[bdyidx2] = -xbdy[1]
     w[bdyidx2] = xbdy[2]
@@ -350,10 +350,10 @@ function feval_asy1(n::Integer, α::Float64, β::Float64, t::AbstractVector, idx
     g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,
          5246819/75246796800, -534703531/902961561600,
          -4483131259/86684309913600, 432261921612371/514904800886784000]
-    f(g,z) = dot(g, [1;cumprod(ones(9)./z)])
+    f(z) = dot(g, [1;cumprod(ones(9)./z)])
 
     # Float constant C, C2
-    C = 2*p2*(f(g,n+α)*f(g,n+β)/f(g,2n+α+β))/π
+    C = 2*p2*(f(n+α)*f(n+β)/f(2n+α+β))/π
     C2 = C*(α+β+2n)*(α+β+1+2n)/(4*(α+n)*(β+n))
 
     vals = C*S
@@ -367,37 +367,228 @@ function feval_asy1(n::Integer, α::Float64, β::Float64, t::AbstractVector, idx
     return vals, ders
 end
 
-function boundary(n::Integer, α::Float64, β::Float64, npts::Integer)
-# Algorithm for computing nodes and weights near the boundary.
+function asy2(n::Integer, α::Float64, β::Float64, npts::Integer)
+    # Algorithm for computing nodes and weights near the boundary.
 
     # Use Newton iterations to find the first few Bessel roots:
     smallK = min(30, npts)
     jk = approx_besselroots(α, smallK)
+    # Use asy formula for larger ones (See NIST 10.21.19, Olver 1974 p247)
+    if (npts > smallK)
+        μ  = 4*α^2
+        a8 = 8*(transpose(length(jk)+1:npts)+.5*α-.25)*pi
+        jk2 = .125*a8-(μ-1)./a8 - 4*(μ-1)*(7*μ-31)/3 ./ a8.^3 -
+              32*(μ-1)*(83*μ.^2-982*μ+3779)/15 ./ a8.^5 -
+              64*(μ-1)*(6949*μ^3-153855*μ^2+1585743*μ-6277237)/105 ./ a8.^7
+        jk = [jk; jk2]
+    end
+    jk = real(jk[1:npts])
 
     # Approximate roots via asymptotic formula: (see Olver 1974)
     phik = jk/(n + .5*(α + β + 1))
-    x = cos.( phik .+ ((α^2-0.25).*(1 .-phik.*cot.(phik))./(8*phik) .- 0.25.*(α^2-β^2).*tan.(0.5.*phik))./(n + 0.5*(α + β + 1))^2 )
+    t = phik .+ ((α^2-0.25).*(1 .-phik.*cot.(phik))./(8*phik) .- 0.25.*(α^2-β^2).*tan.(0.5.*phik))./(n + 0.5*(α + β + 1))^2
 
     # Newton iteration:
     for _ in 1:10
-        vals, ders = innerjacobi_rec(n, x, α, β)  # Evaluate via asymptotic formula.
-        dx = -vals./ders  # Newton update.
-        x += dx  # Next iterate.
-        if norm(dx,Inf) < sqrt(eps(Float64))/200
+        vals, ders = feval_asy2(n, α, β, t)  # Evaluate via asymptotic formula.
+        dt = vals./ders  # Newton update.
+        t += dt  # Next iterate.
+        if norm(dt,Inf) < sqrt(eps(Float64))/200
             break
         end
     end
-    vals, ders = innerjacobi_rec(n, x, α, β)  # Evaluate via asymptotic formula.
-    dx = -vals./ders
-    x += dx
+    vals, ders = feval_asy2(n, α, β, t)  # Evaluate via asymptotic formula.
+    dt = vals./ders
+    t += dt
 
     # flip:
-    x = reverse(x)
+    t = reverse(t)
     ders = reverse(ders)
 
     # Revert to x-space:
-    w = 1 ./ ((1 .- x.^2) .* ders.^2)
+    x = cos.(t)
+    w = transpose(1 ./ ders.^2)
+    v = sin.(t)./ders
+
     return x, w
+end
+
+"""
+Evaluate the boundary asymptotic formula at x = cos(t).
+Assumption:
+* `length(t) == n ÷ 2`
+"""
+function feval_asy2(n::Integer, α::Float64, β::Float64, t::AbstractVector)
+    # Number of elements in t:
+    N = length(t)
+
+    rho = n + .5*(α + β + 1) 
+    rho2 = n + .5*(α + β - 1)
+    A = (.25 - α^2)       
+    B = (.25 - β^2)
+    
+    # Evaluate the Bessel functions:
+    Ja = besselj.(α, rho*t)
+    Jb = besselj.(α + 1, rho*t)
+    Jbb = besselj.(α + 1, rho2*t)
+    Jab = besselj.(α, rho2*t)
+
+    # Evaluate functions for recursive definition of coefficients:
+    gt = A*(cot.(t/2) .- (2 ./ t)) .- B*tan.(t/2)
+    gtdx = A*(2 ./ t.^2 .- .5*csc.(t/2).^2) .- .5*B*sec.(t/2).^2
+    tB0 = .25*gt
+    A10 = α*(A+3*B)/24
+    A1 = gtdx/8 .- (1+2*α)/8*gt./t .- gt.^2/32 .- A10
+    # # Higher terms:
+    # tB1t = tB1(t) 
+    # A2t = A2(t) 
+
+    vals  = Ja + Jb.*tB0/rho + Ja.*A1/rho^2 # + Jb.*tB1t/rho^3 + Ja.*A2t/rho^4
+    vals2 = Jab + Jbb.*tB0/rho2 + Jab.*A1/rho2^2 # + Jbb.*tB1t/rho2^3 + Jab.*A2t/rho2^4
+    
+    # # Higher terms (not needed for n > 1000).
+    # tB2t   = tB2(t) 
+    # A3t    = A3(t)
+    # vals  += Jb.*tB2t/rho^5 + Ja.*A3t/rho^6
+    # vals2 += Jbb.*tB2t/rho2^5 + Jab.*A3t/rho2^6
+
+    # Constant out the front (Computed accurately!)
+    ds = .5*(α^2)/n
+    s = ds 
+    jj = 1
+    while abs(ds/s) > eps(Float64)/10
+        jj = jj+1
+        ds = -(jj-1)/(jj+1)/n*(ds*α)
+        s = s + ds
+    end
+    p2 = exp(s)*sqrt((n+α)/n)*(n/rho)^α
+    g = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,
+         5246819/75246796800, -534703531/902961561600,
+         -4483131259/86684309913600, 432261921612371/514904800886784000]
+    f(z) = dot(g, [1;cumprod(ones(9)./z)])
+    C = p2*(f(n+α)/f(n))/sqrt(2)
+
+    # Scaling:
+    valstmp = C*vals
+    denom = sin.(t/2).^(α+.5).*cos.(t/2).^(β+.5)
+    vals = sqrt.(t).*valstmp./denom
+
+    # Relation for derivative:
+    C2 = C*n/(n+α)*(rho/rho2)^α
+    ders = (n*(α-β .- (2*n+α+β)*cos.(t)).*valstmp .+ 2*(n+α)*(n+β)*C2*vals2)/(2*n+α+β)
+    ders = ders.*(sqrt.(t)./(denom.*sin.(t)))
+
+    return vals, ders
+end
+
+function asy2_higherterms(α, β, theta, n)
+    # Higher-order terms for boundary asymptotic series.
+    # Compute the higher order terms in asy2 boundary formula. See [2]. 
+    
+    # These constants are more useful than α and β:
+    A = (0.25 - α^2)
+    B = (0.25 - β^2)
+    
+    # For now, just work on half of the domain:
+    c = max(max(theta), .5)
+    if n < 30
+        N = ceil(40 - n)
+    elseif n >= 30 && c > pi/2-.5
+        N = 15
+    else
+        N = 10
+    end
+    Nm1 = N - 1
+    
+    # Scaled 2nd-kind Chebyshev points and barycentric weights:
+    t = .5*c*transpose(sin.(pi*(-Nm1:2:Nm1)/(2*Nm1)) + 1)
+    v = [.5; ones(Nm1,1)]
+    v[2:2:end] = -1
+    v[end] = .5*v[end]
+    
+    # The g's:
+    g = A*(cot.(t/2) - 2. /t) - B*tan.(t/2)
+    gp = A*(2 ./ t.^2 - .5*csc.(t/2).^2) - .5*(.25-β^2)*sec.(t/2).^2
+    gpp = A*(-4 ./ t.^3 + .25*sin.(t).*csc.(t/2).^4) - 4*B*sin.(t/2).^4 .* csc.(t).^3
+    g[1] = 0 
+    gp[1] = -A/6-.5*B 
+    gpp[1] = 0
+    
+    # B0:
+    B0 = .25*g./t
+    B0p = .25*(gp./t-g./t.^2)
+    B0[1] = .25*(-A/6-.5*B)
+    B0p[1] = 0
+    
+    # A1:
+    A10 = α*(A+3*B)/24
+    A1 = .125*gp - (1+2*α)/2*B0 - g.^2/32 - A10
+    A1p = .125*gpp - (1+2*α)/2*B0p - gp.*g/16
+    A1p_t = A1p./t
+    A1p_t[1] = -A/720 - A^2/576 - A*B/96 - B^2/64 - B/48 + α*(A/720 + B/48)
+    
+    # Make f accurately: (Taylor series approx for small t)
+    fcos = B./(2*cos.(t/2)).^2
+    f = -A*(1/12 + t.^2/240+t.^4/6048 + t.^6/172800 + t.^8/5322240 +
+        691*t.^10/118879488000 + t.^12/5748019200 +
+        3617*t.^14/711374856192000 + 43867*t.^16/300534953951232000)
+    idx = t > .5
+    ti = t[idx]
+    f[idx] = A.*(1 ./ ti.^2 - 1 ./ (2*sin(ti/2)).^2)
+    f = f - fcos
+    
+    # Integrals for B1: (Note that N isn't large, so we don't need to be fancy).
+    C = chebcolloc2.cumsummat(N)*(.5*c)
+    D = chebcolloc2.diffmat(N)*(2/c)
+    I = (C*A1p_t)
+    J = (C*(f.*A1))
+    
+    # B1:
+    tB1 = -.5*A1p - (.5+α)*I + .5*J
+    tB1[1] = 0
+    B1 = tB1./t
+    B1[1] = A/720 + A^2/576 + A*B/96 + B^2/64 + B/48 +
+        α*(A^2/576 + B^2/64 + A*B/96) - α^2*(A/720 + B/48)
+    
+    # A2:
+    K = C*(f.*tB1)
+    A2 = .5*(D*tB1) - (.5+α)*B1 - .5*K
+    A2 = A2 - A2[1]
+    
+    # if ( nargout < 3 )
+    #     # Make function for output
+    #     tB1(theta) = bary(theta,tB1,t,v)
+    #     A2(theta) = bary(theta,A2,t,v)
+    #     return
+    # end
+    
+    # A2p:
+    A2p = D*A2
+    A2p = A2p - A2p[1]
+    A2p_t = A2p./t
+    # Extrapolate point at t = 0:
+    w = pi/2-t[2:end]
+    w[2:2:end] = -w[2:2:end]
+    w[end] = .5*w[end]
+    A2p_t[1] = sum(w.*A2p_t[2:end])/sum(w)
+    
+    # B2:
+    tB2 = -.5*A2p - (.5+α)*(C*A2p_t) + .5*C*(f.*A2)
+    B2 = tB2./t
+    # Extrapolate point at t = 0:
+    B2[1] = sum(w.*B2[2:end])/sum(w)
+    
+    # A3:
+    K = C*(f.*tB2)
+    A3 = .5*(D*tB2) - (.5+α)*B2 - .5*K
+    A3 = A3 - A3[1]
+    
+    tB1(theta) = bary(theta, tB1, t, v)
+    A2(theta) = bary(theta, A2, t, v)
+    tB2(theta) = bary(theta, tB2, t, v)
+    A3(theta) = bary(theta, A3, t, v)
+
+    return [tB1, A2, tB2, A3, tB3, A4]
 end
 
 function jacobi_jacobimatrix(n, α, β)
