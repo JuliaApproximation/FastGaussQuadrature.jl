@@ -174,7 +174,7 @@ function weightsConstant(n, α, β)
 end
 
 function jacobi_asy(n::Integer, α::Float64, β::Float64)
-    # ASY Compute nodes and weights using asymptotic formulae.
+    # ASY  Compute nodes and weights using asymptotic formulae.
 
     # Determine switch between interior and boundary regions:
     nbdy = 10
@@ -381,12 +381,12 @@ function asy2(n::Integer, α::Float64, β::Float64, npts::Integer)
     end
     jk = real(jk[1:npts])
 
-    # Approximate roots via asymptotic formula: (see Olver 1974)
+    # Approximate roots via asymptotic formula: (see Olver 1974, NIST, 18.16.8)
     phik = jk/(n + .5*(α + β + 1))
-    t = phik .+ ((α^2-0.25).*(1 .-phik.*cot.(phik))./(2*phik) .- 0.25.*(α^2-β^2).*tan.(0.5.*phik))./(n + .5*(α + β + 1))^2
+    t = phik .+ ((α^2-0.25).*(1 .- phik.*cot.(phik))./(2*phik) .- 0.25.*(α^2-β^2).*tan.(0.5.*phik))./(n + .5*(α + β + 1))^2
 
     # Compute higher terms:
-    higherterms = asy2_higherterms(α, β, t, n)
+    higherterms = asy2_higherterms(α, β, t)
 
     # Newton iteration:
     for _ in 1:10
@@ -402,13 +402,12 @@ function asy2(n::Integer, α::Float64, β::Float64, npts::Integer)
     t += dt
 
     # flip:
-    t = reverse(t)
+    t    = reverse(t)
     ders = reverse(ders)
 
     # Revert to x-space:
     x = cos.(t)
-    w = transpose(1 ./ ders.^2)
-    v = sin.(t)./ders
+    w = 1 ./ ders.^2
 
     return x, w
 end
@@ -418,7 +417,7 @@ Evaluate the boundary asymptotic formula at x = cos(t).
 Assumption:
 * `length(t) == n ÷ 2`
 """
-function feval_asy2(n::Integer, α::Float64, β::Float64, t::AbstractVector, higherterms)
+function feval_asy2(n::Integer, α::Float64, β::Float64, t::AbstractVector, higherterms::HT) where HT <: Tuple{<:Function, <:Function, <:Function, <:Function}
     rho  = n + .5*(α + β + 1) 
     rho2 = n + .5*(α + β - 1)
     A = (.25 - α^2)       
@@ -428,14 +427,14 @@ function feval_asy2(n::Integer, α::Float64, β::Float64, t::AbstractVector, hig
     Ja = besselj.(α, rho*t)
     Jb = besselj.(α + 1, rho*t)
     Jbb = besselj.(α + 1, rho2*t)
-    Jab = besselj.(α, rho2*t)
+    Jab = besselTaylor(-t, rho*t, α)
 
     # Evaluate functions for recursive definition of coefficients:
     gt = A*(cot.(t/2) .- (2 ./ t)) .- B*tan.(t/2)
     gtdx = A*(2 ./ t.^2 .- .5*csc.(t/2).^2) .- .5*B*sec.(t/2).^2
     tB0 = .25*gt
     A10 = α*(A+3*B)/24
-    A1 = gtdx/8 .- (1+2*α)/8*gt./t .- gt.^2/32 .- A10
+    A1  = gtdx/8 .- (1+2*α)/8*gt./t .- gt.^2/32 .- A10
     # Higher terms:
     tB1, A2, tB2, A3 = higherterms
     tB1t = tB1(t) 
@@ -470,18 +469,18 @@ function feval_asy2(n::Integer, α::Float64, β::Float64, t::AbstractVector, hig
 
     # Scaling:
     valstmp = C*vals
-    denom = sin.(t/2).^(α+.5).*cos.(t/2).^(β+.5)
-    vals = sqrt.(t).*valstmp./denom
+    denom   = sin.(t/2).^(α+.5).*cos.(t/2).^(β+.5)
+    vals    = sqrt.(t).*valstmp./denom
 
     # Relation for derivative:
-    C2 = C*n/(n+α)*(rho/rho2)^α
-    ders = (n*(α-β .- (2n+α+β)*cos.(t)).*valstmp .+ 2*(n+α)*(n+β)*C2*vals2)/(2n+α+β)
-    ders = ders.*(sqrt.(t)./(denom.*sin.(t)))
+    C2     = C*n/(n+α)*(rho/rho2)^α
+    ders   = (n*(α-β .- (2n+α+β)*cos.(t)).*valstmp .+ 2*(n+α)*(n+β)*C2*vals2)/(2n+α+β)
+    ders .*= sqrt.(t)./(denom.*sin.(t))
 
     return vals, ders
 end
 
-function asy2_higherterms(α::Float64, β::Float64, theta::AbstractVector, n::Integer)
+function asy2_higherterms(α::Float64, β::Float64, theta::AbstractVector)
     # Higher-order terms for boundary asymptotic series.
     # Compute the higher order terms in asy2 boundary formula. See [2]. 
     
@@ -493,8 +492,8 @@ function asy2_higherterms(α::Float64, β::Float64, theta::AbstractVector, n::In
     c = max(maximum(theta), .5)
     
     # Scaled 2nd-kind Chebyshev points and barycentric weights:
-    t = .5*c*(sin.(pi*(-(N-1):2:(N-1))/(2*(N-1))) .+ 1)
-    v = [.5; ones(N-1,1)]
+    t = .5*c*(sin.(pi*(-(nc-1):2:(nc-1))/(2*(nc-1))) .+ 1)
+    v = [.5; ones(nc-1)]
     v[2:2:end] .= -1
     v[end]     *= .5
     
@@ -529,8 +528,8 @@ function asy2_higherterms(α::Float64, β::Float64, theta::AbstractVector, n::In
     f .-= fcos
     
     # Integrals for B1: (Note that N isn't large, so we don't need to be fancy).
-    C = (.5*c)*cumsummatN
-    D = (2/c)*diffmatN
+    C = (.5*c)*cumsummat
+    D = (2/c)*diffmat
     I = (C*A1p_t)
     J = (C*(f.*A1))
     
@@ -572,7 +571,7 @@ function asy2_higherterms(α::Float64, β::Float64, theta::AbstractVector, n::In
     tB2f(theta) = bary(theta, tB2, t, v)
     A3f(theta)  = bary(theta, A3, t, v)
 
-    return (tB1f, A2f, tB2f, A3f)
+    return tB1f, A2f, tB2f, A3f
 end
 
 function jacobi_jacobimatrix(n, α, β)
@@ -602,8 +601,8 @@ function jacobi_gw(n::Integer, α, β)
     return x, w
 end
 
-function bary(x, fvals, xk, vk)
-    # barycentric interpolation taken from chebfun/bary.m
+function bary(x::AbstractVector, fvals::AbstractVector, xk::AbstractVector, vk::AbstractVector)
+    # simple barycentric interpolation routine adapted from chebfun/bary.m
 
     # Initialise return value:
     fx = zeros(length(x))
@@ -625,9 +624,55 @@ function bary(x, fvals, xk, vk)
     return fx
 end
 
-# Chebyshev type 2 integration and differentiation matrices from chebfun
-const N = 10
-const cumsummatN = [
+function besselTaylor(t::AbstractVector, z::AbstractVector, α::Float64)
+    # Accurate evaluation of Bessel function J_A for asy2. (See [2].)
+    # evaluates J_A(Z+T) by a Taylor series expansion about Z. 
+    
+    npts = length(t)
+    kmax = min(ceil(Int64, abs(log(eps(Float64))/log(norm(t, Inf)))), 30)
+    H = t' .^ (0:kmax)
+    # Compute coeffs in Taylor expansions about z (See NIST 10.6.7)
+    nu = ones(Int64, length(z)) * (-kmax:kmax)'
+    JK = z * ones(2kmax+1)'
+    Bjk = besselj.(α .+ nu, JK)
+    nck = nck_mat(floor(Int64, 1.25*kmax)) # nchoosek
+    AA = [Bjk[:,kmax+1] zeros(npts, kmax)]
+    fact = 1
+    for k = 1:kmax
+        sgn = 1
+        for l = 0:k
+            AA[:,k+1] = AA[:,k+1] + sgn*nck[k,l+1]*Bjk[:,kmax+2*l-k+1]
+            sgn = -sgn
+        end
+        fact = k*fact
+        AA[:,k+1] ./= 2^k * fact
+    end
+    # Evaluate Taylor series:
+    Ja = zeros(npts)
+    for k = 1:npts
+        Ja[k] = dot(AA[k,:], H[:,k])
+    end
+
+    return Ja
+end
+
+function nck_mat(n::Integer)
+    # almost triangular matrix storing n choose k
+    M = zeros(Int64, n-1, n)
+    M[:,1] .= 1
+    M[1,2]  = 1
+    for i=2:n-1
+        for j=2:i+1
+            M[i,j] = M[i-1,j-1] + M[i-1,j]
+        end
+    end
+    return M
+end
+
+# 10-point Chebyshev type 2 integration and differentiation matrices 
+# computed using Chebfun
+const nc = 10
+const cumsummat = [
         0 0 0 0 0 0 0 0 0 0;
         0.019080722834519 0.0496969890549313 -0.0150585059796021 0.0126377679164575 -0.0118760811432484 0.0115424841953298 -0.0113725236133433 0.0112812076497144 -0.011235316890839 0.00561063519017238;
         0.000812345683614654 0.14586999854807 0.0976007154946748 -0.0146972757610091 0.00680984376276729 -0.00401953146146086 0.00271970678005437 -0.00205195604894289 0.00172405556686793 -0.000812345683614662;
@@ -639,7 +684,7 @@ const cumsummatN = [
         0.00673504382217329 0.127802773462876 0.21400311568839 0.313312558886712 0.332320021608814 0.355738586947393 0.289302267356911 0.240342829317707 0.0668704675171058 -0.00673504382217329;
         0.0123456790123457 0.116567456572037 0.225284323338104 0.301940035273369 0.343862505804144 0.343862505804144 0.301940035273369 0.225284323338104 0.116567456572037 0.0123456790123457
     ]
-const diffmatN = [
+const diffmat = [
         -27.1666666666667 33.1634374775264 -8.54863217041303 4 -2.42027662546121 1.70408819104185 -1.33333333333333 1.13247433143179 -1.03109120412576 0.5;
         -8.29085936938159 4.01654328417507 5.75877048314363 -2.27431608520652 1.30540728933228 -0.898197570222574 0.694592710667722 -0.586256827714545 0.532088886237956 -0.257772801031441;
         2.13715804260326 -5.75877048314363 0.927019729872654 3.75877048314364 -1.68805925749197 1.06417777247591 -0.789861687269397 0.652703644666139 -0.586256827714545 0.283118582857949;

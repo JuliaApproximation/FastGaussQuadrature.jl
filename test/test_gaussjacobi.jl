@@ -230,4 +230,13 @@
         @test abs(x[7] - big(4146701176053244724446765533149623814305606864483746748725151214196203624388371)/big(10)^79) < 1e-70
         @test abs(w[3] - big(2482452398859023537636458227096017466104571146686194593251519240011574719667464)/big(10)^79) < 1e-70
     end
+
+    @testset "boundary asymptotics were previously not implemented (#58,#130)" begin
+        _, w = gaussjacobi(2^10, 0.25, 0)
+        @test abs(w[end] - 3.607554904604311e-07) / 3.607554904604311e-07 < tol_w
+
+        _, w = gaussjacobi(2^16, -0.9, 0)
+        @test abs(w[end] - 1.223027243345722) < tol_w
+        @test abs(sum(w) - 2^(-0.9+1)/(-0.9+1)) < tol
+    end
 end
