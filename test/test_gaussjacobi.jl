@@ -232,11 +232,23 @@
     end
 
     @testset "boundary asymptotics were previously not implemented (#58,#130)" begin
+        # check example from issue #58
         _, w = gaussjacobi(2^10, 0.25, 0)
         @test abs(w[end] - 3.607554904604311e-07) / 3.607554904604311e-07 < tol_w
 
+        # check example from issue #130
         _, w = gaussjacobi(2^16, -0.9, 0)
         @test abs(w[end] - 1.223027243345722) < tol_w
         @test abs(sum(w) - 2^(-0.9+1)/(-0.9+1)) < tol
+
+        # double check NaN fixing in barycentric interpolation implementation
+        x  = range(0, stop=1, length=5)
+        N  = 10
+        fvals = ones(N)
+        xk = .5*(sin.(pi*(-(N-1):2:(N-1))/(2*(N-1))) .+ 1)
+        vk = [.5; ones(N-1)]
+        vk[2:2:end] .= -1
+        vk[end]     *= .5
+        @test norm(FastGaussQuadrature.bary(x, fvals, xk, vk) - ones(5)) < tol
     end
 end

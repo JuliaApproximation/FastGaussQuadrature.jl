@@ -377,7 +377,7 @@ function asy2(n::Integer, α::Float64, β::Float64, npts::Integer)
         jk2 = .125*a8-(μ-1)./a8 - 4*(μ-1)*(7*μ-31)/3 ./ a8.^3 -
               32*(μ-1)*(83*μ.^2-982*μ+3779)/15 ./ a8.^5 -
               64*(μ-1)*(6949*μ^3-153855*μ^2+1585743*μ-6277237)/105 ./ a8.^7
-        jk = [jk; jk2]
+        jk = append!(jk, jk2)
     end
     jk = real(jk[1:npts])
 
@@ -427,7 +427,7 @@ function feval_asy2(n::Integer, α::Float64, β::Float64, t::AbstractVector, hig
     Ja = besselj.(α, rho*t)
     Jb = besselj.(α + 1, rho*t)
     Jbb = besselj.(α + 1, rho2*t)
-    Jab = besselTaylor(-t, rho*t, α)
+    Jab = bessel_taylor(-t, rho*t, α)
 
     # Evaluate functions for recursive definition of coefficients:
     gt = A*(cot.(t/2) .- (2 ./ t)) .- B*tan.(t/2)
@@ -628,7 +628,7 @@ function bary(x::AbstractVector, fvals::AbstractVector, xk::AbstractVector, vk::
     return fx
 end
 
-function besselTaylor(t::AbstractVector, z::AbstractVector, α::Float64)
+function bessel_taylor(t::AbstractVector, z::AbstractVector, α::Float64)
     # Accurate evaluation of Bessel function J_A for asy2. (See [2].)
     # evaluates J_A(Z+T) by a Taylor series expansion about Z. 
     
