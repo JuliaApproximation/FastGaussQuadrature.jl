@@ -368,18 +368,7 @@ function asy2(n::Integer, α::Float64, β::Float64, npts::Integer)
     # Algorithm for computing nodes and weights near the boundary.
 
     # Use Newton iterations to find the first few Bessel roots:
-    smallK = min(30, npts)
-    jk = approx_besselroots(α, smallK)
-    # Use asy formula for larger ones (See NIST 10.21.19, Olver 1974 p247)
-    if (npts > smallK)
-        μ  = 4*α^2
-        a8 = 8*(transpose(length(jk)+1:npts)+.5*α-.25)*pi
-        jk2 = .125*a8-(μ-1)./a8 - 4*(μ-1)*(7*μ-31)/3 ./ a8.^3 -
-              32*(μ-1)*(83*μ.^2-982*μ+3779)/15 ./ a8.^5 -
-              64*(μ-1)*(6949*μ^3-153855*μ^2+1585743*μ-6277237)/105 ./ a8.^7
-        jk = append!(jk, jk2)
-    end
-    jk = real(jk[1:npts])
+    jk = approx_besselroots(α, npts)
 
     # Approximate roots via asymptotic formula: (see Olver 1974, NIST, 18.16.8)
     phik = jk/(n + .5*(α + β + 1))
