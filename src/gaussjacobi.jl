@@ -151,15 +151,6 @@ function innerjacobi_rec!(n, x, α::T, β::T, P, PP) where {T <: AbstractFloat}
     nothing
 end
 
-function innerjacobi_rec(n, x, α::T, β::T) where {T <: AbstractFloat}
-    # EVALUATE JACOBI POLYNOMIALS AND ITS DERIVATIVE USING THREE-TERM RECURRENCE.
-    N = length(x)
-    P = Array{T}(undef,N)
-    PP = Array{T}(undef,N)
-    innerjacobi_rec!(n, x, α, β, P, PP)
-    return P, PP
-end
-
 function weightsConstant(n, α, β)
     # Compute the constant for weights:
     M = min(20, n - 1)
