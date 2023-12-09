@@ -230,4 +230,25 @@
         @test abs(x[7] - big(4146701176053244724446765533149623814305606864483746748725151214196203624388371)/big(10)^79) < 1e-70
         @test abs(w[3] - big(2482452398859023537636458227096017466104571146686194593251519240011574719667464)/big(10)^79) < 1e-70
     end
+
+    @testset "boundary asymptotics were previously not implemented (#58,#130)" begin
+        # check example from issue #58
+        _, w = gaussjacobi(2^10, 0.25, 0)
+        @test abs(w[end] - 3.607554904604311e-07) < tol
+
+        # check example from issue #130
+        _, w = gaussjacobi(2^16, -0.9, 0)
+        @test abs(w[end] - 1.223027243345722) < tol
+        @test abs(sum(w) - 2^(-0.9+1)/(-0.9+1)) < tol
+
+        # double check NaN fixing in barycentric interpolation implementation
+        x  = range(0, stop=1, length=5)
+        N  = 10
+        fvals = ones(N)
+        xk = .5*(sin.(pi*(-(N-1):2:(N-1))/(2*(N-1))) .+ 1)
+        vk = [.5; ones(N-1)]
+        vk[2:2:end] .= -1
+        vk[end]     *= .5
+        @test FastGaussQuadrature.bary(x, fvals, xk, vk) ≈ ones(5) rtol=1e-16
+    end
 end
