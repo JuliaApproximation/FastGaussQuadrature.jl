@@ -33,10 +33,10 @@
 
     @testset "deprecated" begin
         n = 42
-        @test gausschebyshevt(n) == gausschebyshev(n, 1)
-        @test gausschebyshevu(n) == gausschebyshev(n, 2)
-        @test gausschebyshevv(n) == gausschebyshev(n, 3)
-        @test gausschebyshevw(n) == gausschebyshev(n, 4)
+        @test gausschebyshevt(n) == @test_deprecated gausschebyshev(n, 1)
+        @test gausschebyshevu(n) == @test_deprecated gausschebyshev(n, 2)
+        @test gausschebyshevv(n) == @test_deprecated gausschebyshev(n, 3)
+        @test gausschebyshevw(n) == @test_deprecated gausschebyshev(n, 4)
         @test_throws ArgumentError gausschebyshev(0,5)
     end
 end
