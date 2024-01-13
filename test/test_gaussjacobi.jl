@@ -46,7 +46,7 @@
         α₋ = prevfloat(α₀)
         β₋ = prevfloat(β₀)
         for n in n_range
-            x, w = gausschebyshev(n, 1)
+            x, w = @test_deprecated gausschebyshev(n, 1)
             x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
             x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
             x₀₋, w₀₋ = gaussjacobi(n, α₀, β₋)
@@ -73,7 +73,7 @@
         α₋ = prevfloat(α₀)
         β₋ = prevfloat(β₀)
         for n in n_range
-            x, w = gausschebyshev(n, 2)
+            x, w = @test_deprecated gausschebyshev(n, 2)
             x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
             x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
             x₀₋, w₀₋ = gaussjacobi(n, α₀, β₋)
@@ -100,7 +100,7 @@
         α₋ = prevfloat(α₀)
         β₋ = prevfloat(β₀)
         for n in n_range
-            x, w = gausschebyshev(n, 3)
+            x, w = @test_deprecated gausschebyshev(n, 3)
             x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
             x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
             x₀₋, w₀₋ = gaussjacobi(n, α₀, β₋)
@@ -127,7 +127,7 @@
         α₋ = prevfloat(α₀)
         β₋ = prevfloat(β₀)
         for n in n_range
-            x, w = gausschebyshev(n, 4)
+            x, w = @test_deprecated gausschebyshev(n, 4)
             x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
             x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
             x₀₋, w₀₋ = gaussjacobi(n, α₀, β₋)

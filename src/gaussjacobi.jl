@@ -27,13 +27,13 @@ function gaussjacobi(n::Integer, α::Real, β::Real)
     elseif α == 0. && β == 0.
         gausslegendre(n)
     elseif α == -0.5 && β == -0.5
-        gausschebyshev(n, 1)
+        gausschebyshevt(n)
     elseif α == 0.5 && β == 0.5
-        gausschebyshev(n, 2)
+        gausschebyshevu(n)
     elseif α == -0.5 && β == 0.5
-        gausschebyshev(n, 3)
+        gausschebyshevv(n)
     elseif α == 0.5 && β == -0.5
-        gausschebyshev(n, 4)
+        gausschebyshevw(n)
     elseif n == 0
         Float64[], Float64[]
     elseif n == 1
