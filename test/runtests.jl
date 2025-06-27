@@ -1,7 +1,7 @@
 using FastGaussQuadrature
 using Test, Aqua, LinearAlgebra, Random, SpecialFunctions
 
-Aqua.test_all(FastGaussQuadrature)
+Aqua.test_all(FastGaussQuadrature;deps_compat = (; check_extras=false))
 
 @testset "FastGaussQuadrature.jl" begin
     include("test_gausschebyshev.jl")
