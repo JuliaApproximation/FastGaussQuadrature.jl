@@ -203,9 +203,10 @@ end
 function rec(n)
     # COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING NEWTON'S METHOD.
     # THREE-TERM RECURENCE IS USED FOR EVALUATION. COMPLEXITY O(n^2).
-    # Initial guesses:
-    x0 = asy(n)[1]
-    x = x0[1:n ÷ 2 + 1]
+    
+    # Initial guess:
+    x=leg_initial_guess(n)
+
     # Perform Newton to find zeros of Legendre polynomial:
     PP1,PP2=similar(x),similar(x)
 
@@ -255,4 +256,16 @@ end
     @inbounds @simd for i in eachindex(x)
         x[i] -= PP1[i] / PP2[i]
     end
+end
+
+function leg_initial_guess(n)
+    # Returns an approximation of the first n÷2+1 roots of the Legendre polynomial.
+    #  The following is equivalent to "x0=asy(n);x = x0[1:n ÷ 2 + 1]" but it avoids unnecessary calculations.
+
+    m = (n + 1) >> 1
+    a = besselZeroRoots(m)
+    rmul!(a, 1 / (n + 0.5))
+    x = legpts_nodes(n, a)
+    rmul!(x,-1.0)
+    return x
 end
