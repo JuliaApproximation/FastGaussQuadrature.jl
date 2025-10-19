@@ -137,9 +137,7 @@ function piessens(ν::Float64)
     C = PIESSENS_C
     T = _piessens_chebyshev30(ν)
     y = C'*T
-    _y = collect(y)
-    _y[1] *= sqrt(ν+1)  # Scale the first root.
-    return _y
+    return Base.setindex(y, y[1] * sqrt(ν+1), 1)
 end
 
 
