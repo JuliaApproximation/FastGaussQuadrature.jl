@@ -260,7 +260,7 @@ end
 
 @inline function leg_initial_guess(n)
     # Returns an approximation of the first n÷2+1 roots of the Legendre polynomial.
-    #  The following is equivalent to "x0=asy(n);x = x0[1:n ÷ 2 + 1]" but it avoids unnecessary calculations.
+    #  The following is equivalent to "x0 = asy(n)[1]; x = x0[1:n ÷ 2 + 1]" but it avoids unnecessary calculations.
 
     m = (n ÷2) +1
     a = besselZeroRoots(m)
