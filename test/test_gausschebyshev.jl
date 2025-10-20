@@ -11,24 +11,24 @@
 
     @testset "x.^2" begin
         x, w = gausschebyshevt(n)
-        @test dot(x.^2,w) ≈ π/2
+        @test dot(x .^ 2, w) ≈ π / 2
         x, w = gausschebyshevu(n)
-        @test dot(x.^2,w) ≈ π/8
+        @test dot(x .^ 2, w) ≈ π / 8
         x, w = gausschebyshevv(n)
-        @test dot(x.^2,w) ≈ π/2
+        @test dot(x .^ 2, w) ≈ π / 2
         x, w = gausschebyshevw(n)
-        @test dot(x.^2,w) ≈ π/2
+        @test dot(x .^ 2, w) ≈ π / 2
     end
 
     @testset "x^3" begin
         x, w = gausschebyshevt(n)
-        @test abs(dot(x.^3,w)) < 1e-15
+        @test abs(dot(x .^ 3, w)) < 1.0e-15
         x, w = gausschebyshevu(n)
-        @test abs(dot(x.^3,w)) < 1e-15
+        @test abs(dot(x .^ 3, w)) < 1.0e-15
         x, w = gausschebyshevv(n)
-        @test dot(x.^3,w) ≈ 3*π/8
+        @test dot(x .^ 3, w) ≈ 3 * π / 8
         x, w = gausschebyshevw(n)
-        @test dot(x.^3,w) ≈ -3*π/8
+        @test dot(x .^ 3, w) ≈ -3 * π / 8
     end
 
     @testset "deprecated" begin
@@ -37,6 +37,6 @@
         @test gausschebyshevu(n) == @test_deprecated gausschebyshev(n, 2)
         @test gausschebyshevv(n) == @test_deprecated gausschebyshev(n, 3)
         @test gausschebyshevw(n) == @test_deprecated gausschebyshev(n, 4)
-        @test_throws ArgumentError gausschebyshev(0,5)
+        @test_throws ArgumentError gausschebyshev(0, 5)
     end
 end
