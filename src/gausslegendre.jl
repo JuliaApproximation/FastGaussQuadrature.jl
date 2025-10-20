@@ -203,18 +203,17 @@ end
 function rec(n)
     # COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING NEWTON'S METHOD.
     # THREE-TERM RECURENCE IS USED FOR EVALUATION. COMPLEXITY O(n^2).
-    # Initial guesses:
-    x0 = asy(n)[1]
-    x = x0[1:n ÷ 2 + 1]
+    
+    # Initial guess:
+    x=leg_initial_guess(n)
+
     # Perform Newton to find zeros of Legendre polynomial:
-    PP1, PP2 = innerRec(n, x)
-    @inbounds @simd for i in 1:length(x)
-        x[i] -= PP1[i] / PP2[i]
-    end
-        # One more Newton for derivatives:
-    PP1, PP2 = innerRec(n, x)
-    @inbounds @simd for i in 1:length(x)
-        x[i] -= PP1[i] / PP2[i]
+    PP1,PP2=similar(x),similar(x)
+
+    # Two iterations of Newton's method
+    for _=1:2
+        innerRec!(PP1,PP2,n, x)
+        newt_step!(x,PP1,PP2)
     end
 
     # Use symmetry to get the other Legendre nodes and weights:
@@ -232,11 +231,9 @@ function rec(n)
     return x, PP2
 end
 
-function innerRec(n, x)
+@inline function innerRec!(myPm1,myPPm1,n, x)
     # EVALUATE LEGENDRE AND ITS DERIVATIVE USING THREE-TERM RECURRENCE RELATION.
     N = size(x, 1)
-    myPm1 = Array{Float64}(undef, N)
-    myPPm1 = Array{Float64}(undef, N)
     @inbounds for j = 1:N
         xj = x[j]
         Pm2 = 1.0
@@ -252,4 +249,23 @@ function innerRec(n, x)
         myPPm1[j] = PPm1
     end
     return myPm1, myPPm1
+end
+
+@inline function newt_step!(x,PP1,PP2)
+    # In-place iteration of Newton's method.
+    @inbounds @simd for i in eachindex(x)
+        x[i] -= PP1[i] / PP2[i]
+    end
+end
+
+@inline function leg_initial_guess(n)
+    # Returns an approximation of the first n÷2+1 roots of the Legendre polynomial.
+    #  The following is equivalent to "x0 = asy(n)[1]; x = x0[1:n ÷ 2 + 1]" but it avoids unnecessary calculations.
+
+    m = (n ÷2) +1
+    a = besselZeroRoots(m)
+    rmul!(a, 1 / (n + 0.5))
+    x = legpts_nodes(n, a)
+    rmul!(x,-1.0)
+    return x
 end
