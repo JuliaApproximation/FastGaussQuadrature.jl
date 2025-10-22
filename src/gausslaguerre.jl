@@ -69,29 +69,29 @@ function gausslaguerre(n::Integer, α::Real; reduced = false)
     # Guess the numerical type from the supplied type of α
     # Although the code is generic, the heuristics are derived for Float64 precision
     T = typeof(float(α))
-    return if n == 0
-        T[], T[]
+    if n == 0
+        return T[], T[]
     elseif n == 1
-        [1 + α], [gamma(1 + α)]
+        return [1 + α], [gamma(1 + α)]
     elseif n == 2
-        [α + 2 - sqrt(α + 2), α + 2 + sqrt(α + 2)],
+        return [α + 2 - sqrt(α + 2), α + 2 + sqrt(α + 2)],
             [
                 ((α - sqrt(α + 2) + 2) * gamma(α + 2)) / (2 * (α + 2) * (sqrt(α + 2) - 1)^2),
                 ((α + sqrt(α + 2) + 2) * gamma(α + 2)) / (2 * (α + 2) * (sqrt(α + 2) + 1)^2),
             ]
     elseif n < 15
         # Use Golub-Welsch for small n
-        gausslaguerre_GW(n, α)
+        return gausslaguerre_GW(n, α)
     elseif n < 128
         # Use the recurrence relation for moderate n
-        gausslaguerre_rec(n, α)
+        return gausslaguerre_rec(n, α)
     else
         # Use explicit asymptotic expansions for larger n
         # The restriction to α comes from the restriction on ν in besselroots
         if α < 5
-            gausslaguerre_asy(n, α, reduced = reduced, T = -1, recompute = true)
+            return gausslaguerre_asy(n, α, reduced = reduced, T = -1, recompute = true)
         else
-            gausslaguerre_rec(n, α)
+            return gausslaguerre_rec(n, α)
         end
     end
 end

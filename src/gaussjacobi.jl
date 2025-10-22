@@ -22,30 +22,30 @@ true
 """
 function gaussjacobi(n::Integer, α::Real, β::Real)
     #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
-    return if n < 0
+    if n < 0
         throw(DomainError(n, "gaussjacobi($n,$α,$β) not defined: n must be non-negative."))
     elseif α == 0.0 && β == 0.0
-        gausslegendre(n)
+        return gausslegendre(n)
     elseif α == -0.5 && β == -0.5
-        gausschebyshevt(n)
+        return gausschebyshevt(n)
     elseif α == 0.5 && β == 0.5
-        gausschebyshevu(n)
+        return gausschebyshevu(n)
     elseif α == -0.5 && β == 0.5
-        gausschebyshevv(n)
+        return gausschebyshevv(n)
     elseif α == 0.5 && β == -0.5
-        gausschebyshevw(n)
+        return gausschebyshevw(n)
     elseif n == 0
-        Float64[], Float64[]
+        return Float64[], Float64[]
     elseif n == 1
-        [(β - α) / (α + β + 2)], [2^(α + β + 1) * beta(α + 1, β + 1)]
+        return [(β - α) / (α + β + 2)], [2^(α + β + 1) * beta(α + 1, β + 1)]
     elseif min(α, β) ≤ -1.0
-        throw(DomainError((α, β), "The Jacobi parameters correspond to a nonintegrable weight function"))
+        return throw(DomainError((α, β), "The Jacobi parameters correspond to a nonintegrable weight function"))
     elseif n ≤ 100 && max(α, β) < 5.0
-        jacobi_rec(n, α, β)
+        return jacobi_rec(n, α, β)
     elseif n > 100 && max(α, β) < 5.0
-        jacobi_asy(n, α, β)
+        return jacobi_asy(n, α, β)
     elseif n ≤ 4000 && max(α, β) ≥ 5.0
-        jacobi_gw(n, α, β)
+        return jacobi_gw(n, α, β)
     else
         error("gaussjacobi($n,$α,$β) is not implemented: n must be ≤ 4000 for max(α,β) ≥ 5.")
     end
