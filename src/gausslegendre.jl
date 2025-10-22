@@ -34,15 +34,25 @@ true
         return [-sqrt(3 / 5), 0.0, sqrt(3 / 5)], [5 / 9, 8 / 9, 5 / 9]
     elseif n == 4
         a = 2 / 7 * sqrt(6 / 5)
-        return ([-sqrt(3 / 7 + a), -sqrt(3/7-a), sqrt(3/7-a), sqrt(3/7+a)],
-         [(18 - sqrt(30)) / 36, (18 + sqrt(30)) / 36,
-          (18 + sqrt(30)) / 36, (18 - sqrt(30)) / 36])
+        return (
+            [-sqrt(3 / 7 + a), -sqrt(3 / 7 - a), sqrt(3 / 7 - a), sqrt(3 / 7 + a)],
+            [
+                (18 - sqrt(30)) / 36, (18 + sqrt(30)) / 36,
+                (18 + sqrt(30)) / 36, (18 - sqrt(30)) / 36,
+            ],
+        )
     elseif n == 5
         b = 2 * sqrt(10 / 7)
-        return ([-sqrt(5 + b) / 3, -sqrt(5 - b) / 3, 0.0,
-          sqrt(5 - b) / 3, sqrt(5 + b) / 3],
-         [(322 - 13 * sqrt(70)) / 900, (322 + 13 * sqrt(70)) / 900, 128 / 225,
-          (322 + 13 * sqrt(70)) / 900, (322 - 13 * sqrt(70)) / 900])
+        return (
+            [
+                -sqrt(5 + b) / 3, -sqrt(5 - b) / 3, 0.0,
+                sqrt(5 - b) / 3, sqrt(5 + b) / 3,
+            ],
+            [
+                (322 - 13 * sqrt(70)) / 900, (322 + 13 * sqrt(70)) / 900, 128 / 225,
+                (322 + 13 * sqrt(70)) / 900, (322 - 13 * sqrt(70)) / 900,
+            ],
+        )
     elseif n ≤ 60
         # NEWTON'S METHOD WITH THREE-TERM RECURRENCE:
         return rec(n)
@@ -96,8 +106,10 @@ function legpts_nodes(n, a)
             node = ai + (u - 1 / ai) / 8 * vn²
             v1 = (6 * (1 + u²) / ai + 25 / ai³ - u * muladd(31, u², 33)) / 384
             v2 = u * evalpoly(u², (2595 / 15360, 6350 / 15360, 3779 / 15360))
-            v3 = (1 + u²) * (-muladd(31 / 1024, u², 11 / 1024) / ai +
-                             u / 512 / ai² + -25 / 3072 / ai³)
+            v3 = (1 + u²) * (
+                -muladd(31 / 1024, u², 11 / 1024) / ai +
+                    u / 512 / ai² + -25 / 3072 / ai³
+            )
             v4 = (v2 - 1073 / 5120 / ai⁵ + v3)
             node = muladd(v1, vn⁴, node)
             node = muladd(v4, vn⁶, node)
@@ -123,7 +135,7 @@ function legpts_nodes(n, a)
             nodes[i] = node
         end
     end
-    @inbounds for jj = 1:m
+    @inbounds for jj in 1:m
         nodes[jj] = cos(nodes[jj])
     end
 
@@ -151,15 +163,23 @@ function legpts_weights(n, m, a)
             ai⁻² = 1 / ai²
             ua = u * ai
             W1 = muladd(ua - 1, ai⁻², 1.0) / 8
-            W2 = evalpoly(ai⁻², (evalpoly(u², (-27.0, -84.0, -56.0)),
-                           muladd(-3.0, muladd(u², -2.0, 1.0), 6 * ua),
-                           muladd(ua, -31.0, 81.0))) / 384
-            W3 = evalpoly(ai⁻¹, (evalpoly(u², (153 / 1024, 295 / 256, 187 / 96, 151 / 160)),
-                           evalpoly(u², (-65 / 1024, -119 / 768, -35 / 384)) * u,
-                           evalpoly(u², (5 / 512, 15 / 512, 7 / 384)),
-                           muladd(u², 1 / 512, -13 / 1536) * u,
-                           muladd(u², -7 / 384, + 53 / 3072),
-                           3749 / 15360 * u, -1125 / 1024))
+            W2 = evalpoly(
+                ai⁻², (
+                    evalpoly(u², (-27.0, -84.0, -56.0)),
+                    muladd(-3.0, muladd(u², -2.0, 1.0), 6 * ua),
+                    muladd(ua, -31.0, 81.0),
+                )
+            ) / 384
+            W3 = evalpoly(
+                ai⁻¹, (
+                    evalpoly(u², (153 / 1024, 295 / 256, 187 / 96, 151 / 160)),
+                    evalpoly(u², (-65 / 1024, -119 / 768, -35 / 384)) * u,
+                    evalpoly(u², (5 / 512, 15 / 512, 7 / 384)),
+                    muladd(u², 1 / 512, -13 / 1536) * u,
+                    muladd(u², -7 / 384, + 53 / 3072),
+                    3749 / 15360 * u, -1125 / 1024,
+                )
+            )
             weights[i] = evalpoly(vn², (1 / vn² + W1, W2, W3))
         end
     elseif n ≤ 1500
@@ -171,9 +191,13 @@ function legpts_weights(n, m, a)
             ai⁻² = 1 / ai²
             ua = u * ai
             W1 = muladd(ua - 1, ai⁻², 1.0) / 8
-            W2 = evalpoly(ai⁻², (evalpoly(u², (-27.0, -84.0, -56.0)),
-                           muladd(-3.0, muladd(u², -2.0, 1.0), 6 * ua),
-                           muladd(ua, -31.0, 81.0))) / 384
+            W2 = evalpoly(
+                ai⁻², (
+                    evalpoly(u², (-27.0, -84.0, -56.0)),
+                    muladd(-3.0, muladd(u², -2.0, 1.0), 6 * ua),
+                    muladd(ua, -31.0, 81.0),
+                )
+            ) / 384
             weights[i] = muladd(vn², W2, 1 / vn² + W1)
         end
     elseif n ≤ 850000
@@ -203,24 +227,24 @@ end
 function rec(n)
     # COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING NEWTON'S METHOD.
     # THREE-TERM RECURENCE IS USED FOR EVALUATION. COMPLEXITY O(n^2).
-    
+
     # Initial guess:
-    x=leg_initial_guess(n)
+    x = leg_initial_guess(n)
 
     # Perform Newton to find zeros of Legendre polynomial:
-    PP1,PP2=similar(x),similar(x)
+    PP1, PP2 = similar(x), similar(x)
 
     # Two iterations of Newton's method
-    for _=1:2
-        innerRec!(PP1,PP2,n, x)
-        newt_step!(x,PP1,PP2)
+    for _ in 1:2
+        innerRec!(PP1, PP2, n, x)
+        newt_step!(x, PP1, PP2)
     end
 
     # Use symmetry to get the other Legendre nodes and weights:
     m = length(x)
     resize!(x, n)
     resize!(PP2, n)
-    @inbounds for i in 1:m-1
+    @inbounds for i in 1:(m - 1)
         x[n + 1 - i] = -x[i]
         PP2[n + 1 - i] = -PP2[i]
     end
@@ -231,19 +255,21 @@ function rec(n)
     return x, PP2
 end
 
-@inline function innerRec!(myPm1,myPPm1,n, x)
+@inline function innerRec!(myPm1, myPPm1, n, x)
     # EVALUATE LEGENDRE AND ITS DERIVATIVE USING THREE-TERM RECURRENCE RELATION.
     N = size(x, 1)
-    @inbounds for j = 1:N
+    @inbounds for j in 1:N
         xj = x[j]
         Pm2 = 1.0
         Pm1 = xj
         PPm1 = 1.0
         PPm2 = 0.0
-        for k = 1:(n - 1)
+        for k in 1:(n - 1)
             Pm2, Pm1 = Pm1, muladd((2 * k + 1) * Pm1, xj, - k * Pm2) / (k + 1)
-            PPm2, PPm1 = PPm1, ((2 * k + 1) * muladd(xj, PPm1, Pm2) -
-                                k * PPm2) / (k + 1)
+            PPm2, PPm1 = PPm1, (
+                    (2 * k + 1) * muladd(xj, PPm1, Pm2) -
+                    k * PPm2
+                ) / (k + 1)
         end
         myPm1[j] = Pm1
         myPPm1[j] = PPm1
@@ -251,9 +277,9 @@ end
     return myPm1, myPPm1
 end
 
-@inline function newt_step!(x,PP1,PP2)
+@inline function newt_step!(x, PP1, PP2)
     # In-place iteration of Newton's method.
-    @inbounds @simd for i in eachindex(x)
+    return @inbounds @simd for i in eachindex(x)
         x[i] -= PP1[i] / PP2[i]
     end
 end
@@ -262,10 +288,10 @@ end
     # Returns an approximation of the first n÷2+1 roots of the Legendre polynomial.
     #  The following is equivalent to "x0 = asy(n)[1]; x = x0[1:n ÷ 2 + 1]" but it avoids unnecessary calculations.
 
-    m = (n ÷2) +1
+    m = (n ÷ 2) + 1
     a = besselZeroRoots(m)
     rmul!(a, 1 / (n + 0.5))
     x = legpts_nodes(n, a)
-    rmul!(x,-1.0)
+    rmul!(x, -1.0)
     return x
 end

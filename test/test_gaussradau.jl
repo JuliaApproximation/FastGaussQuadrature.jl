@@ -1,23 +1,23 @@
 @testset "Gauss–Radau" begin
     @testset "Check error" begin
         @test_throws DomainError gaussradau(0)
-        @test_throws DomainError gaussradau(0,0,0)
+        @test_throws DomainError gaussradau(0, 0, 0)
     end
 
     @testset "Legendre" begin
         n = 1
         x, w = gaussradau(n)
-        @test x[1] ≈ -1.
-        @test w[1] ≈ 2.
+        @test x[1] ≈ -1.0
+        @test w[1] ≈ 2.0
 
         n = 2
         x, w = gaussradau(n)
-        @test x[1] ≈ -1.
-        @test x[2] ≈ 1/3
-        @test w[1] ≈ .5
+        @test x[1] ≈ -1.0
+        @test x[2] ≈ 1 / 3
+        @test w[1] ≈ 0.5
         @test w[2] ≈ 1.5
 
-        tol = 1e-14
+        tol = 1.0e-14
         n = 42
         ntests = 4
         x, w = gaussradau(n)
@@ -26,20 +26,20 @@
         @test abs(w[37] - 0.031190846817016) < tol
         @test x[1] == -1
 
-        @test dot( w,exp.(x)) ≈ exp(1)-exp(-1)
+        @test dot(w, exp.(x)) ≈ exp(1) - exp(-1)
     end
     @testset "Jacobi" begin
-        for (a,b) in ((0.1, 0.2), (0,-0.5))
+        for (a, b) in ((0.1, 0.2), (0, -0.5))
             # compare with Gauss–Jacobi
-            for n = 1:5
+            for n in 1:5
                 x, w = gaussradau(n, a, b)
                 x̃, w̃ = gaussjacobi(n, a, b)
 
                 @test length(x) == n
 
                 @test sum(w) ≈ sum(w̃)
-                for j = 1:2n-2
-                    @test dot(w,x.^j) ≈ dot(w̃,x̃.^j)
+                for j in 1:(2n - 2)
+                    @test dot(w, x .^ j) ≈ dot(w̃, x̃ .^ j)
                 end
             end
         end

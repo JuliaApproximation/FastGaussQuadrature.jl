@@ -5,11 +5,11 @@
         @test_throws DomainError gaussjacobi(-1, 0.1, -1.1)
     end
 
-    tol = 1e-14
-    tol_x = 4e-15
-    tol_w = 1e-13
+    tol = 1.0e-14
+    tol_x = 4.0e-15
+    tol_w = 1.0e-13
 
-    n_range = vcat(0:10, 20:10:100, 120:20,300)
+    n_range = vcat(0:10, 20:10:100, 120:20, 300)
 
     @testset "compatible with Gauss-Legendre" begin
         α₀ = 0.0
@@ -39,8 +39,8 @@
     end
 
     @testset "compatible with Gauss-Chebyshev of the 1st kind" begin
-        α₀ = -1/2
-        β₀ = -1/2
+        α₀ = -1 / 2
+        β₀ = -1 / 2
         α₊ = nextfloat(α₀)
         β₊ = nextfloat(β₀)
         α₋ = prevfloat(α₀)
@@ -66,8 +66,8 @@
     end
 
     @testset "compatible with Gauss-Chebyshev of the 2nd kind" begin
-        α₀ = 1/2
-        β₀ = 1/2
+        α₀ = 1 / 2
+        β₀ = 1 / 2
         α₊ = nextfloat(α₀)
         β₊ = nextfloat(β₀)
         α₋ = prevfloat(α₀)
@@ -93,8 +93,8 @@
     end
 
     @testset "compatible with Gauss-Chebyshev of the 3rd kind" begin
-        α₀ = -1/2
-        β₀ = 1/2
+        α₀ = -1 / 2
+        β₀ = 1 / 2
         α₊ = nextfloat(α₀)
         β₊ = nextfloat(β₀)
         α₋ = prevfloat(α₀)
@@ -120,8 +120,8 @@
     end
 
     @testset "compatible with Gauss-Chebyshev of the 4th kind" begin
-        α₀ = 1/2
-        β₀ = -1/2
+        α₀ = 1 / 2
+        β₀ = -1 / 2
         α₊ = nextfloat(α₀)
         β₊ = nextfloat(β₀)
         α₋ = prevfloat(α₀)
@@ -148,25 +148,25 @@
 
     @testset "a small n" begin
         n = 42
-        a = -.1
-        b = .3
+        a = -0.1
+        b = 0.3
         x, w = gaussjacobi(n, a, b)
         @test all(length(x) == n) && all(length(w) == n)
         @test abs(x[37] - 0.912883347814032) < tol
         @test abs(w[37] - 0.046661910947553) < tol
 
-        @test dot(w,exp.(x)) ≈ 2.7568520361985516
+        @test dot(w, exp.(x)) ≈ 2.7568520361985516
     end
     @testset "a larger n (using ASY)" begin
-        a = -.7
+        a = -0.7
         b = 1.3
         n = 251
         x, w = gaussjacobi(n, a, b)
         @test all(length(x) == n) && all(length(w) == n)
         @test abs(x[37] + 0.893103435898983) < tol
-        @test abs(w[37] - 1.962534523788093e-04) < tol
+        @test abs(w[37] - 1.962534523788093e-4) < tol
 
-        @test dot(w,exp.(x)) ≈ 16.722957039404044
+        @test dot(w, exp.(x)) ≈ 16.722957039404044
     end
     @testset "n = 1:" begin
         a = 1.0
@@ -175,80 +175,80 @@
         @test abs(x[1] - (b - a) / (a + b + 2)) < tol
         @test abs(w[1] - 2^(a + b + 1) * beta(a + 1, b + 1)) < tol
 
-        @test dot(w,fill(1,length(x))) ≈ 1.3333333333333333
+        @test dot(w, fill(1, length(x))) ≈ 1.3333333333333333
     end
     @testset "0.9, -0.1" begin
-        x, w = gaussjacobi(1013, .9, -.1)
+        x, w = gaussjacobi(1013, 0.9, -0.1)
         @test abs(x[2] + 0.999986012231899) < tol
         @test abs(x[13] + 0.999225722939832) < tol
-        @test abs(w[2] - 9.314674169892358e-05) < tol
-        @test abs(w[13] - 4.654651764553262e-04) < tol
+        @test abs(w[2] - 9.314674169892358e-5) < tol
+        @test abs(w[13] - 4.654651764553262e-4) < tol
 
-        @test dot(w,exp.(x)) ≈ 1.6915068974063106
+        @test dot(w, exp.(x)) ≈ 1.6915068974063106
 
-        x, w = gaussjacobi(10013, .9, -.1)
-        @test abs(x[2]  +0.999999856605293) < tol
-        @test abs(x[13]  + 0.999992061552711) < tol
-        @test abs(w[2] - 1.509654630405615e-06) < tol
-        @test abs(w[13] - 7.548275262993863e-06) < tol
+        x, w = gaussjacobi(10013, 0.9, -0.1)
+        @test abs(x[2] + 0.999999856605293) < tol
+        @test abs(x[13] + 0.999992061552711) < tol
+        @test abs(w[2] - 1.509654630405615e-6) < tol
+        @test abs(w[13] - 7.548275262993863e-6) < tol
 
-        @test dot(w,exp.(x)) ≈ 1.6915068974063106
+        @test dot(w, exp.(x)) ≈ 1.6915068974063106
     end
     @testset "bug where row vectors were returned" begin
-        x, w = gaussjacobi(10013, .9, -.1)
-        @test isa(x,Vector{Float64})
-        @test isa(w,Vector{Float64})
+        x, w = gaussjacobi(10013, 0.9, -0.1)
+        @test isa(x, Vector{Float64})
+        @test isa(w, Vector{Float64})
     end
     @testset "last alpha and beta parameters:" begin
-        x, w = gaussjacobi(100, 19., 21.)
-        @test abs(x[87] - 0.832211446176040) < tol
+        x, w = gaussjacobi(100, 19.0, 21.0)
+        @test abs(x[87] - 0.83221144617604) < tol
         @test abs(w[50] - 0.026363584978877305) < tol # new test without condition sum(w)==1
     end
     @testset "for small alpha and beta:" begin
-        x, w = gaussjacobi(10000, .1, .2)
+        x, w = gaussjacobi(10000, 0.1, 0.2)
         @test abs(x[1] - -0.999999963363548) < tol
-        @test abs(w[500] - 2.183393039546711e-05) < tol
+        @test abs(w[500] - 2.183393039546711e-5) < tol
     end
     @testset " bug where row vectors were returned" begin
-        x,w=gaussjacobi(20,11.,0.)
-        @test isa(x,Vector{Float64})
-        @test isa(w,Vector{Float64})
+        x, w = gaussjacobi(20, 11.0, 0.0)
+        @test isa(x, Vector{Float64})
+        @test isa(w, Vector{Float64})
     end
     @testset "missing promotion with integers (#117)" begin
-        x1, w1 = gaussjacobi(500, 0, -1/2)
-        x2, w2 = gaussjacobi(500, 0.0, -1/2)
+        x1, w1 = gaussjacobi(500, 0, -1 / 2)
+        x2, w2 = gaussjacobi(500, 0.0, -1 / 2)
         @test x1 == x2
         @test w1 == w2
     end
 
     @testset "jacobi_rec against a precomputed rule in BigFloat" begin
-        x,w = FastGaussQuadrature.jacobi_rec(10, big(0), big(0))
-        @test abs(x[6] - big(1488743389816312108848260011297199846175648594206916957079892535159036173556674)/big(10)^79) < 1e-70
-        @test abs(w[4] - big(2692667193099963550912269215694693528597599384608837958005632762421534323191819)/big(10)^79) < 1e-70
+        x, w = FastGaussQuadrature.jacobi_rec(10, big(0), big(0))
+        @test abs(x[6] - big(1488743389816312108848260011297199846175648594206916957079892535159036173556674) / big(10)^79) < 1.0e-70
+        @test abs(w[4] - big(2692667193099963550912269215694693528597599384608837958005632762421534323191819) / big(10)^79) < 1.0e-70
 
-        x,w = FastGaussQuadrature.jacobi_rec(10, big(2//10), big(-1//30))
-        @test abs(x[7] - big(4146701176053244724446765533149623814305606864483746748725151214196203624388371)/big(10)^79) < 1e-70
-        @test abs(w[3] - big(2482452398859023537636458227096017466104571146686194593251519240011574719667464)/big(10)^79) < 1e-70
+        x, w = FastGaussQuadrature.jacobi_rec(10, big(2 // 10), big(-1 // 30))
+        @test abs(x[7] - big(4146701176053244724446765533149623814305606864483746748725151214196203624388371) / big(10)^79) < 1.0e-70
+        @test abs(w[3] - big(2482452398859023537636458227096017466104571146686194593251519240011574719667464) / big(10)^79) < 1.0e-70
     end
 
     @testset "boundary asymptotics were previously not implemented (#58,#130)" begin
         # check example from issue #58
         _, w = gaussjacobi(2^10, 0.25, 0)
-        @test abs(w[end] - 3.607554904604311e-07) < tol
+        @test abs(w[end] - 3.607554904604311e-7) < tol
 
         # check example from issue #130
         _, w = gaussjacobi(2^16, -0.9, 0)
         @test abs(w[end] - 1.223027243345722) < tol
-        @test abs(sum(w) - 2^(-0.9+1)/(-0.9+1)) < tol
+        @test abs(sum(w) - 2^(-0.9 + 1) / (-0.9 + 1)) < tol
 
         # double check NaN fixing in barycentric interpolation implementation
-        x  = range(0, stop=1, length=5)
-        N  = 10
+        x = range(0, stop = 1, length = 5)
+        N = 10
         fvals = ones(N)
-        xk = .5*(sin.(pi*(-(N-1):2:(N-1))/(2*(N-1))) .+ 1)
-        vk = [.5; ones(N-1)]
+        xk = 0.5 * (sin.(pi * (-(N - 1):2:(N - 1)) / (2 * (N - 1))) .+ 1)
+        vk = [0.5; ones(N - 1)]
         vk[2:2:end] .= -1
-        vk[end]     *= .5
-        @test FastGaussQuadrature.bary(x, fvals, xk, vk) ≈ ones(5) rtol=1e-16
+        vk[end] *= 0.5
+        @test FastGaussQuadrature.bary(x, fvals, xk, vk) ≈ ones(5) rtol = 1.0e-16
     end
 end
