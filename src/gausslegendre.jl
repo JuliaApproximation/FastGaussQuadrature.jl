@@ -1,7 +1,7 @@
 @doc raw"""
-    gausslegendre(n::Integer) -> x, w  # nodes, weights
+    gausslegendre(n::Integer, T=Float64) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Legendre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_quadrature).
+Return nodes `x` and weights `w` of [Gauss-Legendre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_quadrature) with type T.
 
 ```math
 \int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -19,43 +19,48 @@ julia> I ≈ 2/5
 true
 ```
 """
-@inline function gausslegendre(n::Integer)
+@inline function gausslegendre(n::Integer, T::Type=Float64)
     # GAUSSLEGENDRE(n) COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     elseif n == 0
-        return Float64[], Float64[]
+        return T[], T[]
     elseif n == 1
-        return [0.0], [2.0]
+        return T[0], T[2]
     elseif n == 2
-        return [-1 / sqrt(3), 1 / sqrt(3)], [1.0, 1.0]
+        sqrt3 = sqrt(3)
+        return [T(-1) / sqrt3, 1 / sqrt3], T[1, 1]
     elseif n == 3
-        return [-sqrt(3 / 5), 0.0, sqrt(3 / 5)], [5 / 9, 8 / 9, 5 / 9]
+        sqrt3_5 = sqrt(T(3) / 5)
+        return [-sqrt3_5, T(0), sqrt3_5], [5, 8, 5] ./ T(9)
     elseif n == 4
-        a = 2 / 7 * sqrt(6 / 5)
+        a = 2 * sqrt(T(6) / 5) / 7
+        T3_7 = T(3)/7
+        sqrt30 = sqrt(T(30))
         return (
-            [-sqrt(3 / 7 + a), -sqrt(3 / 7 - a), sqrt(3 / 7 - a), sqrt(3 / 7 + a)],
+            [-sqrt(T3_7 + a), -sqrt(T3_7 - a), sqrt(T3_7 - a), sqrt(T3_7 + a)],
             [
-                (18 - sqrt(30)) / 36, (18 + sqrt(30)) / 36,
-                (18 + sqrt(30)) / 36, (18 - sqrt(30)) / 36,
+                (18 - sqrt30) / 36, (18 + sqrt30) / 36,
+                (18 + sqrt30) / 36, (18 - sqrt30) / 36,
             ],
         )
     elseif n == 5
-        b = 2 * sqrt(10 / 7)
+        b = 2 * sqrt(T(10) / 7)
+        sqrt70 = sqrt(T(70))
         return (
             [
-                -sqrt(5 + b) / 3, -sqrt(5 - b) / 3, 0.0,
+                -sqrt(5 + b) / 3, -sqrt(5 - b) / 3, T(0),
                 sqrt(5 - b) / 3, sqrt(5 + b) / 3,
             ],
             [
-                (322 - 13 * sqrt(70)) / 900, (322 + 13 * sqrt(70)) / 900, 128 / 225,
-                (322 + 13 * sqrt(70)) / 900, (322 - 13 * sqrt(70)) / 900,
+                (322 - 13 * sqrt70) / 900, (322 + 13 * sqrt70) / 900, T(128) / 225,
+                (322 + 13 * sqrt70) / 900, (322 - 13 * sqrt70) / 900,
             ],
         )
-    elseif n ≤ 60
+    elseif n ≤ 60 || T != Float64
         # NEWTON'S METHOD WITH THREE-TERM RECURRENCE:
-        return rec(n)
+        return rec(n, T)
     else
         # USE ASYMPTOTIC EXPANSIONS:
         return asy(n)
@@ -224,18 +229,23 @@ function legpts_weights(n, m, a)
     return weights
 end
 
-function rec(n)
+function rec(n, ::Type{T}) where T
     # COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING NEWTON'S METHOD.
     # THREE-TERM RECURENCE IS USED FOR EVALUATION. COMPLEXITY O(n^2).
 
     # Initial guess:
-    x = leg_initial_guess(n)
+    x = T.(leg_initial_guess(n))
 
     # Perform Newton to find zeros of Legendre polynomial:
     PP1, PP2 = similar(x), similar(x)
 
     # Two iterations of Newton's method
-    for _ in 1:2
+    num_iters = if T == Float64
+        2
+    else
+        ceil(Int, (log(max(20, precision(T))/50)+1)*2)
+    end
+    for _ in 1:num_iters
         innerRec!(PP1, PP2, n, x)
         newt_step!(x, PP1, PP2)
     end
@@ -249,7 +259,7 @@ function rec(n)
         PP2[n + 1 - i] = -PP2[i]
     end
     @inbounds for i in 1:n
-        PP2[i] = 2 / ((1 - x[i]^2) * PP2[i]^2)
+        PP2[i] = T(2) / ((1 - x[i]^2) * PP2[i]^2)
     end
 
     return x, PP2
@@ -257,13 +267,14 @@ end
 
 @inline function innerRec!(myPm1, myPPm1, n, x)
     # EVALUATE LEGENDRE AND ITS DERIVATIVE USING THREE-TERM RECURRENCE RELATION.
-    N = size(x, 1)
+    N = length(x)
+    T = eltype(x)
     @inbounds for j in 1:N
         xj = x[j]
-        Pm2 = 1.0
+        Pm2 = T(1)
         Pm1 = xj
-        PPm1 = 1.0
-        PPm2 = 0.0
+        PPm1 = T(1)
+        PPm2 = T(0)
         for k in 1:(n - 1)
             Pm2, Pm1 = Pm1, muladd((2 * k + 1) * Pm1, xj, - k * Pm2) / (k + 1)
             PPm2, PPm1 = PPm1, (
