@@ -23,6 +23,13 @@
     @test dot(w, (x .^ 2)) ≈ 2 / 3
     @test dot(w, exp.(x)) ≈ exp(1) - exp(-1)
 
+    # check BigFloat
+    xbig, wbig gausslegendre(n, T=BigFloat)
+    @test length(xbig) == n && length(wbig) == n
+    @test ≈(x, xbig; atol = tol)
+    @test ≈(w, wbig; atol = tol)
+    
+
     # Test a larger n (using ASY)
     n = 251
     x, w = gausslegendre(n)
