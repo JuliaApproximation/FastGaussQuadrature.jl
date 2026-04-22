@@ -19,7 +19,7 @@ julia> I ≈ 2/5
 true
 ```
 """
-@inline function gausslegendre(n::Integer, T::Type=Float64)
+@inline function gausslegendre(::Type{T}, n::Integer) where T
     # GAUSSLEGENDRE(n) COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
     if n < 0
@@ -60,12 +60,13 @@ true
         )
     elseif n ≤ 60 || T != Float64
         # NEWTON'S METHOD WITH THREE-TERM RECURRENCE:
-        return rec(n, T)
+        return rec(T, n)
     else
         # USE ASYMPTOTIC EXPANSIONS:
         return asy(n)
     end
 end
+gausslegendre(n::Integer) = gausslegendre(Float64, n)
 
 function asy(n)
     # COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING ASYMPTOTIC EXPANSIONS.
@@ -229,7 +230,7 @@ function legpts_weights(n, m, a)
     return weights
 end
 
-function rec(n, ::Type{T}) where T
+function rec(::Type{T}, n) where T
     # COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING NEWTON'S METHOD.
     # THREE-TERM RECURENCE IS USED FOR EVALUATION. COMPLEXITY O(n^2).
 

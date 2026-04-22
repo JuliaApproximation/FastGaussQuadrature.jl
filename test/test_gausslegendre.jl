@@ -24,7 +24,7 @@
     @test dot(w, exp.(x)) ≈ exp(1) - exp(-1)
 
     # check BigFloat
-    xbig, wbig gausslegendre(n, BigFloat)
+    xbig, wbig = gausslegendre(BigFloat, n)
     @test length(xbig) == n && length(wbig) == n
     @test ≈(x, xbig; atol = tol)
     @test ≈(w, wbig; atol = tol)
