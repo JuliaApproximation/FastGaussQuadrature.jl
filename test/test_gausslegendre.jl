@@ -29,6 +29,12 @@
     @test ≈(x, xbig; atol = tol)
     @test ≈(w, wbig; atol = tol)
     
+    # tests bigfloat coefs by integrating against random polynomial
+    poly_coefs = rand(BigFloat, 2n-1)
+    f(x) = evalpoly(x, poly_coefs)
+    # analytic integral of f
+    If(x) = x*evalpoly(x, [p/i for (i, p) in enumerate(poly_coefs)])
+    @test ≈(dot(w, f.(x)), If(1)-If(-1); atol = 1e-70)
 
     # Test a larger n (using ASY)
     n = 251
