@@ -1,7 +1,7 @@
 @doc raw"""
     gausslegendre([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Legendre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_quadrature) with type T.
+Return nodes `x` and weights `w` of [Gauss-Legendre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_quadrature) with type `T`.
 
 ```math
 \int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i)
