@@ -1,5 +1,5 @@
 @doc raw"""
-    gaussradau(T, n::Integer) -> x, w  # nodes, weights
+    gaussradau([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
 Return nodes `x` and weights `w` of [Gauss-Radau quadrature](https://mathworld.wolfram.com/RadauQuadrature.html) and type `T`.
 
