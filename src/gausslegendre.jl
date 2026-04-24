@@ -29,7 +29,7 @@ true
     elseif n == 1
         return T[0], T[2]
     elseif n == 2
-        sqrt3 = sqrt(3)
+        sqrt3 = sqrt(T(3))
         return [T(-1) / sqrt3, 1 / sqrt3], T[1, 1]
     elseif n == 3
         sqrt3_5 = sqrt(T(3) / 5)
