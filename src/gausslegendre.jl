@@ -1,5 +1,5 @@
 @doc raw"""
-    gausslegendre(n::Integer, T=Float64) -> x, w  # nodes, weights
+    gausslegendre([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
 Return nodes `x` and weights `w` of [Gauss-Legendre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_quadrature) with type T.
 
