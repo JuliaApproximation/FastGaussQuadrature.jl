@@ -88,7 +88,7 @@ gausschebyshevv(n::Integer) = gausschebyshevv(Float64, n)
 @doc raw"""
     gausschebyshevw([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 4th kind and type T.
+Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 4th kind and type `T`.
 
 ```math
 \int_{-1}^{1} f(x)\sqrt{\frac{1-x}{1+x}} dx \approx \sum_{i=1}^{n} w_i f(x_i)
