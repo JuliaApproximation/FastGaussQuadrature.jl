@@ -57,7 +57,7 @@ end
 gausschebyshevu(n::Integer) = gausschebyshevu(Float64, n)
 
 @doc raw"""
-    gausschebyshevv(T=Float64, n::Integer) -> x, w  # nodes, weights
+    gausschebyshevv([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
 Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 3rd kind and type T.
 
