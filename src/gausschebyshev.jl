@@ -1,5 +1,5 @@
 @doc raw"""
-    gausschebyshevt(T=Float64, n::Integer) -> x, w  # nodes, weights
+    gausschebyshevt([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
 Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 1st kind and type T.
 
