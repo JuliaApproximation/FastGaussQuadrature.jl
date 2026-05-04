@@ -19,7 +19,7 @@ julia> I ≈ 3π/8
 true
 ```
 """
-function gausschebyshevt(::Type{T}, n::Integer) where T
+function gausschebyshevt(::Type{T}, n::Integer) where {T}
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
@@ -48,11 +48,11 @@ julia> I ≈ π/16
 true
 ```
 """
-function gausschebyshevu(::Type{T}, n::Integer) where T
+function gausschebyshevu(::Type{T}, n::Integer) where {T}
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
-    return [cospi(T(k) / (n + 1)) for k in n:-1:1], [T(π) / (n + 1) * sinpi(T(k) / (n + 1) )^2 for k in n:-1:1]
+    return [cospi(T(k) / (n + 1)) for k in n:-1:1], [T(π) / (n + 1) * sinpi(T(k) / (n + 1))^2 for k in n:-1:1]
 end
 gausschebyshevu(n::Integer) = gausschebyshevu(Float64, n)
 
@@ -77,7 +77,7 @@ julia> I ≈ 3π/8
 true
 ```
 """
-function gausschebyshevv(::Type{T}, n::Integer) where T
+function gausschebyshevv(::Type{T}, n::Integer) where {T}
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
@@ -106,7 +106,7 @@ julia> I ≈ 3π/8
 true
 ```
 """
-function gausschebyshevw(::Type{T}, n::Integer) where T
+function gausschebyshevw(::Type{T}, n::Integer) where {T}
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end

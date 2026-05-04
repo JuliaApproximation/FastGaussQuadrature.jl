@@ -19,7 +19,7 @@ julia> I ≈ 2/5
 true
 ```
 """
-@inline function gausslegendre(::Type{T}, n::Integer) where T
+@inline function gausslegendre(::Type{T}, n::Integer) where {T}
     # GAUSSLEGENDRE(n) COMPUTE THE GAUSS-LEGENDRE NODES AND WEIGHTS IN O(n) time.
 
     if n < 0
@@ -36,7 +36,7 @@ true
         return [-sqrt3_5, T(0), sqrt3_5], [5, 8, 5] ./ T(9)
     elseif n == 4
         a = 2 * sqrt(T(6) / 5) / 7
-        T3_7 = T(3)/7
+        T3_7 = T(3) / 7
         sqrt30 = sqrt(T(30))
         return (
             [-sqrt(T3_7 + a), -sqrt(T3_7 - a), sqrt(T3_7 - a), sqrt(T3_7 + a)],
@@ -230,7 +230,7 @@ function legpts_weights(n, m, a)
     return weights
 end
 
-function rec(::Type{T}, n) where T
+function rec(::Type{T}, n) where {T}
     # COMPUTE GAUSS-LEGENDRE NODES AND WEIGHTS USING NEWTON'S METHOD.
     # THREE-TERM RECURENCE IS USED FOR EVALUATION. COMPLEXITY O(n^2).
 
@@ -244,7 +244,7 @@ function rec(::Type{T}, n) where T
     num_iters = if T == Float64
         2
     else
-        ceil(Int, (log(max(20, precision(T))/50)+1)*2)
+        ceil(Int, (log(max(20, precision(T)) / 50)+1)*2)
     end
     for _ in 1:num_iters
         innerRec!(PP1, PP2, n, x)
