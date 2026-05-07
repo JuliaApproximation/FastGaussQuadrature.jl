@@ -28,7 +28,7 @@ julia> x[1]
 -1.0
 ```
 """
-function gaussradau(::Type{T}, n::Integer) where T
+function gaussradau(::Type{T}, n::Integer) where {T}
     a = b = zero(T)
     # RADAUPTS   Gauss-Legendre-Radau Quadrature Nodes and Weights
     if n == 1

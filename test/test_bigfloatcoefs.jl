@@ -16,7 +16,7 @@ using LinearAlgebra, GenericLinearAlgebra
             test_fun(x) = evalpoly(x, poly_coefs)
             # analytic integral of f
             integral_testfun(x) = x * evalpoly(x, [p / i for (i, p) in enumerate(poly_coefs)])
-            @test ≈(dot(wbig, test_fun.(xbig)), integral_testfun(1)-integral_testfun(-1); atol = 1.0e-70)
+            @test ≈(dot(wbig, test_fun.(xbig)), integral_testfun(1) - integral_testfun(-1); atol = 1.0e-70)
         end
     end
 end

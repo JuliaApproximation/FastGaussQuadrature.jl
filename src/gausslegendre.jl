@@ -244,7 +244,7 @@ function rec(::Type{T}, n) where {T}
     num_iters = if T == Float64
         2
     else
-        ceil(Int, (log(max(20, precision(T)) / 50)+1)*2)
+        ceil(Int, (log(max(20, precision(T)) / 50) + 1) * 2)
     end
     for _ in 1:num_iters
         innerRec!(PP1, PP2, n, x)
