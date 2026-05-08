@@ -9,7 +9,6 @@ using LinearAlgebra, GenericLinearAlgebra
             @test length(xbig) == n && length(wbig) == n
             @test ≈(x, xbig; atol = 1.0e-14)
             @test ≈(w, wbig; atol = 1.0e-14)
-            
             # tests bigfloat coefs by integrating against random polynomial
             poly_coefs = rand(BigFloat, 2n - 1)
             poly_coefs = FastGaussQuadrature.jacobi_gw(2n - 1, big(0.0), big(0.0))[1]
