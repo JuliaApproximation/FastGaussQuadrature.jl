@@ -15,7 +15,7 @@
 
     tol = 1.0e-14
     n = 42
-    x, w = gausslegendre(n)
+    x, w = @inferred gausslegendre(n)
     @test length(x) == n && length(w) == n
     @test ≈(x[37], 0.910959724904127; atol = tol)
     @test ≈(w[37], 0.030479240699603; atol = tol)

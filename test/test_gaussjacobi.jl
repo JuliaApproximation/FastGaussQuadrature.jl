@@ -18,7 +18,7 @@
         β₊ = nextfloat(β₀)
         α₋ = prevfloat(α₀)
         β₋ = prevfloat(β₀)
-        for n in n_range
+        @testset "n: $n" for n in n_range
             x, w = gausslegendre(n)
             x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
             x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
@@ -45,7 +45,7 @@
         β₊ = nextfloat(β₀)
         α₋ = prevfloat(α₀)
         β₋ = prevfloat(β₀)
-        for n in n_range
+        @testset "n: $n" for n in n_range
             x, w = @test_deprecated gausschebyshev(n, 1)
             x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
             x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
@@ -72,7 +72,7 @@
         β₊ = nextfloat(β₀)
         α₋ = prevfloat(α₀)
         β₋ = prevfloat(β₀)
-        for n in n_range
+        @testset "n: $n" for n in n_range
             x, w = @test_deprecated gausschebyshev(n, 2)
             x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
             x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
@@ -99,7 +99,7 @@
         β₊ = nextfloat(β₀)
         α₋ = prevfloat(α₀)
         β₋ = prevfloat(β₀)
-        for n in n_range
+        @testset "n: $n" for n in n_range
             x, w = @test_deprecated gausschebyshev(n, 3)
             x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
             x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)
@@ -126,7 +126,7 @@
         β₊ = nextfloat(β₀)
         α₋ = prevfloat(α₀)
         β₋ = prevfloat(β₀)
-        for n in n_range
+        @testset "n: $n" for n in n_range
             x, w = @test_deprecated gausschebyshev(n, 4)
             x₀₀, w₀₀ = gaussjacobi(n, α₀, β₀)
             x₀₊, w₀₊ = gaussjacobi(n, α₀, β₊)

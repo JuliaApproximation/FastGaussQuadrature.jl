@@ -21,21 +21,24 @@ true
 ```
 """
 function gaussjacobi(n::Integer, α::Real, β::Real)
+    T = typeof(α)
     #GAUSS-JACOBI QUADRATURE NODES AND WEIGHTS
     if n < 0
         throw(DomainError(n, "gaussjacobi($n,$α,$β) not defined: n must be non-negative."))
-    elseif α == 0.0 && β == 0.0
-        return gausslegendre(n)
-    elseif α == -0.5 && β == -0.5
-        return gausschebyshevt(n)
-    elseif α == 0.5 && β == 0.5
-        return gausschebyshevu(n)
-    elseif α == -0.5 && β == 0.5
-        return gausschebyshevv(n)
-    elseif α == 0.5 && β == -0.5
-        return gausschebyshevw(n)
+    elseif iszero(α) && iszero(β)
+        return gausslegendre(T, n)
+    elseif abs(α) == abs(β) == 0.5
+        if α == -0.5 && β == -0.5
+            return gausschebyshevt(T, n)
+        elseif α == 0.5 && β == 0.5
+            return gausschebyshevu(T, n)
+        elseif α == -0.5 && β == 0.5
+            return gausschebyshevv(T, n)
+        elseif α == 0.5 && β == -0.5
+            return gausschebyshevw(T, n)
+        end
     elseif n == 0
-        return Float64[], Float64[]
+        return T[], T[]
     elseif n == 1
         return [(β - α) / (α + β + 2)], [2^(α + β + 1) * beta(α + 1, β + 1)]
     elseif min(α, β) ≤ -1.0

@@ -1,7 +1,7 @@
 @doc raw"""
-    gaussradau(n::Integer) -> x, w  # nodes, weights
+    gaussradau([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Radau quadrature](https://mathworld.wolfram.com/RadauQuadrature.html).
+Return nodes `x` and weights `w` of [Gauss-Radau quadrature](https://mathworld.wolfram.com/RadauQuadrature.html) and type `T`.
 
 ```math
 \int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -28,7 +28,7 @@ julia> x[1]
 -1.0
 ```
 """
-function gaussradau(n::Integer, T::Type = Float64)
+function gaussradau(::Type{T}, n::Integer) where {T}
     a = b = zero(T)
     # RADAUPTS   Gauss-Legendre-Radau Quadrature Nodes and Weights
     if n == 1
@@ -46,6 +46,8 @@ function gaussradau(n::Integer, T::Type = Float64)
         return x, w
     end
 end
+gaussradau(n::Integer) = gaussradau(Float64, n)
+@deprecate gaussradau(n::Integer, T::Type) gaussradau(T, n)
 
 function gaussradau(n::Integer, α, β)
     if n ≤ 0

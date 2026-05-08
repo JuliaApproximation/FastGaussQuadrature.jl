@@ -1,7 +1,7 @@
 @doc raw"""
-    gausschebyshevt(n::Integer) -> x, w  # nodes, weights
+    gausschebyshevt([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 1st kind.
+Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 1st kind and type `T`.
 
 ```math
 \int_{-1}^{1} \frac{f(x)}{\sqrt{1-x^2}} dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -19,17 +19,18 @@ julia> I ≈ 3π/8
 true
 ```
 """
-function gausschebyshevt(n::Integer)
+function gausschebyshevt(::Type{T}, n::Integer) where {T}
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
-    return [cos((2 * k - 1) * π / (2 * n)) for k in n:-1:1], fill(π / n, n)
+    return [cospi(T(2 * k - 1) / (2 * n)) for k in n:-1:1], fill(T(π) / n, n)
 end
+gausschebyshevt(n::Integer) = gausschebyshevt(Float64, n)
 
 @doc raw"""
-    gausschebyshevu(n::Integer) -> x, w  # nodes, weights
+    gausschebyshevu([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 2nd kind.
+Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 2nd kind and type `T`.
 
 ```math
 \int_{-1}^{1} f(x)\sqrt{1-x^2} dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -47,17 +48,18 @@ julia> I ≈ π/16
 true
 ```
 """
-function gausschebyshevu(n::Integer)
+function gausschebyshevu(::Type{T}, n::Integer) where {T}
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
-    return [cos(k * π / (n + 1)) for k in n:-1:1], [π / (n + 1) * sin(k / (n + 1) * π)^2 for k in n:-1:1]
+    return [cospi(T(k) / (n + 1)) for k in n:-1:1], [T(π) / (n + 1) * sinpi(T(k) / (n + 1))^2 for k in n:-1:1]
 end
+gausschebyshevu(n::Integer) = gausschebyshevu(Float64, n)
 
 @doc raw"""
-    gausschebyshevv(n::Integer) -> x, w  # nodes, weights
+    gausschebyshevv([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 3rd kind.
+Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 3rd kind and type `T`.
 
 ```math
 \int_{-1}^{1} f(x)\sqrt{\frac{1+x}{1-x}} dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -75,17 +77,18 @@ julia> I ≈ 3π/8
 true
 ```
 """
-function gausschebyshevv(n::Integer)
+function gausschebyshevv(::Type{T}, n::Integer) where {T}
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
-    return [cos((k - 0.5) * π / (n + 0.5)) for k in n:-1:1], [2π / (n + 0.5) * cos((k - 0.5) * π / (2 * (n + 0.5)))^2 for k in n:-1:1]
+    return [cospi(T(2k - 1) / (2n + 1)) for k in n:-1:1], [4T(π) / (2n + 1) * cospi(T(2k - 1) / (4n + 2))^2 for k in n:-1:1]
 end
+gausschebyshevv(n::Integer) = gausschebyshevv(Float64, n)
 
 @doc raw"""
-    gausschebyshevw(n::Integer) -> x, w  # nodes, weights
+    gausschebyshevw([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 4th kind.
+Return nodes `x` and weights `w` of [Gauss-Chebyshev quadrature](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Gauss_quadrature) of the 4th kind and type `T`.
 
 ```math
 \int_{-1}^{1} f(x)\sqrt{\frac{1-x}{1+x}} dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -103,12 +106,13 @@ julia> I ≈ 3π/8
 true
 ```
 """
-function gausschebyshevw(n::Integer)
+function gausschebyshevw(::Type{T}, n::Integer) where {T}
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     end
-    return [cos(k * π / (n + 0.5)) for k in n:-1:1], [2π / (n + 0.5) * sin(k * π / (2 * (n + 0.5)))^2 for k in n:-1:1]
+    return [cospi(T(2k) / (2n + 1)) for k in n:-1:1], [4T(π) / (2n + 1) * sinpi(k / T(2n + 1))^2 for k in n:-1:1]
 end
+gausschebyshevw(n::Integer) = gausschebyshevw(Float64, n)
 
 function gausschebyshev(n::Integer, kind::Integer = 1)
     # GAUSS-CHEBYSHEV NODES AND WEIGHTS.
