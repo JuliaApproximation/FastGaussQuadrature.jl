@@ -10,7 +10,7 @@
 
 [5] P. Opsomer, (in preparation).
 
-[6] A. Townsend, [The race for high order Gauss-Legendre quadrature](http://pi.math.cornell.edu/~ajt/papers/QuadratureEssay.pdf), in SIAM News, March 2015.
+[6] A. Townsend, [The race for high order Gauss-Legendre quadrature](https://www.siam.org/publications/siam-news/articles/the-race-to-compute-high-order-gauss-legendre-quadrature/), in SIAM News, March 2015.
 
 [7] A. Townsend, T. Trogdon, and S. Olver, ["Fast computation of Gauss quadrature nodes and weights on the whole real line"](http://arxiv.org/abs/1410.5286), to appear in IMA Numer. Anal., 2014.
 

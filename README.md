@@ -12,7 +12,7 @@ So far the package includes `gausschebyshev()`, `gausslegendre()`, `gaussjacobi(
 This package is heavily influenced by [Chebfun](http://www.chebfun.org).
 
 An introduction to Gauss quadrature can be found [here](http://en.wikipedia.org/wiki/Gaussian_quadrature).
-For a quirky account on the history of computing Gauss-Legendre quadrature, see [[6]](http://pi.math.cornell.edu/~ajt/papers/QuadratureEssay.pdf).
+For a quirky account on the history of computing Gauss-Legendre quadrature, see [[6]](https://www.siam.org/publications/siam-news/articles/the-race-to-compute-high-order-gauss-legendre-quadrature/).
 
 ## Our Aims
 
