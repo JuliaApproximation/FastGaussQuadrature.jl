@@ -4,7 +4,7 @@ using LinearAlgebra, GenericLinearAlgebra
     @testset "quad: $quad" for quad in (gausslegendre, gaussradau)
         @testset "n: $n" for n in (2, 3, 4, 5, 6, 7, 8, 9, 40, 100)
             # check BigFloat
-            x, w = quad(n)
+            x, w = @inferred quad(n)
             xbig, wbig = @inferred quad(BigFloat, n)
             @test length(xbig) == n && length(wbig) == n
             @test ≈(x, xbig; atol = 1.0e-14)
