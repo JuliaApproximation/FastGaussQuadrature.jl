@@ -73,6 +73,12 @@
         @test FastGaussQuadrature.hermpoly_rec(0:(20^2), 20)[end] ≈ FastGaussQuadrature.hermpoly_rec(20^2, 20)[1]
     end
 
+    @testset "Type inference" begin
+        @inferred gausshermite(Float32, 10)
+        @inferred gausshermite(BigFloat, 10)
+        @inferred gausshermite(BigFloat, 250)
+    end
+
     @testset "Normalize" begin
         for t in 1:6
             x, w = gausshermite(t; normalize = true)

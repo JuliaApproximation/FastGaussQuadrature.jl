@@ -1,7 +1,7 @@
 @doc raw"""
-    gausslaguerre(n::Integer) -> x, w  # nodes, weights
+    gausslaguerre([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Laguerre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Laguerre_quadrature).
+Return nodes `x` and weights `w` of [Gauss-Laguerre quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Laguerre_quadrature) with type `T`.
 
 ```math
 \int_{0}^{+\infty} f(x) e^{-x} dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -19,10 +19,8 @@ julia> I ≈ 24
 true
 ```
 """
-function gausslaguerre(n::Integer)
-    return gausslaguerre(n, 0.0)
-end
-
+gausslaguerre(::Type{T}, n::Integer) where {T <: AbstractFloat} = gausslaguerre(n, T(0))
+gausslaguerre(n::Integer) = gausslaguerre(Float64, n)
 
 @doc raw"""
     gausslaguerre(n::Integer, α::Real) -> x, w  # nodes, weights
@@ -82,8 +80,9 @@ function gausslaguerre(n::Integer, α::Real; reduced = false)
     elseif n < 15
         # Use Golub-Welsch for small n
         return gausslaguerre_GW(n, α)
-    elseif n < 128
-        # Use the recurrence relation for moderate n
+    elseif n < 128 || T != Float64
+        # Use the recurrence relation for moderate n, and for non-Float64 types
+        # (gausslaguerre_asy uses Float64-specific heuristics)
         return gausslaguerre_rec(n, α)
     else
         # Use explicit asymptotic expansions for larger n
