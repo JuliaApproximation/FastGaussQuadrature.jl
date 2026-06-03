@@ -4,6 +4,10 @@
     @test_throws DomainError gausslobatto(0)
     @test_throws DomainError gausslobatto(1)
 
+    # Type stability
+    @inferred gausslobatto(Float32, 10)
+    @inferred gausslobatto(BigFloat, 10)
+
     n = 2
     x, w = gausslobatto(n)
     @test x[1] ≈ -1.0
