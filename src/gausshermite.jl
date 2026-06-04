@@ -109,7 +109,6 @@ function hermite_rec(::Type{T}, n::Integer) where {T <: AbstractFloat}
 
     return x0, w
 end
-hermite_rec(n::Integer) = hermite_rec(Float64, n)
 
 function hermpoly_rec(n::Integer, x0)
     # HERMPOLY_rec evaluation of scaled Hermite poly using recurrence
