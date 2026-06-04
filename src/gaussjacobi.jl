@@ -43,7 +43,7 @@ function gaussjacobi(n::Integer, α::Real, β::Real)
         return [(β - α) / (α + β + 2)], [2^(α + β + 1) * beta(α + 1, β + 1)]
     elseif min(α, β) ≤ -1.0
         return throw(DomainError((α, β), "The Jacobi parameters correspond to a nonintegrable weight function"))
-    elseif (n ≤ 100 || T !== Float64) && max(α, β) < 5.0
+    elseif (n ≤ 100 || (T <: AbstractFloat && T !== Float64)) && max(α, β) < 5.0
         return jacobi_rec(n, α, β)
     elseif n > 100 && max(α, β) < 5.0
         return jacobi_asy(n, α, β)
