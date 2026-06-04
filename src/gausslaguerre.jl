@@ -1,3 +1,4 @@
+gausslaguerre(::Type{T}, n::Integer) where {T} = gausslaguerre(n, T(0))
 @doc raw"""
     gausslaguerre([T=Float64,] n::Integer) -> x, w  # nodes, weights
 
@@ -19,7 +20,6 @@ julia> I ≈ 24
 true
 ```
 """
-gausslaguerre(::Type{T}, n::Integer) where {T <: AbstractFloat} = gausslaguerre(n, T(0))
 gausslaguerre(n::Integer) = gausslaguerre(Float64, n)
 
 @doc raw"""

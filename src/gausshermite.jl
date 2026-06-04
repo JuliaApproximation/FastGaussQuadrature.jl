@@ -25,7 +25,7 @@ julia> I ≈ 3(√π)/4
 true
 ```
 """
-function gausshermite(::Type{T}, n::Integer; normalize = false) where {T <: AbstractFloat}
+function gausshermite(::Type{T}, n::Integer; normalize = false) where {T}
     x, w = unweightedgausshermite(T, n)
     w .*= exp.(-x .^ 2)
     return normalize ? (sqrt(T(2)) * x, w / sqrt(T(π))) : (x, w)
