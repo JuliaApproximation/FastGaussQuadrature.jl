@@ -231,6 +231,12 @@
         @test abs(w[3] - big(2482452398859023537636458227096017466104571146686194593251519240011574719667464) / big(10)^79) < 1.0e-70
     end
 
+    @testset "Float32 parameters with n > 100" begin
+        x, w = gaussjacobi(160, Float32(1), Float32(1))
+        @test eltype(x) == Float32
+        @test eltype(w) == Float32
+    end
+
     @testset "boundary asymptotics were previously not implemented (#58,#130)" begin
         # check example from issue #58
         _, w = gaussjacobi(2^10, 0.25, 0)
