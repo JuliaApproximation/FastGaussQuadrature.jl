@@ -1,7 +1,7 @@
 @doc raw"""
-    gausshermite(n::Integer; normalize = false) -> x, w  # nodes, weights
+    gausshermite([T=Float64,] n::Integer; normalize = false) -> x, w  # nodes, weights
 
-Return nodes `x` and weights `w` of [Gauss-Hermite quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Hermite_quadrature).
+Return nodes `x` and weights `w` of [Gauss-Hermite quadrature](https://en.wikipedia.org/wiki/Gauss%E2%80%93Hermite_quadrature) with type `T`.
 
 ```math
 \int_{-\infty}^{+\infty} f(x) \exp(-x^2) dx \approx \sum_{i=1}^{n} w_i f(x_i)
@@ -25,26 +25,27 @@ julia> I ≈ 3(√π)/4
 true
 ```
 """
-function gausshermite(n::Integer; normalize = false)
-    x, w = unweightedgausshermite(n)
+function gausshermite(::Type{T}, n::Integer; normalize = false) where {T}
+    x, w = unweightedgausshermite(T, n)
     w .*= exp.(-x .^ 2)
-    return normalize ? (sqrt(2.0) * x, w / sqrt(π)) : (x, w)
+    return normalize ? (sqrt(T(2)) * x, w / sqrt(T(π))) : (x, w)
 end
+gausshermite(n::Integer; normalize = false) = gausshermite(Float64, n; normalize = normalize)
 
-function unweightedgausshermite(n::Integer)
+function unweightedgausshermite(::Type{T}, n::Integer) where {T <: Real}
     # GAUSSHERMITE(n) COMPUTE THE GAUSS-HERMITE NODES AND WEIGHTS IN O(n) time.
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     elseif n == 0
-        return Float64[], Float64[]
+        return T[], T[]
     elseif n == 1
-        return [0.0], [sqrt(π)]
+        return T[0], T[sqrt(T(π))]
     elseif n ≤ 20
         # GW algorithm
-        x = hermite_gw(n)
-    elseif n ≤ 200
+        x = hermite_gw(T, n)
+    elseif n ≤ 200 || T != Float64
         # REC algorithm
-        x = hermite_rec(n)
+        x = hermite_rec(T, n)
     else
         # ASY algorithm
         x = hermite_asy(n)
@@ -58,10 +59,11 @@ function unweightedgausshermite(n::Integer)
         _w = [reverse(x[2][:]); x[2][:]]
         _x = [-reverse(x[1]) ; x[1]]
     end
-    _w .*= sqrt(π) / sum(exp.(-_x .^ 2) .* _w)
+    _w .*= sqrt(T(π)) / sum(exp.(-_x .^ 2) .* _w)
 
     return _x, _w
 end
+unweightedgausshermite(n::Integer) = unweightedgausshermite(Float64, n)
 
 function hermite_asy(n::Integer)
     # Compute Hermite nodes and weights using asymptotic formula
@@ -86,22 +88,23 @@ function hermite_asy(n::Integer)
     return x, w
 end
 
-function hermite_rec(n::Integer)
+function hermite_rec(::Type{T}, n::Integer) where {T <: AbstractFloat}
     # Compute Hermite nodes and weights using recurrence relation.
 
-    x0 = hermite_initialguess(n)
-    x0 .*= sqrt(2)
+    x0 = T.(hermite_initialguess(n))
+    x0 .*= sqrt(T(2))
     val = x0
-    for _ in 1:10
+    num_iters = T == Float64 ? 10 : ceil(Int, (log(max(20, precision(T)) / 50) + 1) * 10)
+    for _ in 1:num_iters
         val = hermpoly_rec.(n, x0)
         dx = first.(val) ./ last.(val)
         dx[isnan.(dx)] .= 0
         x0 .= x0 .- dx
-        if norm(dx, Inf) < sqrt(eps(Float64))
+        if norm(dx, Inf) < sqrt(eps(T))
             break
         end
     end
-    x0 ./= sqrt(2)
+    x0 ./= sqrt(T(2))
     w = 1 ./ last.(val) .^ 2  # quadrature weights
 
     return x0, w
@@ -117,7 +120,7 @@ function hermpoly_rec(n::Integer, x0)
     # n == 0 && return (Hold, 0)
     H = x0
     for k in 1:(n - 1)
-        Hold, H = H, (x0 * H / sqrt(k + 1) - Hold / sqrt(1 + 1 / k))
+        Hold, H = H, (x0 * H / sqrt(oftype(x0, k + 1)) - Hold / sqrt(oftype(x0, k + 1) / k))
         while abs(H) ≥ 100 && wc < n  # regularise
             H *= w
             Hold *= w
@@ -130,7 +133,7 @@ function hermpoly_rec(n::Integer, x0)
         Hold *= w
     end
 
-    return H, -x0 * H + sqrt(n) * Hold
+    return H, -x0 * H + sqrt(oftype(x0, n)) * Hold
 end
 
 function hermpoly_rec(r::Base.OneTo, x0)
@@ -319,15 +322,15 @@ function hermite_initialguess(n::Integer)
     return x_init
 end
 
-function hermite_gw(n::Integer)
+function hermite_gw(::Type{T}, n::Integer) where {T <: Real}
     # Golub--Welsch algorithm. Used here for n ≤ 20.
 
-    beta = sqrt.((1:(n - 1)) / 2)  # 3-term recurrence coeffs
-    T = SymTridiagonal(zeros(n), beta)  # Jacobi matrix
-    D, V = eigen(T)  # Eigenvalue decomposition
+    beta = sqrt.(T.(1:(n - 1)) / 2)  # 3-term recurrence coeffs
+    J = SymTridiagonal(zeros(T, n), beta)  # Jacobi matrix
+    D, V = eigen(J)  # Eigenvalue decomposition
     ind = sortperm(D)  # Hermite points
     x = D[ind]  # nodes
-    w = sqrt(π) * V[1, ind] .^ 2  # weights
+    w = sqrt(T(π)) * V[1, ind] .^ 2  # weights
 
     # Enforce symmetry:
     i = (floor(Int, n / 2) + 1):n
@@ -335,3 +338,4 @@ function hermite_gw(n::Integer)
     w = w[i]
     return x, exp.(x .^ 2) .* w
 end
+hermite_gw(n::Integer) = hermite_gw(Float64, n)

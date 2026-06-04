@@ -37,6 +37,16 @@ Random.seed!(0)
     @test_throws DomainError gausslaguerre(1, -1.4)
     @test_throws DomainError gausslaguerre(-1)
 
+    # Type inference
+    @inferred gausslaguerre(Float32, 10)
+    @inferred gausslaguerre(BigFloat, 10)
+    @inferred gausslaguerre(BigFloat, 130)
+
+    α = 0.5
+    @inferred gausslaguerre(10, Float32(α))
+    @inferred gausslaguerre(10, big(α))
+    @inferred gausslaguerre(130, big(α))
+
     # Check optional argument
     for n in 0:20
         @test gausslaguerre(n) == gausslaguerre(n, 0) == gausslaguerre(n, 0.0)
