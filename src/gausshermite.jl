@@ -32,7 +32,7 @@ function gausshermite(::Type{T}, n::Integer; normalize = false) where {T}
 end
 gausshermite(n::Integer; normalize = false) = gausshermite(Float64, n; normalize = normalize)
 
-function unweightedgausshermite(::Type{T}, n::Integer) where {T <: AbstractFloat}
+function unweightedgausshermite(::Type{T}, n::Integer) where {T <: Real}
     # GAUSSHERMITE(n) COMPUTE THE GAUSS-HERMITE NODES AND WEIGHTS IN O(n) time.
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
@@ -322,7 +322,7 @@ function hermite_initialguess(n::Integer)
     return x_init
 end
 
-function hermite_gw(::Type{T}, n::Integer) where {T <: AbstractFloat}
+function hermite_gw(::Type{T}, n::Integer) where {T <: Real}
     # Golub--Welsch algorithm. Used here for n ≤ 20.
 
     beta = sqrt.(T.(1:(n - 1)) / 2)  # 3-term recurrence coeffs
