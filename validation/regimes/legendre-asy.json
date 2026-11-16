@@ -1,0 +1,55 @@
+{
+  "version": "legendre-native-expansion-engineering-v1",
+  "status": "frozen_before_broad_accuracy",
+  "scope": "Direct Legendre expansion, n>=61, 24<=precision(T)<=53, finite frozen audit with independently stable/indexed references and distinct represented nodes. Higher precision uses its separately frozen GST criterion.",
+  "epsilon": "eps(T)=2^(1-precision(T))",
+  "node_absolute": "4*eps(T)*max(abs(x_reference),1/n)",
+  "normal_weight_relative": "8*eps(T)",
+  "coefficients": {
+    "node": 4,
+    "weight": 8
+  },
+  "coefficient_origin": "Unchanged November13 n61 operational engineering coefficients, now supported by direct stable-formula rounding rationale and a precision-dependent omitted-polynomial bound; not fitted to fresh errors.",
+  "selector": {
+    "N": "n+1/2",
+    "Q": "(1.6/N)^2",
+    "depths": {
+      "1": "G1; H=0",
+      "2": "G1,G2; H2",
+      "3": "G1,G2,G3; H2,H3",
+      "4": "all existing G/H terms"
+    },
+    "omission_guard": "N*Q^(d+1)<=eps(T)",
+    "stored_polynomial_bounds": {
+      "G1": "1/16",
+      "G2_to_G4_and_H2_to_H4": "1/32"
+    },
+    "exact_angle_tail": "eps(T)/(32*N*(1-Q))",
+    "exact_node_tail_upper": "eps(T)/(31*N)",
+    "exact_relative_weight_tail_upper": "eps(T)/(31*N)",
+    "weight_c_absolute_upper": "1/16384",
+    "limitation": "Bounds compare omitted finite stored polynomials in exact arithmetic. Full expansion/table/asymptotic and working-rounding errors remain engineering-model components checked independently."
+  },
+  "gates": [
+    "native requested working type/precision with separate Float32 floor controls",
+    "distinct ordered nodes and positive normal weights",
+    "stable increasing-precision independent references",
+    "Sturm root indexing",
+    "unchanged existing tests",
+    "normal/subnormal/underflow or representation-limit classification"
+  ],
+  "failure_policy": "Invalid reference or unresolved context is inconclusive. Structural/model/required-normal-loss failures remain failures; coefficients and cases must not be altered to fit observations.",
+  "limitations": [
+    "No all-order forward-error theorem",
+    "Large rules are sampled",
+    "No generic fixed-ulp promise across algorithms or formats",
+    "No relative accuracy assertion for unrepresentable weights",
+    "No extension of Float64 coefficient tables above53bits"
+  ],
+  "inherited_models": {
+    "small_recurrence": "../../2026-11-13/163508-legendre-budget/budget-v1.json",
+    "shared_GST": "../../2026-11-15/125234-native-jacobi/budget-v1.json",
+    "shared_GST_code": "../../2026-11-15/125234-native-jacobi/budget.jl"
+  },
+  "higher_precision_n61": "Also retain November13 boundary screen: node <=4*eps*max(abs(x),1/n), normal-weight-relative <=(8*n+8)*eps. Use the stricter of this screen and sharedGST."
+}

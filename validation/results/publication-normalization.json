@@ -1,0 +1,114 @@
+{
+  "recorded_utc": "2026-11-16T17:32:30.174059+00:00",
+  "note": "Original study artifacts remain unchanged. Compressed raw CSVs are unchanged. These publication-only whitespace normalizations explain differences from original study hashes.",
+  "files": [
+    {
+      "path": "validation/removed-tests.md",
+      "original_sha256": "d3219028d2d58799a6fe3ee5f6f08e548829d560ec206e7266f9fccd5ef441d4",
+      "published_sha256": "75415a86c96d0118b8c54a55457e536a15a6860c84186755af88f51884fb92b3",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/accuracy-environment.txt",
+      "original_sha256": "1cf45871072ab4c8dd5b6d9776a91e7fc6cc221dadd8ef62b9cee9d4552149a8",
+      "published_sha256": "d79931df40811000b2850781811b34de0058ae5af8c60223b6810f79aecf8901",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/before-final-laguerre-rules.csv",
+      "original_sha256": "56944c4162507dc06b73ffa370244c69dd23d442bbecb31ff532b4ab640ae9f7",
+      "published_sha256": "d058f39223c2dbf5e826b0a443e42e4f0a0be1ca83e01fdc126048a7092c8c75",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/float64-accuracy-timing.csv",
+      "original_sha256": "8b1ae173f5f69fa142f054ba442c942263807d5a50206d3c4ec8835397bddda8",
+      "published_sha256": "2d8e6d9da865932ea40a2e6ad74941e277e5548ccb083e183278d203755e1403",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/float64_status.csv",
+      "original_sha256": "8cf648827c79ea8dd5ec75923375a2898cb91175a8f1a4f056500098e1982cab",
+      "published_sha256": "310c9806bfdca654b2eef4cc821980ca87172150fd73924219d18d45f2667b87",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/float64_summary.csv",
+      "original_sha256": "e39b7075ed80799388918c2ac071b10aa0005745d65c00afa475976d68b7e12c",
+      "published_sha256": "aa2d1347d1c06ab60a37f3041abd13139b92a7439778469ef1f7b6d1d2988be7",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/native-accuracy-timing.csv",
+      "original_sha256": "528c47733cdb8209251ce4b7c3fdc8c42b1cfd9fda8c1464663b4e249c9e0fa2",
+      "published_sha256": "0cbccfe896032bed4ecedb0223bfe4a75a6d50a898bd3c7050ef06c31d15951e",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/native_bigfloat128_status.csv",
+      "original_sha256": "8695005e042ffb262b4e031c55fa5c2425e05eb55e5e13b37d885ed79d131590",
+      "published_sha256": "76cc2312a464da5e8054ddef12afd75fd846c6dd5f52e3ea6e0c5c41b973fc7c",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/native_bigfloat128_summary.csv",
+      "original_sha256": "ac199e98ba0d1d709612224f8865aee313c84c0654eac64561e08858b98c6a14",
+      "published_sha256": "d89712032e6f32cc29e111fc151991240fa982a8487f04afb68995a1a724a0af",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/native_bigfloat256_status.csv",
+      "original_sha256": "32e71f5175fe9f5afc1f085f0eaca8c71a853743e930c9150825e7f473053fcb",
+      "published_sha256": "78f521ec60b28f38ba51be4095923c9b448f13361da239c9904727a90ee25506",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/native_bigfloat256_summary.csv",
+      "original_sha256": "5c1fe33937a4b9d4e89b254d703c6cf81cb002f2f0eef7324e6ed5a5cf70283a",
+      "published_sha256": "2c1859060035a517dd231cebd429d337b05accc9e6587d6f2167b1983cc23025",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/native_float128_status.csv",
+      "original_sha256": "2fc872fe916d2158bd703e6c5ce35ec2278163954fcf2fcbfc76e0445e13cf70",
+      "published_sha256": "b00d63d82c7925f02a80242d68572cfc06703af74e88d276ce9876f4e602982a",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/native_float128_summary.csv",
+      "original_sha256": "177b44e70b269e3dc07c0c2336a7fe448e61ee80180540633d1800c1cc460fd3",
+      "published_sha256": "930f2c7f324f20e7709aa3e2576b7a17004a7aee8f6bac5108fb94e1935b4015",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/native_float32_status.csv",
+      "original_sha256": "4242d428d6304b041ba6a31684b02a64193d471316b28b2f28e345eece7702b5",
+      "published_sha256": "ad8371c78e5d0b22c070169195fecee6af593d164900b6ac6741d53fc8ecf476",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/native_float32_summary.csv",
+      "original_sha256": "19ee293e2f9390e234b42e50082faedc1b3125c0c5a3a7e8b00182186bfe0e38",
+      "published_sha256": "9d89bd806c31be6973498535670c086d101d5fec52abc8086eac006812da53a3",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/scaling.csv",
+      "original_sha256": "4f7fc9ccacd8c5f3f7b9babc553a2c65364360d94974e89ce0a27f8f047fc1f3",
+      "published_sha256": "1d3380557f5822e1cedee3eae43055baf0b9b0baa5e151227455920bbec77a08",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/scaling_status.csv",
+      "original_sha256": "9bb91ef9168f5cb6f7222b7837b344c055c7501c4901d5ad5bbf9de0beb80899",
+      "published_sha256": "617dcacf9a47922c57a13cd705cf75bf9a3303a12cba2e86db3323eb3e65a86b",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    },
+    {
+      "path": "validation/results/scaling_summary.csv",
+      "original_sha256": "89e4b8b623305f2e746849f1423195433e43cc8365418e912dad9eb426de4104",
+      "published_sha256": "5eb809670d0fcbe0ac43fe57f6b1dd3d94b820c7d33ef86c55ba7d8ab9e0b958",
+      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+    }
+  ]
+}

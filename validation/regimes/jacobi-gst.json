@@ -1,0 +1,75 @@
+{
+  "version": "native-gst-engineering-v1-proposal",
+  "date": "2026-11-15",
+  "status": "Proposed from formulas and operational reserves; freeze this file and its hash before reserved validation. No calibration CSV used to choose coefficients.",
+  "scope": "Native-coordinate/native-amplitude Jacobi GST, degree m>=2, requested precision >=24 bits; Legendre and left-Radau interior consumers. Finite measured regimes only, not a proved uniform bound.",
+  "coefficient": 8,
+  "endpoint_series_coefficient": 32,
+  "maximum_relative_budget_for_acceptance": 0.125,
+  "definitions": {
+    "e": "eps(T)",
+    "u": "e/2",
+    "m": "Jacobi degree; Radau order minus one",
+    "a,b": "Exact represented input parameters of Jacobi; for Radau use original alpha,beta and mathematical shift a=alpha,b=beta+1",
+    "nu": "m+(a+b+1)/2",
+    "left_i": "1-x_i",
+    "right_i": "1+x_i",
+    "distance_i": "min(left_i,right_i)",
+    "q_i": "max(abs(x_i),1/nu)",
+    "mass": "2^(a+b+1)*Gamma(a+1)*Gamma(b+1)/Gamma(a+b+2)",
+    "p_i": "v_i/mass, where v_i is the reference Jacobi weight; v_i=(1+x_i)*w_Radau_i for Radau interiors",
+    "z": "min(a,b)"
+  },
+  "node_budget": {
+    "ordinary_C_i": "8*min(distance_i,q_i)+8*(m/nu)*sqrt(left_i*right_i)",
+    "upper_series_C_i": "32*left_i",
+    "lower_series_C_i": "32*right_i",
+    "series_selector": "Only actual endpoint-series roots: upper extreme when a<T(-0.9), lower extreme when b<T(-0.9)",
+    "absolute_output_allowance": "e*(C_i+abs(x_i))",
+    "symmetric_phase_term": "Retained; exact symmetric startup does not remove coefficient/propagation rounding"
+  },
+  "local_weight_budget": {
+    "K_J_i": "abs(-a/left_i+b/right_i)",
+    "K_R_i": "abs(-a/left_i+(b-1)/right_i)",
+    "G_i": "abs(z*log(left_i*right_i))+abs(a-z)*abs(log(left_i))+abs(b-z)*abs(log(right_i))",
+    "A_over_e": "8*(m+1)",
+    "R_i_over_e": "8*(1+G_i+abs(log(p_i)))",
+    "L_J_i_over_e": "16*(m+1)+K_J_i*C_i+8*(1+G_i+abs(log(p_i)))",
+    "L_R_i_over_e": "16*(m+1)+K_R_i*C_i+8*(1+G_i+abs(log(p_i)))"
+  },
+  "normalization_envelope": {
+    "l,r": "Independent outward brackets of all reference roots, strictly inside (-1,1)",
+    "l_o,r_o": "Independent outward brackets of ordinary roots after excluding roots actually recomputed by endpoint series",
+    "H0": "max(abs(log((1-l)*(1+l))),abs(log((1-r)*(1+r))))",
+    "Hm": "max(abs(log(1-l)),abs(log(1-r)))",
+    "Hp": "max(abs(log(1+l)),abs(log(1+r)))",
+    "G_global": "abs(z)*H0+abs(a-z)*Hm+abs(b-z)*Hp",
+    "KX_ordinary": "8*(abs(a)+abs(b))+8*(m/nu)*(abs(a)*sqrt((1+r_o)/(1-r_o))+abs(b)*sqrt((1-l_o)/(1+l_o)))",
+    "KX_series": "32*(abs(a)+abs(b))",
+    "KX_global": "max(KX_ordinary,KX_series), omitting a term if that class of roots is absent",
+    "Mean_over_e": "16*(m+1)+KX_global+8*(1+G_global+log(m))",
+    "reason": "Interval geometry bounds K_J_i*C_i and G_i for every reference root; entropy sum(p_i*abs(log(p_i)))<=log(m) bounds the remaining normalized mean without all-root references. This bounds the engineering allowances, not unsampled observed errors."
+  },
+  "mass_and_summation": {
+    "M_over_e": "8*(1+abs((a+b+1)*log(2))+abs(loggamma(a+1))+abs(loggamma(b+1))+abs(loggamma(a+b+2)))",
+    "gamma_sum": "(m-1)*u/(1-(m-1)*u)",
+    "S": "gamma_sum+8*e"
+  },
+  "final_weight_budget": {
+    "jacobi_relative": "M+L_J_i+Mean+S",
+    "radau_interior_relative": "M+L_R_i+Mean+S+8*e",
+    "subnormal_absolute": "abs(w_reference)*relative_allowance+spacing(w_reference,T)",
+    "radau_endpoint_relative_over_e": "8*(n+1+abs((alpha+beta+1)*log(2))+abs(loggamma(beta+1))+abs(loggamma(beta+2))+abs(loggamma(n+alpha))+abs(loggamma(n))+abs(loggamma(n+beta+1))+abs(loggamma(n+alpha+beta+1)))"
+  },
+  "failure_policy": [
+    "Budgets must be frozen before reserved validation; retain all raw errors and original test failures.",
+    "A relative budget >=1/8 or nonpositive summation denominator is inconclusive, not an accuracy pass.",
+    "Structural/index/reference-stability failures remain failures; valid output semantics and working/output representability are checked separately.",
+    "Tighter preserved regression tests and the frozen Legendre n=61 boundary check remain independently required.",
+    "Do not count sampled maxima as all-node error bounds. The normalization term uses interval and entropy bounds on the model.",
+    "Asymptotic public routes require their own assessment; they do not validate the GST kernel.",
+    "Below 24 bits, assess Float32 calculation and final conversion separately; wider/compensated production arithmetic is not permitted."
+  ],
+  "mathematical_source": "https://arxiv.org/html/2008.08641#S2.SS1.SSS1",
+  "symbolic_check_session": "vxa5tmb3"
+}

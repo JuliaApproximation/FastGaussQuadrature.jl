@@ -1,0 +1,11 @@
+Started UTC: 2026-11-16T17:07:22.331
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+[ Info: Automatic `version="1.3.0"` for inventory from ../Project.toml
+Completed UTC: 2026-11-16T17:09:06.243

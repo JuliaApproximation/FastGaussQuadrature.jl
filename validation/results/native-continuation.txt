@@ -1,0 +1,20 @@
+Started UTC 2026-11-16T16:43:30.404 Julia 1.13.3 project <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/Project.toml
+Julia threads 32 BLAS threads 1
+Float64: exact agreed60 cases; eight alternating batches ×30 samples; evals1; warmed pooled medians
+Native diagnostics: sixteen cases, Float32/Float128/BigFloat128/256; three alternating batches ×10samples
+Scaling: fourteen family/regime/semantics combinations ×four doubling orders; three batches ×10samples
+Compilation excluded by warmup; invalid baseline rules remain visible and are not cap passes
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/FastGaussQuadrature.jl SHA256 bbfcc96cc7d93c7aeb214865f5a6892acca93f75eb07cbe193061ba8a6f9a183
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/besselroots.jl SHA256 25ccfae2f1b7141abc2bc0ace71edbf024d90e780fcc93a6346cc109e80985e2
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/constants.jl SHA256 53453c9f987c664d0f850b501fbe9af0119182d1d58b6aaba8c3f13ae74777c4
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/gausschebyshev.jl SHA256 8b5003db1f2eb8965a1cbc54465c648bdc058e6fd38ed560420956346a211708
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/gausshermite.jl SHA256 1caed1eb9fcb6445cbf4e00d4c005d3d187ee1608b092247c4f600490ce490a5
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/gaussjacobi.jl SHA256 75a6a4e62a6b08754bd80e3d52ee6d2290ba49ec16afbc108dfba3a7f8b94126
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/gausslaguerre.jl SHA256 a3e3eedc8e48db33ce011f37dd0f5771d22092342a108d0dac2d4b43db8bc5fa
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/gausslegendre.jl SHA256 c255bde9d04f9a3a3bdcd18654675213c04702846c877d9d9901d33c22e775d0
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/gausslobatto.jl SHA256 5587885a7a3ad8d733522c3d9b6307497210e8f2e739607158f66055d18fbdef
+<checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-final/src/gaussradau.jl SHA256 9d51bc2aa0389a9ba027fd7bac533a2f16115f631cef554385dfa18a27e35f38
+Driver SHA256 0930f7b2ac870076c3010b1eb5f0063f17dd6e35f5772b9f08a4dfc97ec16425
+Original client timed out at300s and session was dead; complete Float64/Float32/Float128 and first7BigFloat128 cases preserved. Continue only unfinished cases, same source and protocol.
+Worker thread: 3
+Completed UTC 2026-11-16T16:49:26.580

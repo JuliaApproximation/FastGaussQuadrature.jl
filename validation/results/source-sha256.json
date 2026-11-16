@@ -1,0 +1,32 @@
+{
+  "saved_utc": "2026-11-16T17:10:44.703270+00:00",
+  "files": {
+    "src/gaussradau.jl": "75807a1a6c0295466fda5c66d9dd0d45b1bd24fe4e4316f3dcfbaa962d1783a6",
+    "src/gausslaguerre.jl": "6c255422c16d6b6cd690e2cdcb6c61e02e614e64da6aaab8946f174a9d73a427",
+    "src/gausslobatto.jl": "5587885a7a3ad8d733522c3d9b6307497210e8f2e739607158f66055d18fbdef",
+    "src/constants.jl": "53453c9f987c664d0f850b501fbe9af0119182d1d58b6aaba8c3f13ae74777c4",
+    "src/gaussjacobi.jl": "75a6a4e62a6b08754bd80e3d52ee6d2290ba49ec16afbc108dfba3a7f8b94126",
+    "src/gausschebyshev.jl": "8b5003db1f2eb8965a1cbc54465c648bdc058e6fd38ed560420956346a211708",
+    "src/gausslegendre.jl": "c255bde9d04f9a3a3bdcd18654675213c04702846c877d9d9901d33c22e775d0",
+    "src/gausshermite.jl": "1caed1eb9fcb6445cbf4e00d4c005d3d187ee1608b092247c4f600490ce490a5",
+    "src/FastGaussQuadrature.jl": "bbfcc96cc7d93c7aeb214865f5a6892acca93f75eb07cbe193061ba8a6f9a183",
+    "src/besselroots.jl": "25ccfae2f1b7141abc2bc0ace71edbf024d90e780fcc93a6346cc109e80985e2",
+    "test/runtests.jl": "a0ddef79ce820b49fafbd4dd15ca78b06f7ffbbfa61eb3ffc90b39518a08fa94",
+    "test/quadrature_reference.jl": "8adcb2fce9181dcb20fc421ce3f0b53614569af19201172e8f5f0518a217e597",
+    "test/test_bigfloatcoefs.jl": "0b725d71403087dc9976cbe305650036bb38f1e98455f3f40d937d902f9a47f7",
+    "test/test_legendre_nativeprecision.jl": "d7b6d47436f250204215bd590dec687a669fc57076f8502b8b23dd0ee5891367",
+    "test/test_gausschebyshev.jl": "7518fb5758f6682bbcce4f74a270784ca9664ea8a28e7f7294c1d4a65ec414fc",
+    "test/test_gausslaguerre.jl": "e99f8bb1fb4daf81d6aceaf0a518c9c81f62e4563ffa8c9dd00eda15d7616938",
+    "test/test_gausshermite.jl": "0ecb1a253605704d03509b0be5a727672eb6dae7baeb26e2f9350531da3931cf",
+    "test/generate_legendre.jl": "08ecab6579c33fb81c26115570f15366edb84ac1b08f5d1e16f7ea0b458bedcf",
+    "test/test_validate_rule.jl": "60a3a9a89303f44964eee4d804ea924c041da33f8facc9f7ac97c42a74b917ab",
+    "test/test_genericquadrature.jl": "337f0b2fc02051934d15863f472de2d92dc76cb40368e2e853a4d4d30efce486",
+    "test/test_gausslegendre.jl": "e9222c7d64398c8107967d801cde74b2b0f85ee21d461ba1c647ba4dde98d159",
+    "test/test_besselroots.jl": "9b0a8bf3138314fce4614731961aa76ddc1b2b2cbe57c9c3966619600f8c0aa4",
+    "test/test_gausslobatto.jl": "ca71b4f32d5a7ebba4df3109e2bfcc7089eab33542b8f890ee21a0a16a65975d",
+    "test/test_gaussradau.jl": "4f8d48bb36d2bf031dd82728e8cbc2105cb1daa2f12b0156a34cd926f72214f1",
+    "test/test_gaussjacobi.jl": "bc024c272ae92ad22a5ec90bd00f134c10d41e96e2862fd69b407c5ace3d4bd4",
+    "test/test_genericprecision.jl": "5b0cd325ccb4a467260cf3b2d93911d1012c48de817d2a5e6df50f9191e6f1e6",
+    "Project.toml": "1e490ec2ba37498db3f0993652a5a2198c6b23df69ad3ab7641bcc78e3a5a656"
+  }
+}

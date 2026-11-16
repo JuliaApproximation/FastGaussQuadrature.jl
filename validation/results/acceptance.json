@@ -1,0 +1,19 @@
+{
+  "baseline": "66f752a",
+  "float64_cases": 60,
+  "valid_baseline_cases": 59,
+  "nominal_limit": 2.0,
+  "accepted_case": {
+    "case_id": "laguerre_10000_near_minus_one_reduced",
+    "measured_ratio": 2.043554683598804,
+    "user_confirmation": "2.044x is fine. To the nearest integer that is 2x.",
+    "date": "2026-11-16"
+  },
+  "accuracy": {
+    "candidate_rules": 186,
+    "passes": 185,
+    "proved_representation_limits": 1,
+    "point_passes": 4815
+  },
+  "native_timing_scope": "Measured before the final public Float64-only selector repairs; static review confirms the non-Float64 algorithms are unchanged. Complete-output comparisons additionally cover eight of the sixteen native timing inputs per format. All final Float64/scaling cases were refreshed."
+}
