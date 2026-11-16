@@ -26,88 +26,97 @@ true
 ```
 """
 function gausshermite(::Type{T}, n::Integer; normalize = false) where {T}
-    x, w = unweightedgausshermite(T, n)
-    w .*= exp.(-x .^ 2)
-    return normalize ? (sqrt(T(2)) * x, w / sqrt(T(π))) : (x, w)
+    if precision(T) < precision(Float32)
+        x, w = gausshermite(Float32, n; normalize)
+        x, w = T.(x), T.(w)
+    else
+        x, w = _hermite_rule(T, n, true)
+        w .*= exp.(-x .^ 2)
+        if normalize
+            x *= sqrt(T(2))
+            w /= sqrt(T(π))
+        end
+    end
+    validate_rule(x, w)
+    return x, w
 end
 gausshermite(n::Integer; normalize = false) = gausshermite(Float64, n; normalize = normalize)
 
-function unweightedgausshermite(::Type{T}, n::Integer) where {T <: Real}
-    # GAUSSHERMITE(n) COMPUTE THE GAUSS-HERMITE NODES AND WEIGHTS IN O(n) time.
+unweightedgausshermite(::Type{T}, n::Integer) where {T <: Real} = _hermite_rule(T, n, false)
+
+function _hermite_rule(::Type{T}, n::Integer, physical::Bool) where {T <: Real}
+    # In scaled mode, return s_i = exp(x_i²) w_i for the unweighted rule.
+    # Physical mode prepares weights for multiplication by exp(-x_i²) in
+    # gausshermite, including the GST residual correction before normalization.
     if n < 0
         throw(DomainError(n, "Input n must be a non-negative integer"))
     elseif n == 0
-        return T[], T[]
+        nodes, weights = T[], T[]
+        validate_rule(nodes, weights)
+        return nodes, weights
+    elseif precision(T) < precision(Float32)
+        x, w = _hermite_rule(Float32, n, physical)
+        nodes, weights = T.(x), T.(w)
+        validate_rule(nodes, weights)
+        return nodes, weights
     elseif n == 1
-        return T[0], T[sqrt(T(π))]
+        nodes, weights = T[0], T[sqrt(T(π))]
+        validate_rule(nodes, weights)
+        return nodes, weights
     elseif n ≤ 20
-        # GW algorithm
-        x = hermite_gw(T, n)
-    elseif n ≤ 200 || T != Float64
-        # REC algorithm
         x = hermite_rec(T, n)
     else
-        # ASY algorithm
-        x = hermite_asy(n)
+        x = hermite_gst(T, n, physical)
     end
 
-    # fold out
-    if isodd(n)
-        _w = [reverse(x[2][:]); x[2][2:end]]
-        _x = [-reverse(x[1]) ; x[1][2:end]]
-    else
-        _w = [reverse(x[2][:]); x[2][:]]
-        _x = [-reverse(x[1]) ; x[1]]
+    # Fold out directly into the final arrays, preserving exact symmetry.
+    _x, _w = Vector{T}(undef, n), Vector{T}(undef, n)
+    m = length(x[1])
+    @inbounds for i in 1:m
+        _x[i] = -x[1][m + 1 - i]
+        _x[n + 1 - i] = x[1][m + 1 - i]
+        _w[i] = _w[n + 1 - i] = x[2][m + 1 - i]
     end
-    _w .*= sqrt(T(π)) / sum(exp.(-_x .^ 2) .* _w)
+    isodd(n) && (_x[m] = zero(T))
+    # Normalize the scaled weights so Σ exp(-x_i²) * scaled_w_i = √π.
+    _w .*= sqrt(T(π)) / sum(i -> exp(-_x[i]^2) * _w[i], eachindex(_x))
 
+    validate_rule(_x, _w)
     return _x, _w
 end
 unweightedgausshermite(n::Integer) = unweightedgausshermite(Float64, n)
 
-function hermite_asy(n::Integer)
-    # Compute Hermite nodes and weights using asymptotic formula
-
-    x0 = hermite_initialguess(n)  # get initial guesses
-    t0 = x0 ./ sqrt(2n + 1)
-    θ = acos.(t0)  # convert to θ-variable
-    val = x0
-    for _ in 1:20
-        val = hermpoly_asy_airy(n, θ)
-        dθ = -val[1] ./ (sqrt(2) .* sqrt(2n + 1) .* val[2] .* sin.(θ))
-        θ .-= dθ  # Newton update
-        if norm(dθ, Inf) < sqrt(eps(Float64)) / 10
-            break
-        end
-    end
-    t0 = cos.(θ)
-    x = sqrt(2n + 1) * t0  #back to x-variable
-    w = x .* val[1] .+ sqrt(2) .* val[2]
-    w .= 1 ./ w .^ 2  # quadrature weights
-
-    return x, w
-end
-
+# At small order, a classical recurrence is cheaper than high-precision
+# Taylor propagation. GST supplies seeds, which are then refined at precision T.
 function hermite_rec(::Type{T}, n::Integer) where {T <: AbstractFloat}
-    # Compute Hermite nodes and weights using recurrence relation.
-
-    x0 = T.(hermite_initialguess(n))
-    x0 .*= sqrt(T(2))
-    val = x0
-    num_iters = T == Float64 ? 10 : ceil(Int, (log(max(20, precision(T)) / 50) + 1) * 10)
-    for _ in 1:num_iters
-        val = hermpoly_rec.(n, x0)
-        dx = first.(val) ./ last.(val)
-        dx[isnan.(dx)] .= 0
-        x0 .= x0 .- dx
-        if norm(dx, Inf) < sqrt(eps(T))
-            break
+    # Seeds never use wider arithmetic than T; Newton recovers higher precision.
+    W = precision(T) < precision(Float64) ? Float32 : Float64
+    nodes = T.(hermite_gst(W, n)[1])
+    weights = similar(nodes)
+    function polynomial_derivative(x)
+        previous, p = one(T), 2x
+        for k in 1:(n - 1)
+            previous, p = p, 2x * p - 2k * previous
         end
+        return p, 2n * previous
     end
-    x0 ./= sqrt(T(2))
-    w = 1 ./ last.(val) .^ 2  # quadrature weights
-
-    return x0, w
+    @inbounds for i in eachindex(nodes)
+        x = nodes[i]
+        for iteration in 1:max(10, precision(T))
+            p, derivative = polynomial_derivative(x)
+            step = p / derivative
+            x -= step
+            abs(step) ≤ eps(T) * max(one(T), abs(x)) && break
+            iteration == max(10, precision(T)) && error("Hermite recurrence did not converge")
+        end
+        _, derivative = polynomial_derivative(x)
+        nodes[i] = x
+        # The common normalization constant is supplied by the zeroth-moment
+        # calculation in the caller.
+        weights[i] = exp(x^2) / derivative^2
+    end
+    validate_rule(nodes, weights)
+    return nodes, weights
 end
 
 function hermpoly_rec(n::Integer, x0)
@@ -168,174 +177,86 @@ end
 
 hermpoly_rec(r::AbstractRange, x0) = hermpoly_rec(Base.OneTo(maximum(r)), x0)[r .+ 1]
 
-function hermpoly_asy_airy(n::Integer, θ::AbstractVector)
-    # HERMPOLY_ASY evaluation hermite poly using Airy asymptotic formula in θ-space.
-
-    musq = 2n + 1
-    cosT = cos.(θ)
-    sinT = sin.(θ)
-    sin2T = 2 .* cosT .* sinT
-    η = 0.5 .* θ .- 0.25 .* sin2T
-    χ = -(3 * η / 2) .^ (2 / 3)
-    φ = (-χ ./ sinT .^ 2) .^ (1 / 4)
-    C = 2 * sqrt(π) * musq^(1 / 6) * φ
-    Airy0 = real.(airyai.(musq .^ (2 / 3) .* χ))
-    Airy1 = real.(airyaiprime.(musq .^ (2 / 3) .* χ))
-
-    # Terms in (12.10.43):
-    a0 = 1
-    b0 = 1
-    a1 = 15 / 144
-    b1 = -7 / 5 * a1
-    a2 = 5 * 7 * 9 * 11 / 2 / 144^2
-    b2 = -13 / 11 * a2
-    a3 = 7 * 9 * 11 * 13 * 15 * 17 / 6 / 144^3
-    b3 = -19 / 17 * a3
-
-    # u polynomials in (12.10.9)
-    u0 = 1
-    u1 = (cosT .^ 3 - 6 * cosT) / 24
-    u2 = (-9 * cosT .^ 4 + 249 * cosT .^ 2 .+ 145) / 1152
-    u3 = (-4042 * cosT .^ 9 + 18189 * cosT .^ 7 - 28287 * cosT .^ 5 - 151995 * cosT .^ 3 - 259290 * cosT) / 414720
-
-    # first term
-    A0 = 1
-    val = A0 * Airy0
-
-    # second term
-    B0 = -(a0 * u1 .* φ .^ 6 .+ a1 * u0) ./ χ .^ 2
-    val .+= B0 .* Airy1 ./ musq .^ (4 / 3)
-
-    # third term
-    A1 = (b0 * u2 .* φ .^ 12 + b1 * u1 .* φ .^ 6 .+ b2 * u0) ./ χ .^ 3
-    val .+= A1 .* Airy0 / musq .^ 2
-
-    # fourth term
-    B1 = -(u3 .* φ .^ 18 + a1 * u2 .* φ .^ 12 + a2 * u1 .* φ .^ 6 .+ a3 * u0) ./ χ .^ 5
-    val .+= B1 .* Airy1 ./ musq .^ (4 / 3 + 2)
-
-    val .= C .* val
-
-    ## Derivative
-    η = 0.5 * θ - 0.25 * sin2T
-    χ = -(3 * η / 2) .^ (2 / 3)
-    φ = (-χ ./ sinT .^ 2) .^ (1 / 4)
-    C = sqrt(2 * π) * musq^(1 / 3) ./ φ
-
-    # v polynomials in (12.10.10)
-    v0 = 1
-    v1 = (cosT .^ 3 + 6cosT) / 24
-    v2 = (15 * cosT .^ 4 - 327 * cosT .^ 2 .- 143) / 1152
-    v3 = (259290 * cosT + 238425 * cosT .^ 3 - 36387 * cosT .^ 5 + 18189 * cosT .^ 7 - 4042 * cosT .^ 9) / 414720
-
-    # first term
-    C0 = -(b0 * φ .^ 6 .* v1 .+ b1 .* v0) ./ χ
-    dval = C0 .* Airy0 / musq .^ (2 / 3)
-
-    # second term
-    D0 = a0 * v0
-    dval = dval + D0 * Airy1
-
-    # third term
-    C1 = -(v3 .* φ .^ 18 + b1 * v2 .* φ .^ 12 + b2 * v1 .* φ .^ 6 .+ b3 * v0) ./ χ .^ 4
-    dval = dval + C1 .* Airy0 / musq .^ (2 / 3 + 2)
-
-    # fourth term
-    D1 = (a0 * v2 .* φ .^ 12 + a1 * v1 .* φ .^ 6 .+ a2 * v0) ./ χ .^ 3
-    dval = dval + D1 .* Airy1 / musq .^ 2
-
-    dval = C .* dval
-
-    return val, dval
-end
-
-function hermite_initialguess(n::Integer)
-    # HERMITEINTITIALGUESSES(N), Initial guesses for Hermite zeros.
-    #
-    # [1] L. Gatteschi, Asymptotics and bounds for the zeros of Laguerre
-    # polynomials: a survey, J. Comput. Appl. Math., 144 (2002), pp. 7-27.
-    #
-    # [2] F. G. Tricomi, Sugli zeri delle funzioni di cui si conosce una
-    # rappresentazione asintotica, Ann. Mat. Pura Appl. 26 (1947), pp. 283-300.
-
-    # Error if n < 20 because initial guesses are based on asymptotic expansions:
-    @assert n ≥ 20
-
-    # Gatteschi formula involving airy roots [1].
-    # These initial guess are good near x = sqrt(n+1/2);
+# Gil--Segura--Temme, Numer. Math. 143 (2019), §3, and
+# SIAM J. Sci. Comput. 48 (2026), §4: march outwards from exact central data
+# for y = exp(-x^2/2)H_n(x), y'' + (2n+1-x^2)y = 0. The arbitrary initial
+# normalization is removed by unweightedgausshermite's zeroth-moment scaling.
+function hermite_gst(::Type{T}, n::Integer, physical::Bool = false) where {T <: AbstractFloat}
+    λ = T(2) * n + 1
+    m = (n + 1) ÷ 2
+    nodes, weights = Vector{T}(undef, m), Vector{T}(undef, m)
+    x = zero(T)
+    y = iseven(n) ? one(T) : zero(T)
+    derivative = iseven(n) ? zero(T) : one(T)
     if isodd(n)
-        m = (n - 1) >> 1
-        # bess = (1:m)*π
-        a = 0.5
-    else
-        m = n >> 1
-        # bess = ((0:m-1) .+ 0.5)*π
-        a = -0.5
+        nodes[1], weights[1] = zero(T), one(T)
     end
-    ν = 4m + 2a + 2
-
-    T(t) = t^(2 / 3) * (1 + 5 / 48 * t^(-2) - 5 / 36 * t^(-4) + (77125 / 82944) * t^(-6) - 108056875 / 6967296 * t^(-8) + 162375596875 / 334430208 * t^(-10))
-    airyrts = -T.(3π / 8 * (4 * (1:m) .- 1))
-
-    airyrts[1:10] .= AIRY_ROOTS[1:10]  # correct first 10.
-
-    x_init = sqrt.(
-        abs.(
-            ν .+ (2^(2 / 3)) .* airyrts .* ν^(1 / 3) .+ (1 / 5 * 2^(4 / 3)) .* airyrts .^ 2 .* ν^(-1 / 3) .+
-                (11 / 35 - a^2 - 12 / 175) .* airyrts .^ 3 ./ ν .+ ((16 / 1575) .* airyrts .+ (92 / 7875) .* airyrts .^ 4) .* 2^(2 / 3) .* ν^(-5 / 3) .-
-                ((15152 / 3031875) .* airyrts .^ 5 .+ (1088 / 121275) .* airyrts .^ 2) .* 2^(1 / 3) .* ν^(-7 / 3)
-        )
-    )
-    x_init_airy = reverse(x_init)
-
-    # Tricomi initial guesses. Equation (2.1) in [1]. Originally in [2].
-    # These initial guesses are good near x = 0 . Note: zeros of besselj(+/-.5,x)
-    # are integer and half-integer multiples of π.
-    # x_init_bess =  bess/sqrt(ν).*sqrt((1+ (bess.^2+2*(a^2-1))/3/ν^2) );
-    Tnk0 = fill(π / 2, m)
-    rhs = ((4m + 3) .- 4 * (1:m)) / ν * π
-
-    for k in 1:7
-        val = Tnk0 .- sin.(Tnk0) .- rhs
-        dval = 1 .- cos.(Tnk0)
-        dTnk0 = val ./ dval
-        Tnk0 = Tnk0 .- dTnk0
+    # The leading relative error after a fourth-order step is -step^4/6.
+    @inbounds for i in (isodd(n) ? 2 : 1):m
+        frequency = sqrt(muladd(-x, x, λ))
+        step = iszero(derivative) ? T(π) / (2frequency) :
+            (T(π) - atan(frequency * y / derivative)) / frequency
+        next = x + step
+        # Use the actual difference of the rounded iterates. Carrying the
+        # residual y between roots prevents accumulated phase error (§3.1.1).
+        y, derivative = hermite_gst_taylor(λ, x, next - x, y, derivative)
+        x = next
+        for iteration in 1:max(10, precision(T))
+            frequency = sqrt(muladd(-x, x, λ))
+            step = -atan(frequency * y / derivative) / frequency
+            next = x + step
+            y, derivative = hermite_gst_taylor(λ, x, next - x, y, derivative)
+            x = next
+            abs(step) ≤ sqrt(sqrt(eps(T))) / 2 && break
+            iteration == max(10, precision(T)) && error("Hermite iteration did not converge")
+        end
+        nodes[i] = x
+        # y'' vanishes at every root, so this derivative-based scaled weight
+        # is stationary there and avoids exponential polynomial growth.
+        weight = inv(derivative)^2
+        if physical
+            # Transport exp(-x^2) from the rounded iterate to the root.
+            # y/y' is the remaining root displacement; no coordinate pair is kept.
+            weight *= muladd(2x, y / derivative, one(T))
+        end
+        weights[i] = weight
     end
-
-    tnk = cos.(Tnk0 / 2) .^ 2
-    x_init_sin = sqrt.(ν * tnk - ((tnk .+ 1 / 4) ./ (tnk .- 1) .^ 2 .+ (3a^2 - 1)) / 3ν)
-
-    # Patch together
-    p = 0.4985 + eps(Float64)
-    x_init = [
-        x_init_sin[1:convert(Int, floor(p * n))]
-        x_init_airy[convert(Int, ceil(p * n)):end]
-    ]
-
-    if isodd(n)
-        x_init = [0 ; x_init]
-        x_init = x_init[1:(m + 1)]
-    else
-        x_init = x_init[1:m]
-    end
-
-    return x_init
+    validate_rule(nodes, weights)
+    return nodes, weights
 end
 
-function hermite_gw(::Type{T}, n::Integer) where {T <: Real}
-    # Golub--Welsch algorithm. Used here for n ≤ 20.
-
-    beta = sqrt.(T.(1:(n - 1)) / 2)  # 3-term recurrence coeffs
-    J = SymTridiagonal(zeros(T, n), beta)  # Jacobi matrix
-    D, V = eigen(J)  # Eigenvalue decomposition
-    ind = sortperm(D)  # Hermite points
-    x = D[ind]  # nodes
-    w = sqrt(T(π)) * V[1, ind] .^ 2  # weights
-
-    # Enforce symmetry:
-    i = (floor(Int, n / 2) + 1):n
-    x = x[i]
-    w = w[i]
-    return x, exp.(x .^ 2) .* w
+function hermite_gst_taylor(λ, x, h, y::T, derivative, compensated = true) where {T <: AbstractFloat}
+    iszero(h) && return y, derivative
+    # t_k = y^(k)(x) h^k/k!. Differentiating the ODE gives
+    # (k+1)(k+2)t_{k+2} = (x^2-λ)h^2 t_k + 2xh^3 t_{k-1} + h^4 t_{k-2}.
+    h2 = h * h
+    # Cache the recurrence coefficients shared by every Taylor term.
+    a, b, c = muladd(x, x, -λ) * h2, 2x * h2 * h, h2 * h2
+    t0, t1 = y, derivative * h
+    tm1, tm2 = zero(T), zero(T)
+    value, scaled_derivative = y + t1, t1
+    value_error, derivative_error = zero(T), zero(T)
+    small_terms = 0
+    @inbounds for k in 0:max(100, 2precision(T))
+        t2 = muladd(a, t0, muladd(b, tm1, c * tm2)) / ((k + 1) * (k + 2))
+        if compensated
+            # Compensated sums reduce cancellation on a whole root-to-root step.
+            increment = t2 - value_error
+            updated = value + increment
+            value_error = (updated - value) - increment
+            value = updated
+            increment = (k + 2) * t2 - derivative_error
+            updated = scaled_derivative + increment
+            derivative_error = (updated - scaled_derivative) - increment
+            scaled_derivative = updated
+        else
+            value += t2
+            scaled_derivative += (k + 2) * t2
+        end
+        small_terms = abs(t2) * (k + 2) < eps(T) * max(abs(value), abs(scaled_derivative)) / 8 ? small_terms + 1 : 0
+        # Four successive terms cover all lags, including parity zeros at x=0.
+        small_terms ≥ 4 && return value, scaled_derivative / h
+        tm2, tm1, t0, t1 = tm1, t0, t1, t2
+    end
+    error("Hermite Taylor series did not converge")
 end
-hermite_gw(n::Integer) = hermite_gw(Float64, n)

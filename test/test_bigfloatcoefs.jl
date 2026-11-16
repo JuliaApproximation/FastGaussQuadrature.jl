@@ -1,4 +1,14 @@
-using LinearAlgebra, GenericLinearAlgebra
+using LinearAlgebra
+
+@testset "BigFloat Hermite references" begin
+    # One odd rule and the recurrence cutoff cover both parity paths.
+    @testset "$bits bits, n: $n" for bits in (128, 256), n in (5, 20)
+        setprecision(BigFloat, bits) do
+            x, w = @inferred gausshermite(BigFloat, n)
+            QuadratureReference.check(:hermite, n, big(0), big(0), x, w)
+        end
+    end
+end
 
 @testset "Gauss–Legendre" begin
     @testset "quad: $quad" for quad in (gausslegendre, gaussradau)
@@ -11,7 +21,7 @@ using LinearAlgebra, GenericLinearAlgebra
             @test ≈(w, wbig; atol = 1.0e-14)
             # tests bigfloat coefs by integrating against random polynomial
             poly_coefs = rand(BigFloat, 2n - 1)
-            poly_coefs = FastGaussQuadrature.jacobi_gw(2n - 1, big(0.0), big(0.0))[1]
+            poly_coefs = gausslegendre(BigFloat, 2n - 1)[1]
             test_fun(x) = evalpoly(x, poly_coefs)
             # analytic integral of f
             integral_testfun(x) = x * evalpoly(x, [p / i for (i, p) in enumerate(poly_coefs)])
@@ -21,7 +31,7 @@ using LinearAlgebra, GenericLinearAlgebra
 end
 
 @testset "Gauss–Hermite" begin
-    # n values cover: special cases (1), GW (≤20), rec (21–200), asy→rec for BigFloat (>200)
+    # BigFloat cases cover explicit n=1, recurrence through n=20, and GST.
     @testset "n: $n" for n in (1, 2, 10, 21, 100, 250)
         x, w = @inferred gausshermite(n)
         xbig, wbig = @inferred gausshermite(BigFloat, n)
@@ -34,7 +44,7 @@ end
 end
 
 @testset "Gauss–Laguerre" begin
-    # n values cover: special cases (1,2), GW (<15), rec (15–127), asy→rec for BigFloat (≥128)
+    # Compare explicit small rules and generic iteration at several orders.
     @testset "n: $n" for n in (1, 2, 3, 10, 20, 130)
         x, w = @inferred gausslaguerre(n)
         xbig, wbig = @inferred gausslaguerre(BigFloat, n)
@@ -67,7 +77,7 @@ end
         @test ≈(w, wbig; atol = 1.0e-14)
         # tests bigfloat coefs by integrating against a polynomial of degree 2n-3
         # (exact for Lobatto with n points, which integrates degree 2n-3 exactly)
-        poly_coefs = FastGaussQuadrature.jacobi_gw(2n - 3, big(0.0), big(0.0))[1]
+        poly_coefs = gausslegendre(BigFloat, 2n - 3)[1]
         test_fun(x) = evalpoly(x, poly_coefs)
         integral_testfun(x) = x * evalpoly(x, [p / i for (i, p) in enumerate(poly_coefs)])
         @test ≈(dot(wbig, test_fun.(xbig)), integral_testfun(1) - integral_testfun(-1); atol = 1.0e-70)
