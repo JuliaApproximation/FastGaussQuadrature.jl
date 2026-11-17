@@ -5,8 +5,9 @@
     {
       "path": "validation/removed-tests.md",
       "original_sha256": "d3219028d2d58799a6fe3ee5f6f08e548829d560ec206e7266f9fccd5ef441d4",
-      "published_sha256": "75415a86c96d0118b8c54a55457e536a15a6860c84186755af88f51884fb92b3",
-      "change": "Line endings or trailing whitespace only; CSV fields unchanged."
+      "published_sha256": "60cb613d9d03c11e28b0c9fcdfc6fa15465216cec0fcd794b41e4fd2d03fe9f7",
+      "change": "Line endings, trailing whitespace and Markdown prose soft breaks only; rendered content unchanged.",
+      "published_sha256_before_reflow": "75415a86c96d0118b8c54a55457e536a15a6860c84186755af88f51884fb92b3"
     },
     {
       "path": "validation/results/accuracy-environment.txt",
@@ -110,5 +111,67 @@
       "published_sha256": "5eb809670d0fcbe0ac43fe57f6b1dd3d94b820c7d33ef86c55ba7d8ab9e0b958",
       "change": "Line endings or trailing whitespace only; CSV fields unchanged."
     }
-  ]
+  ],
+  "markdown_reflow": {
+    "recorded_utc": "2026-11-17T09:19:44.065529+00:00",
+    "note": "Manual prose line breaks removed; fenced content and normalized Markdown rendering are unchanged. Historical source artifacts remain unchanged.",
+    "files": [
+      {
+        "path": "validation/README.md",
+        "old_lines": 89,
+        "new_lines": 50,
+        "old_sha256": "d1a91907ec3fc60fb8c4c28f8d0b09cbab8fd584a1660bab269f5990f935f640",
+        "new_sha256": "b2e503efba4df09d91fabca5a460d48f43d82292237ffdd777e831c6cedba1f7"
+      },
+      {
+        "path": "validation/regimes/README.md",
+        "old_lines": 79,
+        "new_lines": 34,
+        "old_sha256": "55752c77526711ecd5eb30c7fd90450e807a6c9f38bf1be018289dac271960da",
+        "new_sha256": "11fea068503a5399376837609890fe56c6d52d9960f894b18f3aa4f59c55adfc"
+      },
+      {
+        "path": "validation/regimes/budget-rationale.md",
+        "old_lines": 75,
+        "new_lines": 17,
+        "old_sha256": "97562d65e21015467c3e93c53813438b3a385db621fcfbf8991446fa22a50c59",
+        "new_sha256": "35f8fd0d6635bb97dbcc8027156f0680429a22b4643eebfea0e5a49af7d98412"
+      },
+      {
+        "path": "validation/regimes/hermite-gst.md",
+        "old_lines": 81,
+        "new_lines": 34,
+        "old_sha256": "2c7c510c1a3ec144d666c49664ff3c45e2f82cc158c264fbd0674a21134518b4",
+        "new_sha256": "72039a9f2eb88f62a5c53428ceb256ea0e111304dcb78abb10f4ed51457e84a6"
+      },
+      {
+        "path": "validation/regimes/jacobi-asy-rationale.md",
+        "old_lines": 129,
+        "new_lines": 40,
+        "old_sha256": "45418a4d5781b90f639bf4172c4e714e1e1518b551ddf02a7c45c4727156468f",
+        "new_sha256": "74d3f3d0845a6f654a18b16723eb4b878461a2710154170469b08105d8c1099c"
+      },
+      {
+        "path": "validation/regimes/laguerre-asy-rationale.md",
+        "old_lines": 53,
+        "new_lines": 13,
+        "old_sha256": "1c6cef2891d17e78347a235f5cf35728219795daf443e3286a9acae798f5adbb",
+        "new_sha256": "bc29fcdeea2ded820000ef5beb5a41c3f6dcf42d706c250063b96880e68ddc40"
+      },
+      {
+        "path": "validation/regimes/laguerre-gst.md",
+        "old_lines": 139,
+        "new_lines": 87,
+        "old_sha256": "e2e86ab9c70c4ec21547b7194adb517f04513825637d84ceee48711d03e21631",
+        "new_sha256": "e529d1301dc78590b8ce9b91f7bf7739bee8315099037efcc67b1eb0f80b0660"
+      },
+      {
+        "path": "validation/removed-tests.md",
+        "old_lines": 34,
+        "new_lines": 16,
+        "old_sha256": "75415a86c96d0118b8c54a55457e536a15a6860c84186755af88f51884fb92b3",
+        "new_sha256": "60cb613d9d03c11e28b0c9fcdfc6fa15465216cec0fcd794b41e4fd2d03fe9f7"
+      }
+    ]
+  }
 }

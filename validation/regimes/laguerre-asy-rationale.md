@@ -1,53 +1,13 @@
 # Finite Laguerre asymptotic criterion
 
-This is a finite engineering criterion for the public Float64 alpha=0 expansion
-and the alpha=+/-1/2 first2/12-node replacements. It is not a theorem for every
-explicit manual helper input or an arbitrary-precision expansion. The published
-coefficients are Opsomer and Huybrechs, *High-order asymptotic expansions of
-Gaussian quadrature rules*, [arXiv:2208.11423](https://arxiv.org/abs/2208.11423).
-The reference coefficient asset copies the existing package's MIT formulas;
-no outside implementation has been incorporated.
+This is a finite engineering criterion for the public Float64 alpha=0 expansion and the alpha=+/-1/2 first2/12-node replacements. It is not a theorem for every explicit manual helper input or an arbitrary-precision expansion. The published coefficients are Opsomer and Huybrechs, *High-order asymptotic expansions of Gaussian quadrature rules*, [arXiv:2208.11423](https://arxiv.org/abs/2208.11423). The reference coefficient asset copies the existing package's MIT formulas; no outside implementation has been incorporated.
 
-The expansion parameter is d=1/(4n+2alpha+2). Bessel corrections have even powers
-of d; bulk node/weight corrections have odd/even powers respectively. Their
-explicit polynomials supply a scale unavailable from a universal C*n*eps rule.
-The production routine stops before terms grow or at its last stored term.
-For that selected depth, reserve eight times the first omitted available term,
-or eight times the last retained term when no further coefficient is stored.
-This deliberately conservative asymptotic error indicator is supported by a
-separate challenge grid. It is not a convergent-series remainder proof: the
-paper explicitly distinguishes asymptotic expansions from convergent series.
+The expansion parameter is d=1/(4n+2alpha+2). Bessel corrections have even powers of d; bulk node/weight corrections have odd/even powers respectively. Their explicit polynomials supply a scale unavailable from a universal C*n*eps rule. The production routine stops before terms grow or at its last stored term. For that selected depth, reserve eight times the first omitted available term, or eight times the last retained term when no further coefficient is stored. This deliberately conservative asymptotic error indicator is supported by a separate challenge grid. It is not a convergent-series remainder proof: the paper explicitly distinguishes asymptotic expansions from convergent series.
 
-The native chart, depth and bounded-recompute decisions are recorded metadata.
-The budget evaluates coefficient formulas at independently refined Bessel/Airy
-zeros and a monotone high-precision solution of the bulk phase equation.
-No quadrature output error or reference residual is used to set an allowance.
-The stored initial Bessel/Airy constant's independent error is propagated
-separately. The allowance therefore accounts for the actual coefficient and
-constant capability rather than promising accuracy above its Float64 ceiling.
+The native chart, depth and bounded-recompute decisions are recorded metadata. The budget evaluates coefficient formulas at independently refined Bessel/Airy zeros and a monotone high-precision solution of the bulk phase equation. No quadrature output error or reference residual is used to set an allowance. The stored initial Bessel/Airy constant's independent error is propagated separately. The allowance therefore accounts for the actual coefficient and constant capability rather than promising accuracy above its Float64 ceiling.
 
-Node rounding reserves 8e*x plus32e times the absolute retained correction
-magnitudes (including the Bessel leading scale). The direct or complementary
-bulk phase solves have absolute t error of order e*t: even when eta-sin(eta)
-cancels, its derivative cancels the eta factor when forming t. Weight rounding
-reserves 8e*(1+x+|alpha log(x)|), with8e/(1-t) for the bulk square-root factor,
-and32e times the correction magnitudes. These operational polynomial-evaluation
-reserves assume the finite checked charts, not a uniform condition bound for
-every polynomial argument. The explicit tail indicator handles their loss of
-asymptotic usefulness. The prefactor x^alpha*exp(-x) adds
-|alpha/x-1| times the absolute node allowance. Thus large-x normal weights have
-an explicit exponential sensitivity, rather than a fixed relative-ulp promise.
+Node rounding reserves 8e*x plus32e times the absolute retained correction magnitudes (including the Bessel leading scale). The direct or complementary bulk phase solves have absolute t error of order e*t: even when eta-sin(eta) cancels, its derivative cancels the eta factor when forming t. Weight rounding reserves 8e*(1+x+|alpha log(x)|), with8e/(1-t) for the bulk square-root factor, and32e times the correction magnitudes. These operational polynomial-evaluation reserves assume the finite checked charts, not a uniform condition bound for every polynomial argument. The explicit tail indicator handles their loss of asymptotic usefulness. The prefactor x^alpha*exp(-x) adds |alpha/x-1| times the absolute node allowance. Thus large-x normal weights have an explicit exponential sensitivity, rather than a fixed relative-ulp promise.
 
-The Airy helper supplies only a leading weight. Its omitted relative correction
-is represented by8*d^(2/3)*(1+|a_k|²), not claimed to be native relative accuracy.
-In the public alpha=0 path, normal Airy weights at bounded orders can be
-recomputed by the recurrence; the audit records the actual decision. Large
-Airy-region weights below the output range use absolute/subnormal checks, while
-their nodes still satisfy the expansion criterion. Any normal weight with an
-inconclusive relative allowance remains a failure of this audit, not a pass.
+The Airy helper supplies only a leading weight. Its omitted relative correction is represented by8*d^(2/3)*(1+|a_k|²), not claimed to be native relative accuracy. In the public alpha=0 path, normal Airy weights at bounded orders can be recomputed by the recurrence; the audit records the actual decision. Large Airy-region weights below the output range use absolute/subnormal checks, while their nodes still satisfy the expansion criterion. Any normal weight with an inconclusive relative allowance remains a failure of this audit, not a pass.
 
-The bounded recurrence recomputation uses the already frozen REC model without
-altering its coefficients. Half-parameter replacements have exact pi-multiple
-Bessel zeros, eliminating generic Bessel root approximation error. Other GST
-nodes keep their previous frozen model. No new iteration, routing or stored
-coefficient change is introduced by this evidence model.
+The bounded recurrence recomputation uses the already frozen REC model without altering its coefficients. Half-parameter replacements have exact pi-multiple Bessel zeros, eliminating generic Bessel root approximation error. Other GST nodes keep their previous frozen model. No new iteration, routing or stored coefficient change is introduced by this evidence model.
