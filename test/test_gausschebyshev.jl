@@ -5,6 +5,7 @@
         @test_throws DomainError gausschebyshevu(-1)
         @test_throws DomainError gausschebyshevv(-1)
         @test_throws DomainError gausschebyshevw(-1)
+        @test_throws DomainError gausschebyshev(-1)
     end
 
     n = 10

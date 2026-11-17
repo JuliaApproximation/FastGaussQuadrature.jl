@@ -66,6 +66,7 @@
         # Independent 384-bit Jacobi recurrence/Newton references with shifted
         # parameters, followed by w_Radau = w_Jacobi/(1+x).
         @testset "n: $n, α: $a, β: $b" for (n, a, b, node, weight) in (
+                (9, 0.1, 0.2, -0.9012718224204942, 0.10328170379512788),
                 (21, 10.0, 20.0, -0.7281206083106859, 1.154626687715557e-10),
                 (100, 1000.0, 1000.0, -0.3943472906912523, 7.223159788983759e-76),
                 (1000, 10.0, 20.0, -0.9996593387282864, 5.940833881112758e-71),

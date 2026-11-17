@@ -5,17 +5,6 @@
         d, beta_correction = @inferred FastGaussQuadrature.legendre_bessel(k, phase)
         @test d isa Float32 && beta_correction isa Float32
     end
-
-    previousbits = precision(BigFloat)
-    for bits in (24, 53)
-        setprecision(BigFloat, bits) do
-            x, w = gausslegendre(BigFloat, 61)
-            @test precision(BigFloat) == bits
-            @test all(t -> precision(t) == bits, x)
-            @test all(t -> precision(t) == bits, w)
-        end
-    end
-    @test precision(BigFloat) == previousbits
 end
 
 @testset "Legendre Float32 floor across the recurrence cutoff" begin

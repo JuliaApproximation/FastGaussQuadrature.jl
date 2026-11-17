@@ -187,8 +187,9 @@ Random.seed!(0)
 
     @testset "Derivative at the accepted node" begin
         # Independent 256-bit classical Laguerre recurrence/Newton reference.
-        _, w = gausslaguerre(15)
+        x, w = FastGaussQuadrature.gausslaguerre_rec(15, 0.0)
         @test isapprox(w[end], 1.6005949062111332e-20; rtol = 5.0e-14)
+        @test FastGaussQuadrature.gausslaguerre_rec(15, 0.0; reduced = true) == (x, w)
         # The inverse derivative squared can overflow before division by x,
         # even though the weight itself is representable.
         xlarge, wlarge = gausslaguerre(2, 170.0)
@@ -216,10 +217,13 @@ Random.seed!(0)
             @test isapprox(dot(w / gamma(α + 1), x), α + 1; rtol = 2.0e-13)
         end
         # A mass check alone misses the old skipped-root failure at α=50.
-        x, _ = gausslaguerre(128, 50.0)
-        xref = setprecision(BigFloat, 256) do
+        x, w = gausslaguerre(128, 50.0)
+        @test all(>(0), diff(x))
+        @test all(isfinite, x) && all(isfinite, w)
+        xref, wref = setprecision(BigFloat, 256) do
             a = BigFloat(50)
-            refs = [QuadratureReference.nodeweight(:laguerre, 128, a, 0, seed; bits = 128)[1] for seed in x]
+            references = [QuadratureReference.nodeweight(:laguerre, 128, a, 0, seed; bits = 128) for seed in x]
+            refs = first.(references)
             finer = [QuadratureReference.nodeweight(:laguerre, 128, a, 0, seed; bits = 192)[1] for seed in x]
             @test all(isapprox.(refs, finer; rtol = BigFloat(2)^(-192), atol = 0))
             # Independent recurrence/Sturm counts detect skipped or duplicated
@@ -230,22 +234,85 @@ Random.seed!(0)
                     QuadratureReference.roots_below(:laguerre, 128, a, 0, refs[i] + radius) == i
             end
             @test indexed
-            refs
+            refs, last.(references)
         end
         @test isapprox(x, xref; rtol = 2.0e-13)
+        for k in (1, 2, 64, 128)
+            xr, wr = xref[k], wref[k]
+            @test isapprox(x[k], xr; rtol = 8.0e-14)
+            if wr ≥ floatmin(Float64)
+                @test isapprox(w[k], wr; rtol = 1.0e-12)
+                @test w[k] > 0
+            end
+        end
         # Full rules retain finite nodes after weights have reached the cutoff.
         x, w = gausslaguerre(1000, 10.0)
-        @test all(isfinite, x) && issorted(x)
-        @test all(≥(0), w) && iszero(w[end])
+        @test all(isfinite, x) && all(>(0), diff(x))
+        @test all(isfinite, w) && all(≥(0), w) && iszero(w[end])
+        for k in (1, 2, 500, 1000)
+            xr, wr = QuadratureReference.nodeweight(:laguerre, 1000, 10.0, 0, x[k]; bits = 128)
+            @test isapprox(x[k], xr; rtol = 8.0e-14)
+            if wr ≥ floatmin(Float64)
+                @test isapprox(w[k], wr; rtol = 1.0e-12)
+                @test w[k] > 0
+            end
+        end
     end
 
-    @testset "Complementary bulk phase" begin
+    @testset "Asymptotic complementary bulk phase" begin
         for (n, a, k) in ((10000, 0.0, 100), (10000, 0.5, 100), (1000, 0.2, 100))
             x, w, _ = FastGaussQuadrature.gausslaguerre_asy_bulk(n, a, k, inv(4n + 2a + 2), -1)
             xr, wr = QuadratureReference.nodeweight(:laguerre, n, a, 0, x; bits = 128)
             @test isapprox(x, xr; rtol = 4.0e-15)
             @test isapprox(w, wr; rtol = 2.0e-14)
         end
+    end
+
+    @testset "Manual asymptotic rules and reduced tails" begin
+        # Explicit/adaptive/default depths, both half-parameters and alpha near
+        # -1. At n=190/200 the normal Airy tail needs recomputation;
+        # the unrecomputed large-order case has an underflowed Airy tail.
+        for (n, a, options) in (
+                (128, 0.0, (; T = 3, recompute = true)),
+                (128, -0.99, (; T = -1, recompute = true)),
+                (190, -0.5, (; recompute = true)),
+                (200, 0.5, (; T = -1, recompute = true)),
+                (1000, 0.2, (;)),
+            )
+            x, w = FastGaussQuadrature.gausslaguerre_asy(n, a; options...)
+            xr, wr = FastGaussQuadrature.gausslaguerre_asy(n, a; options..., reduced = true)
+            @test length(x) == length(w) == n
+            @test all(>(0), diff(x)) && all(t -> 0 < t <= 4n + 2a + 2, x)
+            @test all(isfinite, w) && all(>=(0), w)
+            cutoff = findfirst(<(10floatmin(Float64)), w)
+            retained = isnothing(cutoff) ? n : cutoff - 1
+            @test xr == x[1:retained] && wr == w[1:retained]
+
+            # Independent references check Bessel, bulk and Airy nodes, plus
+            # both sides of an omitted tail. These selected-point regressions
+            # use the frozen bounded-REC 48eps node allowance and the existing
+            # 1e-12 normal-weight threshold. Recompute is conditional: these
+            # checks do not certify every node or the whole manual ASY domain.
+            for i in unique((1, n ÷ 2, n, retained, min(retained + 1, n)))
+                node, weight = QuadratureReference.nodeweight(:laguerre, n, a, 0, x[i]; bits = 128)
+                setprecision(BigFloat, 256) do
+                    delta = BigFloat(2)^(-128) * max(one(node), abs(node))
+                    @test QuadratureReference.roots_below(:laguerre, n, BigFloat(a), BigFloat(0), node - delta) == i - 1
+                    @test QuadratureReference.roots_below(:laguerre, n, BigFloat(a), BigFloat(0), node + delta) == i
+                end
+                @test isapprox(x[i], node; rtol = 48eps(Float64))
+                if weight >= floatmin(Float64)
+                    @test isapprox(w[i], weight; rtol = 1.0e-12)
+                else
+                    @test abs(BigFloat(w[i]) - weight) <= 2BigFloat(nextfloat(0.0))
+                end
+                i == retained && (@test weight >= 10floatmin(Float64))
+                i == retained + 1 && (@test weight < 10floatmin(Float64))
+            end
+        end
+    end
+
+    @testset "GST bulk nodes and weights" begin
         for n in (128, 251)
             x, w = gausslaguerre(n, 0.0)
             for k in (n ÷ 2 + 1, 9n ÷ 10)
@@ -261,7 +328,7 @@ Random.seed!(0)
         # the transformed-ODE iteration and its scaled derivative weights.
         @testset "n: $n, α: $a" for (n, a) in (
                 (32, -0.5), (32, -0.03741494404284086), (127, 0.5),
-                (15, 5.0), (128, 50.0), (251, 100.0), (1000, 10.0),
+                (15, 5.0), (251, 100.0),
             )
             x, w = gausslaguerre(n, a)
             @test all(>(0), diff(x))

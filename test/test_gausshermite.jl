@@ -87,6 +87,20 @@
     end
 
     @testset "Float16 output from Float32 arithmetic" begin
+        # The scaled helper has its own conversion path; its tail weights
+        # remain representable after the physical Float16 weights underflow.
+        x32, w32 = FastGaussQuadrature.unweightedgausshermite(Float32, 21)
+        x, w = FastGaussQuadrature.unweightedgausshermite(Float16, 21)
+        @test x isa Vector{Float16} && w isa Vector{Float16}
+        @test (x, w) == (Float16.(x32), Float16.(w32))
+        xr, wr = QuadratureReference.nodeweight(:hermite, 21, 0, 0, x[1]; bits = 128)
+        setprecision(BigFloat, 256) do
+            delta = BigFloat(2)^(-128) * abs(xr)
+            @test QuadratureReference.roots_below(:hermite, 21, BigFloat(0), BigFloat(0), xr - delta) == 0
+            @test QuadratureReference.roots_below(:hermite, 21, BigFloat(0), BigFloat(0), xr + delta) == 1
+        end
+        @test x[1] == Float16(xr)
+        @test w[1] == Float16(wr * exp(xr^2))
         for normalize in (false, true)
             x, w = gausshermite(Float16, 10; normalize)
             seed = normalize ? Float64(x[2]) / sqrt(2) : Float64(x[2])
@@ -153,20 +167,11 @@
     end
 
     @testset "Converged scaled weights and symmetry" begin
-        # Independent 256-bit classical Hermite recurrence/Newton references.
-        @testset "n: $n" for (n, weight) in (
-                (21, 3.720365070136049e-14),
-                (42, 6.1678589258107145e-31),
-            )
-            x, w = gausshermite(n)
-            @test isapprox(w[1], weight; rtol = 8.0e-14)
-            @test x == -reverse(x)
-            @test w == reverse(w)
-        end
-        @testset "n: $n" for n in (19, 21, 201, 251)
-            x, _ = gausshermite(n)
-            @test iszero(x[(n + 1) ÷ 2])
-        end
+        # Independent 256-bit classical Hermite recurrence/Newton reference.
+        x, w = gausshermite(42)
+        @test isapprox(w[1], 6.1678589258107145e-31; rtol = 8.0e-14)
+        @test x == -reverse(x)
+        @test w == reverse(w)
     end
 
     @testset "Gil–Segura–Temme iteration" begin

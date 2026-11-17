@@ -3,6 +3,11 @@
         @test_throws DomainError gaussjacobi(-1, 0.1, 0.1)
         @test_throws DomainError gaussjacobi(-1, -1.1, 0.1)
         @test_throws DomainError gaussjacobi(-1, 0.1, -1.1)
+        @test_throws DomainError gaussjacobi(2, -1.0, 0.0)
+        @test_throws DomainError gaussjacobi(2, 0.0, -1.0)
+        # Finite parameters can exceed the working coefficient or weight range.
+        @test_throws ErrorException gaussjacobi(2, floatmax(Float32), 0.0f0)
+        @test_throws ErrorException gaussjacobi(2, 200.0f0, 0.0f0)
     end
 
     @testset "native endpoint coordinates" begin
@@ -275,11 +280,10 @@
     end
 
     @testset "symmetric recurrence, iterative and asymptotic rules" begin
-        # Both parities and orders around the asymptotic boundary.
+        # One odd/even pair for each recurrence, GST and asymptotic route.
         @testset "n: $n, α: $a" for (n, a) in (
-                (20, 0.1), (21, 0.1), (99, 4.9),
-                (100, 4.9), (101, 0.1), (102, 0.1),
-                (24, 0.1), (25, 0.1), (767, 0.1),
+                (20, 0.1), (21, 0.1),
+                (99, 4.9), (100, 4.9),
                 (768, 0.1), (769, 0.1),
             )
             x, w = gaussjacobi(n, a, a)
@@ -340,6 +344,8 @@
                 QuadratureReference.check(:jacobi, n, a, b, x, w)
             end
         end
+        # The explicit asymptotic adapter promotes rational/integer parameters.
+        @test FastGaussQuadrature.jacobi_asy(768, 1 // 4, 0) == gaussjacobi(768, 0.25, 0.0)
     end
 
     @testset "symmetric mass without premature overflow" begin
@@ -355,11 +361,25 @@
         @test sum(w) ≈ beta(big"0.5", big"1001") rtol = 3.0e-15
     end
 
+    @testset "Generic high-precision Jacobi mass" begin
+        setprecision(BigFloat, 128) do
+            a, b = BigFloat(63), BigFloat(127)
+            mass = FastGaussQuadrature.jacobi_gst_mass_generic(a, b)
+            reference = setprecision(BigFloat, 256) do
+                aa, bb = BigFloat(a), BigFloat(b)
+                2^(aa + bb + 1) * beta(aa + 1, bb + 1)
+            end
+            # Exponentiating a rounded logarithm amplifies error by its size.
+            @test isapprox(mass, reference; rtol = 8eps(BigFloat) * (1 + abs(log(reference))))
+        end
+    end
+
     @testset "small asymmetric rules with large parameters" begin
         # Nearly equal large parameters expose cancellation in the old weight
         # normalization. Check every root against classical polynomials.
         @testset "T: $T, n: $n, α: $a, β: $b" for T in (Float32, Float64), (n, α, β) in (
                     (2, 1.0e6, 1.0e6 + 1), (3, 5.0, -0.99), (19, 5.0, 0.2),
+                    (3, 50.0, 0.0),
                 ), (a, b) in ((T(α), T(β)), (T(β), T(α)))
             x, w = @inferred gaussjacobi(n, a, b)
             @test length(x) == length(w) == n
@@ -458,6 +478,20 @@
         xr, wr = gaussjacobi(100, 20.0, 1000.0)
         @test xr == -reverse(x)
         @test wr ≈ reverse(w) rtol = 3.0e-14
+
+        # The starting recurrence exceeds 1e100 and must rescale its state.
+        x, w = gaussjacobi(512, 1000.0, 20.0)
+        for i in (1, 256, 512)
+            xr, wr = QuadratureReference.nodeweight(:jacobi, 512, 1000.0, 20.0, x[i]; bits = 256)
+            setprecision(BigFloat, 256) do
+                delta = BigFloat(2)^(-128) * max(one(xr), abs(xr))
+                @test QuadratureReference.roots_below(:jacobi, 512, BigFloat(1000), BigFloat(20), xr - delta) == i - 1
+                @test QuadratureReference.roots_below(:jacobi, 512, BigFloat(1000), BigFloat(20), xr + delta) == i
+            end
+            @test isapprox(x[i], xr; atol = 4eps(Float64), rtol = 0)
+            allowance = QuadratureReference.native_jacobi_weight_budget(512, 1000.0, 20.0, wr)
+            @test isapprox(w[i], wr; atol = 0, rtol = allowance)
+        end
     end
 
     @testset "endpoint distances below node resolution" begin
