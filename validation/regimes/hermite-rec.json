@@ -1,0 +1,21 @@
+{
+  "name": "small_hermite_recurrence_v1",
+  "status": "proposal_before_calibration_and_challenge",
+  "orders": [2, 20],
+  "minimum_working_bits": 24,
+  "source_before_sha256": "26b05fa7d510a332467d26f7087e26b6e0d65a6f3edf7e24a1849b0b7c57a5f3",
+  "node_scale": "X_i = 4*max(1,abs(x_i)); exact odd center requires zero",
+  "physical_local": "L_i = 4*n + 8 + 4*abs(x_i)*X_i",
+  "scaled_local": "Ls_i = 4*n + 8 + 2*abs(x_i)*X_i + x_i^2",
+  "mean": "Lbar = sum((w_i/sqrt(pi))*L_i), with physical reference weights",
+  "sum_rounding": "gamma = (n-1)*(eps/2)/(1-(n-1)*(eps/2))",
+  "physical_weight_relative": "eps*(L_i+Lbar+8)+gamma",
+  "scaled_weight_relative": "eps*(Ls_i+Lbar+8)+gamma",
+  "normalized_node_absolute": "sqrt(2)*(eps*X_i+(2*u+u^2)*(abs(x_i)+eps*X_i)), u=eps/2; central zero exact",
+  "normalized_weight_relative": "physical_weight_relative+2*eps",
+  "weight_conclusive_limit": "1/8",
+  "normalization": "physicists Hermite exp(-x^2); optional standard normal x*=sqrt(2), w/=sqrt(pi)",
+  "retained_tests": "All existing tests and tighter 8*n*eps small-rule checks remain unchanged",
+  "scope": "Finite engineering model for n2:20; no n>20 GST certification; Float32 floor and final conversion assessed separately",
+  "calibration_policy": "Coefficients proposed without inspecting candidate error magnitudes; freeze before reserved challenge"
+}

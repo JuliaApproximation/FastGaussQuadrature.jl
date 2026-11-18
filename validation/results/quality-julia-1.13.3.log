@@ -1,0 +1,389 @@
+Recorded UTC: 2026-11-16T17:07:11.666
+Julia Version 1.13.3
+Commit 67ac47b9cd8 (2026-10-25 15:28 UTC)
+Build Info:
+  Official https://julialang.org release
+Platform Info:
+  OS: macOS (arm64-apple-darwin27.0.0)
+  CPU: 32 × Apple M3 Ultra
+  WORD_SIZE: 64
+  LLVM: libLLVM-20.1.8 (ORCJIT, apple-m3)
+  GC: Built with stock GC
+Threads: 32 default, 1 interactive, 32 GC (on 32 virtual cores)
+Environment:
+  JULIA_LOAD_PATH = @:@julia-agent-tools:@v#.#:@stdlib
+Active project: <test-snapshot-julia-1.13.3>/Project.toml
+LOAD_PATH: ["@", "<validation-environment>", "@stdlib"]
+Julia threads: 32; BLAS threads: 24
+FastGaussQuadrature 1.3.0 <test-snapshot-julia-1.13.3>/src/FastGaussQuadrature.jl
+Quadmath 1.1.0 <home>/.julia/packages/Quadmath/Xeb47/src/Quadmath.jl
+Aqua 0.8.18 <home>/.julia/packages/Aqua/yUvBM/src/Aqua.jl
+CodeComplexity 0.2.0 <home>/.julia/packages/CodeComplexity/JGFE3/src/CodeComplexity.jl
+ExplicitImports 1.15.0 <home>/.julia/packages/ExplicitImports/sATsO/src/ExplicitImports.jl
+JET 0.13.1 <home>/.julia/packages/JET/3S6te/src/JET.jl
+Runic 1.13.0 <home>/.julia/packages/Runic/l3o4P/src/Runic.jl
+
+=== format ===
+FORMAT MATCH <test-snapshot-julia-1.13.3>/src/gausslaguerre.jl SHA256=6c255422c16d6b6cd690e2cdcb6c61e02e614e64da6aaab8946f174a9d73a427
+FORMAT MATCH <test-snapshot-julia-1.13.3>/test/test_gausslaguerre.jl SHA256=e99f8bb1fb4daf81d6aceaf0a518c9c81f62e4563ffa8c9dd00eda15d7616938
+FORMAT MATCH <test-snapshot-julia-1.13.3>/src/gaussradau.jl SHA256=75807a1a6c0295466fda5c66d9dd0d45b1bd24fe4e4316f3dcfbaa962d1783a6
+FORMAT MATCH <test-snapshot-julia-1.13.3>/test/test_gaussradau.jl SHA256=4f8d48bb36d2bf031dd82728e8cbc2105cb1daa2f12b0156a34cd926f72214f1
+FORMAT MATCH <test-snapshot-julia-1.13.3>/test/test_genericquadrature.jl SHA256=337f0b2fc02051934d15863f472de2d92dc76cb40368e2e853a4d4d30efce486
+FORMAT MATCH <test-snapshot-julia-1.13.3>/test/test_bigfloatcoefs.jl SHA256=0b725d71403087dc9976cbe305650036bb38f1e98455f3f40d937d902f9a47f7
+FORMAT MATCH <test-snapshot-julia-1.13.3>/validation/quality.jl SHA256=0ea982bbc35f8f43ca90c548f917614dca81678d7de9d1f5c3f17abcc6ec9297
+PASS format
+
+=== imports ===
+  Module FastGaussQuadrature is not relying on any implicit imports.
+PASS imports
+
+=== jet ===
+
+JET: chebyshev32
+No errors detected
+
+
+JET: legendre_rec32
+No errors detected
+
+
+JET: legendre_asy32
+No errors detected
+
+
+JET: legendre_gst128
+No errors detected
+
+
+JET: hermite_rec32
+No errors detected
+
+
+JET: hermite_gst32
+No errors detected
+
+
+JET: hermite_gst64
+No errors detected
+
+
+JET: hermite_gst128
+No errors detected
+
+
+JET: laguerre_small32
+No errors detected
+
+
+JET: laguerre_rec64
+No errors detected
+
+
+JET: laguerre_gst64
+No errors detected
+
+
+JET: laguerre_gst128
+No errors detected
+
+
+JET: laguerre_asy64
+No errors detected
+
+
+JET: jacobi_gst32
+No errors detected
+
+
+JET: jacobi_gst64
+No errors detected
+
+
+JET: jacobi_asy64
+No errors detected
+
+
+JET: radau_gst32
+No errors detected
+
+
+JET: radau_gst64
+No errors detected
+
+
+JET: radau_edge64
+No errors detected
+
+
+JET: radau_asy64
+No errors detected
+
+
+JET: lobatto_gst64
+No errors detected
+
+
+JET: lobatto_asy64
+No errors detected
+
+
+JET: bessel_roots64
+No errors detected
+
+PASS jet
+
+=== complexity ===
+CognitiveComplexity FastGaussQuadrature.jl: 7
+  validate_rule line 33 score 7
+CognitiveComplexity besselroots.jl: 18
+  approx_besselroots line 25 score 1
+  approx_besselroots line 30 score 14
+  McMahon line 71 score 1
+  McMahon line 76 score 0
+  _piessens_chebyshev30 line 119 score 0
+  piessens line 159 score 0
+  besselZeroRoots line 167 score 2
+CognitiveComplexity constants.jl: 0
+CognitiveComplexity gausschebyshev.jl: 35
+  gausschebyshevt line 22 score 7
+  gausschebyshevt line 57 score 1
+  gausschebyshevu line 80 score 7
+  gausschebyshevu line 121 score 1
+  gausschebyshevv line 144 score 8
+  gausschebyshevv line 182 score 1
+  gausschebyshevw line 205 score 3
+  gausschebyshevw line 224 score 1
+  gausschebyshev line 226 score 6
+CognitiveComplexity gausshermite.jl: 66
+  gausshermite line 28 score 5
+  gausshermite line 43 score 1
+  unweightedgausshermite line 45 score 0
+  _hermite_rule line 47 score 9
+  unweightedgausshermite line 87 score 1
+  hermite_rec line 91 score 9
+  hermpoly_rec line 122 score 6
+  hermpoly_rec line 148 score 7
+  hermpoly_rec line 178 score 1
+  hermite_gst line 184 score 18
+  hermite_gst_taylor line 228 score 9
+CognitiveComplexity gaussjacobi.jl: 230
+  gaussjacobi line 29 score 25
+  jacobi_rec line 67 score 1
+  jacobi_asy line 68 score 1
+  jacobi_rec line 70 score 7
+  HalfRec line 103 score 12
+  innerjacobi_rec! line 143 score 3
+  weightsConstant line 170 score 2
+  jacobi_asy line 182 score 2
+  jacobi_weight_divisor line 208 score 0
+  jacobi_weight_divisor line 209 score 0
+  jacobi_weight_divisor line 210 score 2
+  asy1 line 214 score 16
+  feval_asy1 line 280 score 7
+  asy2 line 389 score 3
+  feval_asy2 line 426 score 1
+  asy2_higherterms line 489 score 0
+  jacobimoment line 582 score 1
+  bary line 593 score 4
+  bessel_taylor line 617 score 4
+  nck_mat line 649 score 3
+  jacobi_gst_regime line 669 score 5
+  jacobi_gst_start line 675 score 14
+  jacobi_gst_geometry line 715 score 4
+  jacobi_gst_omega line 722 score 3
+  jacobi_gst_taylor line 737 score 8
+  jacobi_gst_propagate line 781 score 6
+  jacobi_gst_sweep! line 802 score 40
+  jacobi_gst_divisor line 865 score 0
+  jacobi_gst_divisor line 866 score 2
+  jacobi_gst_divisor line 867 score 0
+  jacobi_gst line 869 score 18
+  jacobi_gst_weights line 929 score 7
+  jacobi_gst_endpoint line 951 score 6
+  jacobi_gst_hypergeometric line 977 score 2
+  jacobi_gst_stirling line 990 score 1
+  jacobi_gst_mass_generic line 1006 score 7
+  jacobi_mass line 1042 score 3
+  jacobi_gst_mass line 1046 score 7
+  jacobi_gst_mass line 1056 score 3
+CognitiveComplexity gausslaguerre.jl: 331
+  gausslaguerre line 1 score 1
+  gausslaguerre line 25 score 1
+  gausslaguerre line 67 score 0
+  gausslaguerre line 68 score 0
+  gausslaguerre_rule line 72 score 25
+  gausslaguerre_asy line 158 score 105
+  gl_bulk line 343 score 0
+  gl_bulk line 372 score 0
+  gl_bessel line 391 score 0
+  gl_bessel line 414 score 0
+  gl_airy line 435 score 0
+  sum_explicit line 449 score 3
+  sum_adaptive line 461 score 2
+  gl_bulk_solve_t line 471 score 20
+  gausslaguerre_asy_bulk line 494 score 5
+  gausslaguerre_asy0_bulk line 515 score 4
+  gausslaguerre_asy_bessel line 533 score 9
+  gausslaguerre_asy0_bessel line 567 score 4
+  compute_airy_root line 583 score 2
+  gausslaguerre_asy_airy line 593 score 2
+  gl_rec_newton line 605 score 7
+  gausslaguerre_rec line 660 score 20
+  evalLaguerreRec line 704 score 1
+  laguerre_gst_start line 730 score 14
+  laguerre_gst_count line 774 score 2
+  <anonymous> line 788 score 0
+  laguerre_gst_taylor line 790 score 13
+  laguerre_gst_advance line 833 score 5
+  laguerre_gst_root line 848 score 27
+  gausslaguerre_gst line 876 score 48
+  laguerre_endpoint line 984 score 11
+CognitiveComplexity gausslegendre.jl: 64
+  gausslegendre line 27 score 12
+  gausslegendre line 82 score 1
+  asy line 84 score 22
+  legendre_bessel line 166 score 1
+  legendre_sincm1 line 178 score 2
+  legpts_nodes line 192 score 2
+  rec line 223 score 19
+  innerRec! line 292 score 3
+  leg_initial_guess line 314 score 2
+CognitiveComplexity gausslobatto.jl: 19
+  gausslobatto line 31 score 18
+  gausslobatto line 63 score 1
+CognitiveComplexity gaussradau.jl: 65
+  gaussradau line 32 score 21
+  gaussradau line 63 score 1
+  gaussradau line 92 score 11
+  gaussradau_jacobi line 111 score 19
+  radau_endpoint_weight line 155 score 8
+  radau_endpoint_weight line 174 score 5
+All production source CognitiveComplexity: 835
+CyclomaticComplexity FastGaussQuadrature.jl: 9
+  validate_rule line 33 score 9
+CyclomaticComplexity besselroots.jl: 18
+  approx_besselroots line 25 score 1
+  approx_besselroots line 30 score 10
+  McMahon line 71 score 1
+  McMahon line 76 score 1
+  _piessens_chebyshev30 line 119 score 1
+  piessens line 159 score 1
+  besselZeroRoots line 167 score 3
+CyclomaticComplexity constants.jl: 0
+CyclomaticComplexity gausschebyshev.jl: 33
+  gausschebyshevt line 22 score 7
+  gausschebyshevt line 57 score 1
+  gausschebyshevu line 80 score 7
+  gausschebyshevu line 121 score 1
+  gausschebyshevv line 144 score 6
+  gausschebyshevv line 182 score 1
+  gausschebyshevw line 205 score 3
+  gausschebyshevw line 224 score 1
+  gausschebyshev line 226 score 6
+CyclomaticComplexity gausshermite.jl: 52
+  gausshermite line 28 score 3
+  gausshermite line 43 score 1
+  unweightedgausshermite line 45 score 1
+  _hermite_rule line 47 score 8
+  unweightedgausshermite line 87 score 1
+  hermite_rec line 91 score 7
+  hermpoly_rec line 122 score 6
+  hermpoly_rec line 148 score 7
+  hermpoly_rec line 178 score 1
+  hermite_gst line 184 score 11
+  hermite_gst_taylor line 228 score 6
+CyclomaticComplexity gaussjacobi.jl: 200
+  gaussjacobi line 29 score 23
+  jacobi_rec line 67 score 1
+  jacobi_asy line 68 score 1
+  jacobi_rec line 70 score 5
+  HalfRec line 103 score 10
+  innerjacobi_rec! line 143 score 3
+  weightsConstant line 170 score 3
+  jacobi_asy line 182 score 3
+  jacobi_weight_divisor line 208 score 1
+  jacobi_weight_divisor line 209 score 1
+  jacobi_weight_divisor line 210 score 2
+  asy1 line 214 score 12
+  feval_asy1 line 280 score 7
+  asy2 line 389 score 3
+  feval_asy2 line 426 score 2
+  asy2_higherterms line 489 score 1
+  jacobimoment line 582 score 2
+  bary line 593 score 4
+  bessel_taylor line 617 score 4
+  nck_mat line 649 score 3
+  jacobi_gst_regime line 669 score 9
+  jacobi_gst_start line 675 score 8
+  jacobi_gst_geometry line 715 score 3
+  jacobi_gst_omega line 722 score 3
+  jacobi_gst_taylor line 737 score 7
+  jacobi_gst_propagate line 781 score 7
+  jacobi_gst_sweep! line 802 score 20
+  jacobi_gst_divisor line 865 score 1
+  jacobi_gst_divisor line 866 score 2
+  jacobi_gst_divisor line 867 score 1
+  jacobi_gst line 869 score 11
+  jacobi_gst_weights line 929 score 6
+  jacobi_gst_endpoint line 951 score 5
+  jacobi_gst_hypergeometric line 977 score 4
+  jacobi_gst_stirling line 990 score 2
+  jacobi_gst_mass_generic line 1006 score 6
+  jacobi_mass line 1042 score 3
+  jacobi_gst_mass line 1046 score 7
+  jacobi_gst_mass line 1056 score 4
+CyclomaticComplexity gausslaguerre.jl: 219
+  gausslaguerre line 1 score 1
+  gausslaguerre line 25 score 1
+  gausslaguerre line 67 score 1
+  gausslaguerre line 68 score 1
+  gausslaguerre_rule line 72 score 18
+  gausslaguerre_asy line 158 score 47
+  gl_bulk line 343 score 1
+  gl_bulk line 372 score 1
+  gl_bessel line 391 score 1
+  gl_bessel line 414 score 1
+  gl_airy line 435 score 1
+  sum_explicit line 449 score 3
+  sum_adaptive line 461 score 3
+  gl_bulk_solve_t line 471 score 10
+  gausslaguerre_asy_bulk line 494 score 4
+  gausslaguerre_asy0_bulk line 515 score 3
+  gausslaguerre_asy_bessel line 533 score 7
+  gausslaguerre_asy0_bessel line 567 score 3
+  compute_airy_root line 583 score 2
+  gausslaguerre_asy_airy line 593 score 2
+  gl_rec_newton line 605 score 8
+  gausslaguerre_rec line 660 score 11
+  evalLaguerreRec line 704 score 2
+  laguerre_gst_start line 730 score 10
+  laguerre_gst_count line 774 score 3
+  <anonymous> line 788 score 1
+  laguerre_gst_taylor line 790 score 10
+  laguerre_gst_advance line 833 score 6
+  laguerre_gst_root line 848 score 15
+  gausslaguerre_gst line 876 score 30
+  laguerre_endpoint line 984 score 12
+CyclomaticComplexity gausslegendre.jl: 49
+  gausslegendre line 27 score 11
+  gausslegendre line 82 score 1
+  asy line 84 score 13
+  legendre_bessel line 166 score 2
+  legendre_sincm1 line 178 score 3
+  legpts_nodes line 192 score 3
+  rec line 223 score 11
+  innerRec! line 292 score 3
+  leg_initial_guess line 314 score 2
+CyclomaticComplexity gausslobatto.jl: 11
+  gausslobatto line 31 score 10
+  gausslobatto line 63 score 1
+CyclomaticComplexity gaussradau.jl: 55
+  gaussradau line 32 score 12
+  gaussradau line 63 score 1
+  gaussradau line 92 score 8
+  gaussradau_jacobi line 111 score 19
+  radau_endpoint_weight line 155 score 9
+  radau_endpoint_weight line 174 score 6
+All production source CyclomaticComplexity: 646
+PASS complexity
+Completed UTC: 2026-11-16T17:07:19.427

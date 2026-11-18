@@ -1,0 +1,68 @@
+{
+  "version": "laguerre-native-gst-engineering-v1",
+  "status": "Frozen before broad candidate/reference measurements; reviewed by parent and independent mathematical reviewer",
+  "scope": "Finite measured native GST routes including changed small Float64 n3:14; unchanged REC/ASY/explicit and hybrid Bessel outputs remain preservation controls.",
+  "derivation_file": "budget-v1.md",
+  "coefficients": {
+    "operation_reserve": 8,
+    "coordinate_internal_factor": 16,
+    "amplitude_inverse_square_factor": 16,
+    "final_node_rounding": 1,
+    "endpoint_node_rounding": 4,
+    "conclusive_relative_limit": "1/8"
+  },
+  "definitions": {
+    "e": "2^(1-p)",
+    "delta": "alpha+1 from exact represented alpha",
+    "nu": "4n+2alpha+2",
+    "mu": "Gamma(delta)",
+    "pivot": "Exact mathematical GST startup x-coordinate, independently evaluated",
+    "M": "8*(2+abs(loggamma(s))+s*abs(log(s)))",
+    "C": "16*x+16*n*sqrt(x/nu)",
+    "Bx": "C+x",
+    "K": "abs((alpha+1/2)/x-1)",
+    "G": "abs(alpha+1/2)*abs(log(x/pivot))+abs(x-pivot)",
+    "L": "16*(n+1)+K*C+8*(1+G+abs(log(w/mu)))"
+  },
+  "ordinary": {
+    "selector": "delta>1/8",
+    "lower": "delta/n",
+    "upper": "2*n+alpha-1+2*sqrt((n-1)*(n-1+alpha))",
+    "Kglobal": "16*(abs(alpha+1/2)+upper)+16*n/sqrt(nu)*(abs(alpha+1/2)/sqrt(lower)+sqrt(upper))",
+    "Gglobal": "abs(alpha+1/2)*max(abs(log(lower/pivot)),abs(log(upper/pivot)))+max(abs(lower-pivot),abs(upper-pivot))",
+    "Mean": "16*(n+1)+Kglobal+8*(1+Gglobal+log(n))",
+    "sum": "(n-1)*e/(2*(1-(n-1)*e/2))",
+    "tau": "reduced ? min(1,n*10floatmin(T)/mu) : 0",
+    "node_absolute": "e*Bx",
+    "weight_relative": "e*(M(delta)+L+Mean+16)+sum+tau/(1-tau)"
+  },
+  "endpoint": {
+    "selector": "delta<=1/8",
+    "t": "n*x1/delta",
+    "F": "1F1(-n;delta;delta*t/n)",
+    "AF": "sum(abs(F_series_terms))",
+    "AD": "sum(k*abs(F_series_terms)/t)",
+    "EF": "8*(n+1)*AF",
+    "ED": "8*(n+1)*AD",
+    "Ct": "EF/abs(Fprime)+8*abs(t)",
+    "logp": "sum(log1p(delta/k),k=1:n-1)",
+    "LP_Float64": "8*(1+abs(logbeta(n,delta))+abs(log(delta))+abs(logp))",
+    "LP_other": "8*(n+abs(logp))",
+    "node1_absolute": "e*(delta*Ct/n+4*x1)",
+    "weight1_relative": "e*(M(delta)+LP+2*ED/abs(Fprime)+Ct*abs(1/t+2*Fsecond/Fprime)+8)",
+    "P": "1F1(1-n;delta+1;x2)",
+    "chi2": "sum(abs(P_series_terms))/abs(P)",
+    "Anchor": "M(delta+1)+LP+16*(n+1)*chi2+abs(1/x2+2*Pprime/P)*(C(x2)+x2)+8",
+    "other_node_absolute": "e*Bx",
+    "other_weight_relative": "e*(Anchor+L(xi,wi)+L(x2,w2)+8)"
+  },
+  "subnormal": "abs(w_reference)*relative_allowance+one local target spacing; absolute and local-spacing diagnostics separately",
+  "requirements": [
+    "Finite reference values; increasing-reference-precision stability and root indexing",
+    "Finite relative allowance below1/8; nonpositive sum denominator or tau>=1 is inconclusive",
+    "Normal loss or incorrect full/reduced semantics is failure independently of budget",
+    "Use original represented alpha; below24bit cases assess Float32 calculation and conversion separately",
+    "BeforeGW context is not nativeGST certification; preserve all errors and exceptions",
+    "No retrospective coefficient fit; phase envelope is finite engineering assumption, not proof of arbitrary-order stability"
+  ]
+}

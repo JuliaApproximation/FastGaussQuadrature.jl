@@ -1,0 +1,20 @@
+{
+  "name": "hermite_gst_finite_v1",
+  "minimum_order": 21,
+  "minimum_precision": 24,
+  "coordinate_reserve": 8,
+  "amplitude_squared_reserve": 16,
+  "local_rounding_reserve": 8,
+  "mass_rounding_reserve": 4,
+  "stationary_reserve": 2,
+  "normalization_limit": "1/8",
+  "phase_limit": "1/8",
+  "weight_relative_limit": "1/8",
+  "node": "e*(8*abs(x)+8*k/sqrt(2*n+1-x*x))",
+  "outward_steps": "ceil(abs(i-(n+1)/2))",
+  "normalization": "positive probability mean bounded by Gaussian moments and Sturm root-spacing comparison; exact formula in budget.jl",
+  "subnormal_absolute": "reference_weight*relative_allowance+2*minimum_subnormal_spacing",
+  "normalized": "finite sqrt2 node transfer; +2eps weight transfer",
+  "scope": "frozen finite grid; operation coefficients engineering assumptions; not global forward error theorem",
+  "inputs": "n,bits,largest absolute independently indexed root; point index i and physical root x; output view"
+}

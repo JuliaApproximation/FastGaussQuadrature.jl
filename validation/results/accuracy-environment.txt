@@ -1,0 +1,36 @@
+Started UTC: 2026-11-16T16:11:56.844
+Julia: 1.13.3
+Project: <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/Project.toml
+Driver SHA256: b67f61e5bbc1692fb57af30d893e146be5bdad1411d68563f37a3bf24e1952b4
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/FastGaussQuadrature.jl SHA256 02976d53cccd31c7bf9e395a20a33604f9942269fc613f910af4f0ee35b3999e
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/besselroots.jl SHA256 14b188e254287091ffc44b4beb7f8f0355841c518e44d8d1c32d4a0243ee5df9
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/constants.jl SHA256 60ce202a8fdcce0780ae791299f6d3ffd63679f9c75a00a46bf4d5500b0e2a6b
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/gausschebyshev.jl SHA256 0104ee9c32e552957759de998ee39b813f3d71932b57e054f19a897cfd9fbcc6
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/gausshermite.jl SHA256 5d2837ff50da75e64758179bbc9c20ab3b3909dcf9bfa3787de5878b51c87e22
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/gaussjacobi.jl SHA256 08c2fd164c94c06f3b55e785f56cdf1bf0e8c087b3374c283e9184ed58ca30e3
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/gausslaguerre.jl SHA256 c9215cade20a430451ab803c5be6d6a958a33e8f206aa05cb5335b977f5dddc2
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/gausslegendre.jl SHA256 3fbcedce7d23f42d42b07d8578fdea2f092e24a478b12b28dc3968f5ada97644
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/gausslobatto.jl SHA256 956966d719d92290b950a0d6ab03eca3726926714e3fefb4d75de1128e25e81e
+master source <checkout>/dev/agents-evidence/2026-11-12/161955-audit/baseline/src/gaussradau.jl SHA256 fe0ec55e5df86270cff4e3cf7de20b318aec66b8746b23f3472fd42d062f9af1
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/FastGaussQuadrature.jl SHA256 bbfcc96cc7d93c7aeb214865f5a6892acca93f75eb07cbe193061ba8a6f9a183
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/besselroots.jl SHA256 25ccfae2f1b7141abc2bc0ace71edbf024d90e780fcc93a6346cc109e80985e2
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/constants.jl SHA256 53453c9f987c664d0f850b501fbe9af0119182d1d58b6aaba8c3f13ae74777c4
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/gausschebyshev.jl SHA256 8b5003db1f2eb8965a1cbc54465c648bdc058e6fd38ed560420956346a211708
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/gausshermite.jl SHA256 7e782c488bd7ba2d909909d3b12cf913a8a7d3214a97b08ab3296ca4e8035abc
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/gaussjacobi.jl SHA256 75a6a4e62a6b08754bd80e3d52ee6d2290ba49ec16afbc108dfba3a7f8b94126
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/gausslaguerre.jl SHA256 a776931ea8c88ff269469a6a68f495dd9b179bd7321c71603c963deaabdc85c8
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/gausslegendre.jl SHA256 c255bde9d04f9a3a3bdcd18654675213c04702846c877d9d9901d33c22e775d0
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/gausslobatto.jl SHA256 5587885a7a3ad8d733522c3d9b6307497210e8f2e739607158f66055d18fbdef
+candidate source <checkout>/dev/agents-evidence/2026-11-16/155206-completion/candidate-assessed/src/gaussradau.jl SHA256 9d51bc2aa0389a9ba027fd7bac533a2f16115f631cef554385dfa18a27e35f38
+formats: [("Float32", 24), ("Float64", 53), ("Float128", 113), ("BigFloat128", 128), ("BigFloat256", 256)]
+include_diagnostics: true
+include_generic: true
+max_reference_order: 100000
+selected_case_ids: nothing
+Quadmath availability error:
+Reference precision: output bits +128, repeated at +192
+All-node threshold: n<=128 at <=53 bits; n<=40 otherwise
+Remaining indices: endpoints, center, fixed fractions, weight-class transitions
+ULP convention: adjacent target-format spacing toward actual value from rounded reference
+Rule status ok means structural/reference checks; accuracy acceptance requires justified native-precision regime budgets
+Completed UTC: 2026-11-16T16:15:41.691

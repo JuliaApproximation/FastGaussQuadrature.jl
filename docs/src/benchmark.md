@@ -1,11 +1,10 @@
 # Benchmark
 
-Here we compute `100000` nodes and weights of the Gauss rules.
-Try a million or ten million.
+The following examples use BenchmarkTools to measure `Float64` rules with `100000` nodes. Timings and allocations are generated when this documentation is built; they depend on Julia, dependencies, hardware, order, and parameters. Run the examples locally to measure your workload.
 
 ```@repl
-using LinearAlgebra, BenchmarkTools, FastGaussQuadrature
-@btime gausschebyshev(100000);
+using BenchmarkTools, FastGaussQuadrature
+@btime gausschebyshevt(100000);
 @btime gausslegendre(100000);
 @btime gaussjacobi(100000, 0.9, -0.1);
 @btime gaussradau(100000);
@@ -14,12 +13,12 @@ using LinearAlgebra, BenchmarkTools, FastGaussQuadrature
 @btime gausshermite(100000);
 ```
 
-The paper [[1]](http://epubs.siam.org/doi/abs/10.1137/140954969) computed a billion Gauss-Legendre nodes.
-So here we will do a billion + 1.
+Reduced Laguerre rules omit the tail below a weight cutoff in supported `Float64` regimes; see [Gauss-Laguerre quadrature](@ref). They return fewer nodes and weights, so compare both output size and accuracy when measuring performance. The algorithm and its cost also depend on the Laguerre parameter.
 
-```julia
-julia> @btime gausslegendre(1000000001);
-  23.363 s (10 allocations: 22.35 GiB)
+```@repl
+using BenchmarkTools, FastGaussQuadrature
+@btime gausslaguerre(10000, 0.5);
+@btime gausslaguerre(10000, 0.5; reduced=true);
 ```
 
-(The nodes near the endpoints coalesce in 16-digits of precision.)
+At fixed precision and bounded per-node iteration, the default large-order algorithms use linear work and storage. Two full `Float64` output vectors alone require approximately `16n` bytes, in addition to any working storage. Very large rules can also lose distinct endpoint nodes when rounded to the requested type.

@@ -1,0 +1,55 @@
+id,implementation,type,bits,status,returned_length,normal,subnormal,zero,message
+legendre_61_0.0_0.0_false_false,master,Float128,113,structurally_valid,61,61,0,0,Accuracy is assessed separately
+legendre_61_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,61,61,0,0,Accuracy is assessed separately
+legendre_257_0.0_0.0_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+legendre_257_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+hermite_20_0.0_0.0_false_false,master,Float128,113,exception,0,0,0,0,"MethodError: no method matching eigen!(::SymTridiagonal{Float128, Vector{Float128}})
+The function `eigen!` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  eigen!(::AbstractMatrix, !Matched::Cholesky; sortby)
+   @ LinearAlgebra ~/.julia/juliaup/julia-1.13.3+0.aarch64.apple.darwin14/share/julia/stdlib/v1.13/LinearAlgebra/src/symmetriceigen.jl:269
+  eigen!(!Matched::Hermitian{T, S}, !Matched::Hermitian{T, S}; sortby) where {T<:Union{ComplexF64, ComplexF32}, S<:(StridedMatrix{T} where T)}
+   @ LinearAlgebra ~/.julia/juliaup/julia-1.13.3+0.aarch64.apple.darwin14/share/julia/stdlib/v1.13/LinearAlgebra/src/symmetriceigen.jl:257
+  eigen!(!Matched::SymTridiagonal{<:Union{Float32, Float64}, <:StridedVector{T} where T})
+   @ LinearAlgebra ~/.julia/juliaup/julia-1.13.3+0.aarch64.apple.darwin14/share/julia/stdlib/v1.13/LinearAlgebra/src/tridiag.jl:284
+  ...
+"
+hermite_20_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,20,20,0,0,Accuracy is assessed separately
+hermite_257_0.0_0.0_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+hermite_257_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+hermite_257_0.0_0.0_false_true,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+hermite_257_0.0_0.0_false_true,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+jacobi_25_0.25_0.0_false_false,master,Float128,113,structurally_valid,25,25,0,0,Accuracy is assessed separately
+jacobi_25_0.25_0.0_false_false,candidate,Float128,113,structurally_valid,25,25,0,0,Accuracy is assessed separately
+jacobi_257_0.25_0.125_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+jacobi_257_0.25_0.125_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+laguerre_128_0.2_0.0_false_false,master,Float128,113,structurally_valid,128,128,0,0,Accuracy is assessed separately
+laguerre_128_0.2_0.0_false_false,candidate,Float128,113,structurally_valid,128,128,0,0,Accuracy is assessed separately
+laguerre_257_0.2_0.0_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+laguerre_257_0.2_0.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+radau_257_0.0_0.0_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+radau_257_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+radau_jacobi_257_10.0_20.0_false_false,master,Float128,113,exception,0,0,0,0,"MethodError: no method matching eigen!(::SymTridiagonal{Float128, Vector{Float128}})
+The function `eigen!` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  eigen!(::AbstractMatrix, !Matched::Cholesky; sortby)
+   @ LinearAlgebra ~/.julia/juliaup/julia-1.13.3+0.aarch64.apple.darwin14/share/julia/stdlib/v1.13/LinearAlgebra/src/symmetriceigen.jl:269
+  eigen!(!Matched::Hermitian{T, S}, !Matched::Hermitian{T, S}; sortby) where {T<:Union{ComplexF64, ComplexF32}, S<:(StridedMatrix{T} where T)}
+   @ LinearAlgebra ~/.julia/juliaup/julia-1.13.3+0.aarch64.apple.darwin14/share/julia/stdlib/v1.13/LinearAlgebra/src/symmetriceigen.jl:257
+  eigen!(!Matched::SymTridiagonal{<:Union{Float32, Float64}, <:StridedVector{T} where T})
+   @ LinearAlgebra ~/.julia/juliaup/julia-1.13.3+0.aarch64.apple.darwin14/share/julia/stdlib/v1.13/LinearAlgebra/src/tridiag.jl:284
+  ...
+"
+radau_jacobi_257_10.0_20.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+lobatto_257_0.0_0.0_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+lobatto_257_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+chebyshevt_257_0.0_0.0_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+chebyshevt_257_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+chebyshevu_257_0.0_0.0_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+chebyshevu_257_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+chebyshevv_257_0.0_0.0_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+chebyshevv_257_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+chebyshevw_257_0.0_0.0_false_false,master,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately
+chebyshevw_257_0.0_0.0_false_false,candidate,Float128,113,structurally_valid,257,257,0,0,Accuracy is assessed separately

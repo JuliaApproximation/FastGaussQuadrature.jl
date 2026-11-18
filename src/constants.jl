@@ -80,33 +80,6 @@ const PIESSENS_C = @SMatrix [
 
 
 @doc raw"""
-Values of Bessel function ``J_1`` on first ten roots of Bessel function `J_0`.
-
-# Examples
-```jldoctest
-julia> roots = approx_besselroots(0,10);
-
-julia> (besselj1.(roots)).^2 ≈ FastGaussQuadrature.BESSELJ1_ON_BESSELJ0_ROOTS
-true
-```
-"""
-const BESSELJ1_ON_BESSELJ0_ROOTS = @SVector [
-    # runic: off
-    0.2695141239419169,
-    0.1157801385822037,
-    0.07368635113640822,
-    0.05403757319811628,
-    0.04266142901724309,
-    0.03524210349099610,
-    0.03002107010305467,
-    0.02614739149530809,
-    0.02315912182469139,
-    0.02078382912226786,
-    # runic: on
-]
-
-
-@doc raw"""
 The first 11 roots of the Airy function in Float64 precision
 https://mathworld.wolfram.com/AiryFunctionZeros.html
 

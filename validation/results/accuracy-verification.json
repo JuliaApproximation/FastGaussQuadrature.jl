@@ -1,0 +1,54 @@
+{
+  "status": "pass",
+  "reduced_boundary_points": 8,
+  "reduced_boundary_sha256": "0cc663357385b88e100e1894026b62c7ca83f301c3d2235acc2eefe84d67b3c5",
+  "expected_candidate_rules": 186,
+  "rules_by_format": {
+    "Float32": 30,
+    "Float64": 66,
+    "Float128": 30,
+    "BigFloat128": 30,
+    "BigFloat256": 30
+  },
+  "rule_statuses": {
+    "pass": 185,
+    "proved_representation_limit": 1
+  },
+  "point_statuses": {
+    "pass": 4815
+  },
+  "weight_classes": {
+    "normal": 4621,
+    "subnormal": 39,
+    "true_underflow": 155
+  },
+  "retained_lobatto_extra_checks": 28,
+  "maximum_fraction": "0.5031551593190220944407782463876429126524266100258872716575798562859051277085243625065341910955238399074841738852732169930683690886357312156320387963890458191650926425730609262360755437288520163515798590999176921525273817",
+  "maximum_fraction_key": [
+    [
+      "candidate",
+      "Float64",
+      "laguerre_10000_near_minus_one_full"
+    ],
+    10000,
+    "Laguerre_GST"
+  ],
+  "representation_limits": [
+    {
+      "format": "Float32",
+      "case_id": "laguerre_39_44p8_full",
+      "status": "proved_representation_limit",
+      "log_mass_per_node": "124.6972627816644946459035146368566125207021994672845787812020931775481760510643614559",
+      "log_floatmax": "88.722839052068353053658176560314042733720411894324623983779833205757137876775346296196"
+    }
+  ],
+  "scope": "Independent exact matrix/CSV pairing, saved error/allowance arithmetic/status and mass-limit review; full reference/model checks retained in regime-specific reports. Reduced-prefix omission boundary is separate evidence.",
+  "sha256": {
+    "release_allfamily_rules.csv": "5ad7192c22273201e194fbc9d8b6a8b92008d184f46a04bd681d3dd40cdfbbf8",
+    "release_allfamily_samples.csv": "eefdddf65223b2d47562fd931332908ca0097b02055684e5c987b0d10abf388d",
+    "release_budget_final_points_rules.csv": "bdcd96dc4ea0e549ea3eb2c94a8494e14bc044fe75098a0b586b46bde636f972",
+    "release_budget_final_points.csv": "4019df26eaef40f67cbaf58faa08e670c7a1ab7c98c453a525cef8d1bdebe76f"
+  },
+  "assessor_sha256": "407b7b0982d31686321f72a3a43e54943958719053afb76fc0d9e6d433339735",
+  "verifier_sha256": "ea836ed331d99aff60124fafcf0e9e79290e1463025576201449fa2c1ec50ccf"
+}
