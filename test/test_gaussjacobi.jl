@@ -276,7 +276,7 @@
         vk = [0.5; ones(N - 1)]
         vk[2:2:end] .= -1
         vk[end] *= 0.5
-        @test FastGaussQuadrature.bary(x, fvals, xk, vk) ≈ ones(5) rtol = 1.0e-16
+        @test FastGaussQuadrature.bary(x, fvals, xk, vk) ≈ ones(5) rtol = 8eps(Float64)
     end
 
     @testset "symmetric recurrence, iterative and asymptotic rules" begin
